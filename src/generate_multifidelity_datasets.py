@@ -13,7 +13,7 @@ from tqdm import tqdm # Pour la barre de progression
 # --- Configuration des chemins et Ratios ---
 # Ces chemins sont relatifs au serveur Colab une fois le Drive monté
 BASE_DIR_DRIVE = Path("/content/drive/MyDrive/UTBM_PF22/datasets/Animals-10")
-SOURCE_DIR = BASE_DIR_DRIVE / "raw_data" # Dossier contenant les 10 dossiers originaux
+SOURCE_DIR = BASE_DIR_DRIVE / "raw_data" / "raw-img" # Dossier contenant les 10 dossiers originaux
 
 # Nouveau dossier où nous allons ranger les données prêtes
 OUTPUT_DIR = BASE_DIR_DRIVE / "processed_multifidelity"
