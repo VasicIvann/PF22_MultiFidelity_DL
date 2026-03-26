@@ -1,0 +1,557 @@
+\documentclass[11pt,a4paper,openany]{book}
+
+% ============================================================
+%  PAQUETS
+% ============================================================
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+
+% --- Typographie & mise en page ---
+\usepackage{geometry}
+\geometry{a4paper, top=2.5cm, bottom=2.5cm, left=2cm, right=2cm, headheight=17.3pt}
+
+\usepackage{microtype}          % Justification micro-typographique
+
+% --- Police principale : Helvetica/Arial (universellement disponible) ---
+\usepackage{lmodern}
+\usepackage{helvet}
+\renewcommand{\familydefault}{\sfdefault}  % Sans-serif par défaut
+
+% --- Couleurs ---
+\usepackage[table,dvipsnames]{xcolor}
+\definecolor{primary}{gray}{0}           % Noir
+\definecolor{accent}{gray}{0}            % Noir
+\definecolor{lightgray}{gray}{0.96}      % Gris très clair
+\definecolor{midgray}{gray}{0.75}        % Gris moyen
+\definecolor{darktext}{gray}{0.1}        % Gris foncé
+\definecolor{hfcolor}{gray}{0.3}         % Gris HF
+\definecolor{bfcolor}{gray}{0.45}        % Gris BF
+
+% --- En-têtes et pieds de page ---
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}       % On gère le filet manuellement
+
+% En-tête : filet coloré + titre du chapitre (à gauche) + numéro de page (à droite)
+\fancyhead[L]{%
+  \color{primary}\small\scshape\leftmark%
+}
+\fancyhead[R]{%
+  \color{accent}\small\textbf{\thepage}%
+}
+% Ligne de séparation sous l'en-tête
+\renewcommand{\headrule}{%
+  {\color{accent}\hrule width\headwidth height 1.5pt}%
+  \vspace{1pt}%
+  {\color{midgray}\hrule width\headwidth height 0.4pt}%
+}
+\renewcommand{\headrulewidth}{1.5pt}
+
+% Pas de pied de page
+\fancyfoot{}
+
+% Style de la page de garde (pas d'en-tête)
+\fancypagestyle{plain}{%
+  \fancyhf{}%
+  \fancyfoot{}%
+  \renewcommand{\headrulewidth}{0pt}%
+}
+
+% --- Chapitres et sections ---
+\usepackage{titlesec}
+
+% Format du titre de chapitre
+\titleformat{\chapter}[display]
+  {\color{primary}\bfseries\LARGE}
+  {\color{accent}\normalfont\large\MakeUppercase{\chaptertitlename}\ \thechapter}
+  {0.5em}
+  {}
+
+\titlespacing*{\chapter}{0pt}{-10pt}{30pt}
+
+% Format des sections
+\titleformat{\section}
+  {\color{primary}\bfseries\large}
+  {\color{accent}\thesection}
+  {0.8em}
+  {}
+\titlespacing*{\section}{0pt}{0.9em}{0.5em}
+
+\titleformat{\subsection}
+  {\color{darktext}\bfseries\normalsize}
+  {\color{accent}\thesubsection}
+  {0.6em}
+  {}
+\titlespacing*{\subsection}{0pt}{0.7em}{0.4em}
+
+% --- Tableaux ---
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{multirow}
+\usepackage{array}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+
+% Style de tableau avec fond alterné
+\usepackage{colortbl}
+\newcommand{\tableheadcolor}{\rowcolor{lightgray}}
+\newcommand{\tablerowodd}{}
+
+% --- Boîtes et encadrés ---
+\usepackage{tcolorbox}
+\tcbuselibrary{skins, breakable}
+
+% Boîte "Hypothèse"
+\newtcolorbox{hypothesebox}[1][]{
+  enhanced, breakable,
+  colback=white, colframe=midgray,
+  fonttitle=\bfseries\small\color{primary},
+  title={#1},
+  left=6pt, right=6pt, top=4pt, bottom=4pt,
+  arc=3pt
+}
+
+% Boîte "Décision"
+\newtcolorbox{decisionbox}{
+  enhanced,
+  colback=white, colframe=midgray,
+  fontupper=\small,
+  left=8pt, right=8pt, top=6pt, bottom=6pt,
+  arc=4pt
+}
+
+% --- Listes ---
+\usepackage{enumitem}
+\setlist[itemize]{leftmargin=1.5em, itemsep=2pt, topsep=4pt}
+\setlist[enumerate]{leftmargin=1.5em, itemsep=2pt, topsep=4pt}
+
+% --- Graphiques / schémas ---
+\usepackage{graphicx}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows.meta, positioning, fit, backgrounds, calc}
+\tikzset{every picture/.style={font=\footnotesize}}
+
+% --- Symboles mathématiques ---
+\usepackage{amssymb}
+
+% --- Hyperliens ---
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=accent,
+  urlcolor=accent,
+  citecolor=accent,
+  pdftitle={Projet PF22 - Approche Multi-Fidélité},
+  pdfauthor={Ivann Vasic}
+}
+
+% --- Espacement ---
+\usepackage{setspace}
+\setstretch{1.25}
+\setlength{\parskip}{6pt}
+\setlength{\parindent}{0pt}
+\setlength{\textfloatsep}{10pt plus 2pt minus 2pt}
+\setlength{\intextsep}{8pt plus 2pt minus 2pt}
+\setlength{\floatsep}{8pt plus 2pt minus 2pt}
+
+% ============================================================
+%  MÉTADONNÉES
+% ============================================================
+\title{}
+\author{}
+\date{}
+
+% ============================================================
+%  DOCUMENT
+% ============================================================
+\begin{document}
+
+% ============================================================
+%  PAGE DE GARDE
+% ============================================================
+\thispagestyle{empty}
+\begin{center}
+\vspace*{2cm}
+{\Large\textbf{UNIVERSITÉ DE TECHNOLOGIE DE BELFORT-MONTBÉLIARD}}\\[0.8em]
+{\normalsize Projet PF22}\\[2.4cm]
+
+{\large\textbf{RAPPORT DE PROJET}}\\[1em]
+{\LARGE\textbf{Réduction des Coûts d'Apprentissage}}\\[0.35em]
+{\LARGE\textbf{par Approche Multi-Fidélité}}\\[1.8cm]
+
+\begin{minipage}{0.82\textwidth}
+\centering
+\normalsize
+Ce projet explore la possibilité de réduire drastiquement les coûts
+de constitution d'un jeu de données en combinant une faible proportion
+d'images \textbf{Haute Fidélité} avec une grande majorité d'images
+\textbf{Basse Fidélité} acquises à moindre coût.
+\end{minipage}\\[2.2cm]
+
+\rule{0.72\textwidth}{0.4pt}\\[0.8em]
+\begin{tabular}{rl}
+\textbf{Auteur :} & Ivann Vasic \\
+\textbf{Période :} & Mars -- Juin 2026 \\
+\textbf{Cadre :} & Projet PF22 --- UTBM \\
+\end{tabular}
+\end{center}
+
+\newpage
+
+% ============================================================
+%  RÉSUMÉ
+% ============================================================
+\thispagestyle{empty}
+\vspace*{1.5cm}
+{\color{primary}\LARGE\bfseries Résumé}\\[0.5em]
+{\color{accent}\rule{\linewidth}{1.5pt}}\\[0.3em]
+{\color{midgray}\rule{\linewidth}{0.4pt}}
+\vspace{0.8em}
+
+L'entraînement de modèles d'apprentissage profond performants nécessite traditionnellement de vastes ensembles de données de haute qualité, dont l'acquisition et l'annotation s'avèrent souvent coûteuses en temps et en ressources. Ce projet explore une approche alternative : \textbf{l'apprentissage multi-fidélité}.
+
+L'objectif est de démontrer qu'il est possible de réduire drastiquement les coûts de constitution d'un jeu de données en combinant une faible proportion d'images de \textbf{Haute Fidélité (HF)} avec une grande majorité d'images dégradées acquises à moindre coût (\textbf{Basse Fidélité - BF}).
+
+\vspace{1.5em}
+\begin{tcolorbox}[
+  enhanced,
+  colback=white,
+  colframe=midgray,
+  arc=4pt,
+  left=8pt,
+  right=8pt,
+  top=8pt,
+  bottom=8pt,
+  boxrule=0.8pt
+]
+\textbf{Mots-clés :} Apprentissage profond $\cdot$ Multi-fidélité $\cdot$ CNN $\cdot$ ResNet-18 $\cdot$
+Dégradation d'image $\cdot$ Optimisation des coûts $\cdot$ Domain Shift $\cdot$
+Animals-10
+\end{tcolorbox}
+
+\newpage
+
+% ============================================================
+%  TABLE DES MATIÈRES
+% ============================================================
+\tableofcontents
+
+\newpage
+
+% ============================================================
+%  CHAPITRE 1
+% ============================================================
+\chapter{Préparation et Fondation}
+
+La mise en place d'un environnement de travail robuste et la sélection d'un jeu de données pertinent constituent les fondations de ce projet. Ces choix ont été guidés par des contraintes matérielles strictes et par la nécessité de disposer de données adaptées à la simulation d'une approche multi-fidélité.
+
+% ---- 1.1 Environnement ----
+\section{Environnement de travail et architecture hybride}
+
+L'ordinateur principal (Surface Laptop, architecture Windows ARM, sans GPU NVIDIA) rendait tout entraînement local impossible. Une \textbf{architecture hybride déportée} a donc été conçue, alliant faible coût et haute efficacité --- en cohérence directe avec la thématique du projet.
+
+\vspace{0.8em}
+\renewcommand{\arraystretch}{1.4}
+\begin{tabularx}{\linewidth}{C{2.8cm} L{3.5cm} L{9.5cm}}
+  \arrayrulecolor{midgray}
+  \toprule
+  \tableheadcolor
+  \textbf{Outil} &
+  \textbf{Rôle} &
+  \textbf{Détail} \\
+  \midrule
+  \tablerowodd
+  \textbf{VS Code} & IDE local & Écriture du code, gestion des terminaux et suivi de projet \\
+  \textbf{Google Colab} & Calcul distant & GPU NVIDIA T4 cloud, connecté directement à VS Code via extension sécurisée \\
+  \tablerowodd
+  \textbf{Google Drive} & Stockage persistant & Monté à chaque session ; héberge le dataset et sauvegarde les \textit{checkpoints} par époque \\
+  \textbf{GitHub} & Versioning & Contrôle de version et sauvegarde du code source expérimental \\
+  \bottomrule
+\end{tabularx}
+
+\vspace{0.5em}
+Un script de test d'intégration a été développé pour valider cette synergie. Il a mis en évidence un \textbf{goulot d'étranglement réseau (I/O Bottleneck)} lors de la lecture de milliers de fichiers via le protocole FUSE de Drive, résolu par l'extraction locale d'archives ZIP directement sur le SSD de l'instance Colab.
+
+% ---- 1.2 Dataset ----
+\section{Sélection du jeu de données}
+
+Le jeu de données doit être suffisamment difficile pour que la dégradation visuelle impacte mesurément les performances du réseau. Quatre candidats ont été évalués :
+
+\vspace{0.8em}
+\renewcommand{\arraystretch}{1.5}
+\begin{tabularx}{\linewidth}{C{2.4cm} C{1.6cm} L{5.5cm} L{5.8cm}}
+  \arrayrulecolor{midgray}
+  \toprule
+  \tableheadcolor
+  \textbf{Dataset} &
+  \textbf{Images} &
+  \textbf{Avantages} &
+  \textbf{Inconvénients} \\
+  \midrule
+  \tablerowodd
+  Imagenette & 13 000 & Standard académique, itérations rapides & Trop « facile » pour ResNet-18 ($\approx$95\% sans dégradation) \\
+  STL-10 & 105 000 & Grand jeu non étiqueté (100k images) & Résolution native 96$\times$96 trop faible \\
+  \tablerowodd
+  Oxford Pets & 7 400 & Classification fine-grained, très sensible aux dégradations & Volume insuffisant, nécessite un pré-entraînement lourd \\
+  \textbf{Animals-10} & \textbf{26 179} & \textbf{Haute résolution, volume idéal, proche des conditions réelles} & Bruit de labels et filigranes (corrigés au nettoyage) \\
+  \bottomrule
+\end{tabularx}
+
+\vspace{0.8em}
+\begin{decisionbox}
+  \textbf{\color{primary}Choix retenu : Animals-10} \\[3pt]
+  Son volume (26 179 images après nettoyage) permet un entraînement \textit{from scratch} stable avec ResNet-18. Sa haute résolution native offre une large plage dynamique pour le pipeline de dégradation. Son caractère communautaire le rapproche des conditions industrielles réelles.
+\end{decisionbox}
+
+\newpage
+
+% ============================================================
+%  CHAPITRE 2
+% ============================================================
+\chapter{Construction de l'Environnement Multi-Fidélité}
+
+Afin d'étudier l'impact de la qualité des données sur les performances d'apprentissage, un environnement expérimental contrôlé a été construit : découpage asymétrique du dataset, pipeline de dégradation et métrique de coût.
+
+% ---- 2.1 Découpage ----
+\section{Découpage et répartition des données}
+
+Le schéma ci-dessous illustre la stratégie de \textit{split} stricte et asymétrique appliquée au jeu Animals-10.
+
+% Schéma TikZ de la répartition
+\begin{center}
+\begin{tikzpicture}[
+  font=\small,
+  box/.style={rounded corners=4pt, minimum height=1cm, text centered, text width=3.2cm},
+  arrow/.style={-Stealth, thick, color=accent}
+]
+  % Bloc source
+  \node[box, fill=lightgray, draw=midgray, text=black, text width=3.8cm, minimum height=1.2cm]
+    (source) {\textbf{Animals-10}\\\footnotesize 26 179 images};
+
+  % Flèches vers test et train
+  \node[box, fill=accent!20, draw=accent, right=1.5cm of source, yshift=1.6cm]
+    (test) {\textbf{Test}\\\footnotesize $\approx$2 600 img (10\%)\\\footnotesize \textcolor{hfcolor}{\textbf{100\% HF}}};
+
+  \node[box, fill=lightgray, draw=midgray, right=1.5cm of source, yshift=-1cm]
+    (train) {\textbf{Train}\\\footnotesize $\approx$23 400 img (90\%)};
+
+  \draw[arrow] (source) -- (test);
+  \draw[arrow] (source) -- (train);
+
+  % Sous-blocs HF / BF
+  \node[box, fill=hfcolor!20, draw=hfcolor, right=1.5cm of train, yshift=1.1cm, text width=2.8cm]
+    (hf) {\textcolor{hfcolor}{\textbf{HF}}\\\footnotesize $\approx$2 340 img\\\footnotesize (10\%) --- 10 CA/img};
+
+  \node[box, fill=bfcolor!20, draw=bfcolor, right=1.5cm of train, yshift=-1.1cm, text width=2.8cm]
+    (bf) {\textcolor{bfcolor}{\textbf{BF}}\\\footnotesize $\approx$21 060 img\\\footnotesize (90\%) --- 1 CA/img};
+
+  \draw[arrow] (train) -- (hf);
+  \draw[arrow] (train) -- (bf);
+
+\end{tikzpicture}
+\end{center}
+
+\begin{hypothesebox}[Principe clé]
+  Le jeu de \textbf{test est exclusivement HF} pour toutes les expériences : l'évaluation doit mesurer la capacité de généralisation sur des données de haute qualité, quel que soit le domaine utilisé à l'entraînement.
+\end{hypothesebox}
+
+% ---- 2.2 Pipeline de dégradation ----
+\section{Pipeline de dégradation de la qualité}
+
+La génération des images Basse Fidélité applique deux transformations consécutives \textbf{à la volée} :
+
+\vspace{0.8em}
+\renewcommand{\arraystretch}{1.5}
+\begin{tabularx}{\linewidth}{C{0.6cm} L{3.5cm} L{5.5cm} L{6cm}}
+  \arrayrulecolor{midgray}
+  \toprule
+  \tableheadcolor
+  \textbf{\#} &
+  \textbf{Transformation} &
+  \textbf{Description} &
+  \textbf{Effet simulé} \\
+  \midrule
+  \tablerowodd
+  \textbf{1} & Sous-échantillonnage (\textit{Downsampling}) &
+    Réduction à 64$\times$64 px puis redimensionnement à 224$\times$224 px par interpolation bilinéaire &
+    Perte d'information spatiale haute-fréquence ; image floue et pixélisée \\
+  \textbf{2} & Bruit Gaussien &
+    Ajout d'un bruit aléatoire (grain) aux tenseurs de l'image &
+    Simulation du bruit ISO des capteurs électroniques bas de gamme \\
+  \bottomrule
+\end{tabularx}
+
+% ---- 2.3 Métrique de coût ----
+\section{Définition de la métrique de coût}
+
+\renewcommand{\arraystretch}{1.4}
+\begin{tabularx}{\linewidth}{L{5cm} C{2.5cm} L{5cm}}
+  \arrayrulecolor{midgray}
+  \toprule
+  \tableheadcolor
+  \textbf{Type d'image} & \textbf{Coût} & \textbf{Justification} \\
+  \midrule
+  Haute Fidélité ($C_{HF}$) & \textbf{10 CA} & Expert humain ou équipement onéreux \\
+  Basse Fidélité ($C_{BF}$) & \textbf{1 CA} & Collecte automatisée, pré-étiquetage web \\
+  \bottomrule
+\end{tabularx}
+
+\vspace{0.5em}
+
+\begin{hypothesebox}[Pourquoi pas le temps de calcul ?]
+  Le temps de calcul brut ($Temps_{Epoch} \times Nombre_{Epochs}$) a été écarté en raison de l'instabilité des environnements cloud (fluctuations de charge serveur, allocation dynamique GPU, goulots I/O). Le \textbf{Crédit d'Annotation} offre un référentiel \textbf{invariant, agnostique au matériel}, centré sur la valeur intrinsèque de la donnée.
+\end{hypothesebox}
+
+\newpage
+
+% ============================================================
+%  CHAPITRE 3
+% ============================================================
+\chapter{Construction des Modèles de Référence}
+
+Avant d'explorer des stratégies d'optimisation complexes, il est indispensable d'établir des \textbf{bornes de performances} (supérieure et inférieure) via des \textit{baselines} rigoureusement définies.
+
+% ---- 3.1 Évaluation croisée ----
+\section{Stratégie d'évaluation croisée face au décalage de domaine}
+
+Un modèle entraîné sur des images floues (domaine BF) peut ne pas généraliser correctement sur des images nettes (domaine HF) --- c'est le \textbf{Domain Shift}. Pour quantifier ce phénomène, chaque modèle est évalué selon \textbf{trois passages distincts} :
+
+\begin{center}
+\begin{tikzpicture}[
+  font=\small,
+  testbox/.style={rounded corners=4pt, minimum height=1.1cm, text width=3.4cm, text centered},
+  arrow/.style={-Stealth, thick, color=accent}
+]
+  \node[testbox, fill=hfcolor!25, draw=hfcolor]
+    (thf) {\textbf{Test HF (Propre)}\\\footnotesize Images d'origine\\Score $S_{HF}$};
+
+  \node[testbox, fill=bfcolor!25, draw=bfcolor, right=2cm of thf]
+    (tbf) {\textbf{Test BF (Bruité)}\\\footnotesize Pipeline de dégradation appliqué\\Score $S_{BF}$};
+
+  \node[testbox, fill=primary!15, draw=primary, right=2cm of tbf]
+    (tmix) {\textbf{Test Mixte}\\\footnotesize Moyenne pondérée 50/50\\$S_{Mix} = \frac{S_{HF}+S_{BF}}{2}$};
+
+  \node[testbox, fill=lightgray, draw=midgray, above=1.6cm of tbf, text width=4cm]
+    (model) {\textbf{Modèle évalué}\\(ResNet-18)};
+
+  \draw[arrow] (model) -- (thf);
+  \draw[arrow] (model) -- (tbf);
+  \draw[arrow] (model) -- (tmix);
+\end{tikzpicture}
+\end{center}
+
+% ---- 3.2 Architecture ----
+\section{Sélection et justification de l'architecture neuronale}
+
+\renewcommand{\arraystretch}{1.5}
+\begin{tabularx}{\linewidth}{C{2.5cm} C{2cm} L{5.8cm} L{5cm}}
+  \arrayrulecolor{midgray}
+  \toprule
+  \tableheadcolor
+  \textbf{Architecture} &
+  \textbf{Paramètres} &
+  \textbf{Points forts} &
+  \textbf{Limites / Pertinence} \\
+  \midrule
+  \tablerowodd
+  \cellcolor{hfcolor!20}\textbf{ResNet-18 \checkmark} & $\approx$11 M &
+    Standard académique, connexions résiduelles, robuste au bruit &
+    \textbf{Pertinence excellente} --- compromis idéal \\
+  MobileNetV2 & $\approx$3,4 M &
+    Ultra-léger, économe en VRAM, itérations rapides &
+    S'effondre sur données fortement bruitées \\
+  \tablerowodd
+  EfficientNet-B0 & $\approx$5,3 M &
+    Ratio précision/paramètres optimisé mathématiquement &
+    Difficile à faire converger \textit{from scratch} \\
+  ViT-Tiny & $\approx$5 M &
+    Architecture Transformer, vision globale &
+    Sur-apprend massivement sans pré-entraînement \\
+  \bottomrule
+\end{tabularx}
+
+\vspace{0.8em}
+\begin{decisionbox}
+  \textbf{\color{primary}Architecture retenue : ResNet-18} \\[3pt]
+  Ses $\approx$11M paramètres permettent l'extraction de caractéristiques à travers le bruit. Ses connexions résiduelles garantissent un entraînement stable. Les hyperparamètres (Optimiseur Adam, taux d'apprentissage, taille de lot) resteront \textbf{strictement identiques} pour toutes les expériences.
+\end{decisionbox}
+
+% ---- 3.3 Baselines ----
+\section{Définition des modèles de référence}
+
+\vspace{0.8em}
+\renewcommand{\arraystretch}{1.6}
+\begin{tabularx}{\linewidth}{C{0.5cm} L{2cm} C{1.6cm} C{2cm} L{8.8cm}}
+  \arrayrulecolor{midgray}
+  \toprule
+  \tableheadcolor
+  \textbf{\#} &
+  \textbf{Modèle} &
+  \textbf{Images} &
+  \textbf{Coût} &
+  \textbf{Hypothèse de comportement} \\
+  \midrule
+  \tablerowodd
+  \textbf{1} &
+  \textbf{Premium}\newline\footnotesize(Train HF uniquement) &
+  $\approx$2 500 HF &
+  25 000 CA &
+  Excellentes performances sur Test HF. Effondrement prévu sur Test BF (aucune robustesse au bruit). \\
+
+  \textbf{2} &
+  \textbf{Low-Cost}\newline\footnotesize(Train BF uniquement) &
+  $\approx$22 700 BF &
+  22 700 CA &
+  Très performant sur Test BF. Généralisation sur Test HF dépendra de la capacité à extrapoler des contours nets depuis des signaux flous. \\
+  \tablerowodd
+  \textbf{3} &
+  \textbf{Naïf Mixte}\newline\footnotesize(Borne supérieure) &
+  $\approx$25 200 HF+BF &
+  47 700 CA &
+  Meilleures performances globales (Test Mixte). Sert de borne supérieure absolue. \textbf{L'objectif des phases suivantes est d'atteindre ce niveau à coût réduit.} \\
+  \bottomrule
+\end{tabularx}
+
+% ---- 3.4 Implémentation ----
+\section{Stratégie d'implémentation logicielle}
+
+Afin d'éliminer tout biais d'implémentation, le code a été factorisé en un \textbf{unique script d'entraînement paramétrable}. Ce script accepte un argument de mode (\texttt{HF}, \texttt{BF}, ou \texttt{MIXTE}), charge dynamiquement le sous-ensemble correspondant, procède à l'entraînement et exécute automatiquement la séquence des trois tests d'évaluation croisée.
+
+\begin{tcolorbox}[
+  enhanced, colback=white, colframe=midgray,
+  fontupper=\ttfamily\small,
+  arc=3pt, left=8pt
+]
+  python train.py --mode \{HF | BF | MIXTE\} --epochs 30\\
+  \phantom{xxxxx}\# $\rightarrow$ entraînement + évaluation HF / BF / Mixte automatique
+\end{tcolorbox}
+
+\newpage
+
+\begin{thebibliography}{9}
+
+\bibitem{resnet}
+Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun.
+\textit{Deep Residual Learning for Image Recognition}.
+Proceedings of the IEEE conference on computer vision and pattern recognition (CVPR), 2016.
+
+\bibitem{ren2018reweight}
+Mengye Ren, Wenyuan Zeng, Bin Yang, Raquel Urtasun.
+\textit{Learning to Reweight Examples for Robust Deep Learning}.
+International Conference on Machine Learning (ICML), 2018.
+
+\bibitem{han2018coteaching}
+Bo Han, Quanming Yao, Xingrui Yu, Gang Niu, Miao Xu, Weihua Hu, Ivor Tsang, Masashi Sugiyama.
+\textit{Co-teaching: Robust Training of Deep Neural Networks with Extremely Noisy Labels}.
+Advances in Neural Information Processing Systems (NeurIPS), 2018.
+
+\bibitem{xie2020noisystudent}
+Qizhe Xie, Minh-Thang Luong, Eduard Hovy, Quoc V. Le.
+\textit{Self-training with Noisy Student improves ImageNet classification}.
+Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR), 2020.
+
+\end{thebibliography}
+
+\end{document}

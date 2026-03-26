@@ -1,0 +1,13 @@
+\babel@toc {french}{}\relax 
+\contentsline {chapter}{\numberline {1}Préparation et Fondation}{4}{chapter.1}%
+\contentsline {section}{\numberline {1.1}Environnement de travail et architecture hybride}{4}{section.1.1}%
+\contentsline {section}{\numberline {1.2}Sélection du jeu de données}{4}{section.1.2}%
+\contentsline {chapter}{\numberline {2}Construction de l'Environnement Multi-Fidélité}{6}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Découpage et répartition des données}{6}{section.2.1}%
+\contentsline {section}{\numberline {2.2}Pipeline de dégradation de la qualité}{6}{section.2.2}%
+\contentsline {section}{\numberline {2.3}Définition de la métrique de coût}{7}{section.2.3}%
+\contentsline {chapter}{\numberline {3}Construction des Modèles de Référence}{8}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Stratégie d'évaluation croisée face au décalage de domaine}{8}{section.3.1}%
+\contentsline {section}{\numberline {3.2}Sélection et justification de l'architecture neuronale}{8}{section.3.2}%
+\contentsline {section}{\numberline {3.3}Définition des modèles de référence}{9}{section.3.3}%
+\contentsline {section}{\numberline {3.4}Stratégie d'implémentation logicielle}{9}{section.3.4}%
