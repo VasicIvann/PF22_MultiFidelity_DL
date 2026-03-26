@@ -7,10 +7,10 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader, ConcatDataset
 from torchvision import datasets, transforms, models
-from torch.cuda.amp import autocast, GradScaler
+from torch.amp import autocast, GradScaler
 
 # --- Configuration ---
-BASE_DIR = "/content/drive/MyDrive/UTBM_PF22/datasets/Animals-10/processed_multifidelity"
+BASE_DIR = "/content/processed_multifidelity"
 RESULTS_DIR = "/content/drive/MyDrive/UTBM_PF22/results"
 os.makedirs(RESULTS_DIR, exist_ok=True)
 
@@ -35,6 +35,7 @@ def run_baseline(mode, epochs=10, batch_size=64, lr=0.001):
     print(f"\n{'='*50}\n🚀 DÉMARRAGE BASELINE : {mode}\n{'='*50}")
     
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print(f"🔥 Entraînement en cours sur : {device}")
     
     # --- 2. Préparation des Datasets ---
     # Transformations basiques pour ResNet
@@ -84,7 +85,7 @@ def run_baseline(mode, epochs=10, batch_size=64, lr=0.001):
 
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=lr)
-    scaler = GradScaler() # Pour le FP16 (accélération)
+    scaler = GradScaler('cuda') # Pour le FP16 (accélération)
 
     # --- 4. Boucle d'entraînement ---
     start_time = time.time()
@@ -96,7 +97,7 @@ def run_baseline(mode, epochs=10, batch_size=64, lr=0.001):
             inputs, labels = inputs.to(device), labels.to(device)
             optimizer.zero_grad()
             
-            with autocast():
+            with autocast('cuda'):
                 outputs = model(inputs)
                 loss = criterion(outputs, labels)
                 
