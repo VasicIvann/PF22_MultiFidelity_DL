@@ -245,12 +245,12 @@ Animals-10
 % ============================================================
 \chapter{Préparation et Fondation}
 
-La mise en place d'un environnement de travail robuste et la sélection d'un jeu de données pertinent constituent les fondations de ce projet. Ces choix ont été guidés par des contraintes matérielles strictes et par la nécessité de disposer de données adaptées à la simulation d'une approche multi-fidélité.
+Les choix et la mise en place de l'environnement de travail ont été guidés par des contraintes matérielles et par la nécessité de disposer de données adaptées à la simulation d'une approche multi-fidélité.
 
 % ---- 1.1 Environnement ----
 \section{Environnement de travail et architecture hybride}
 
-L'ordinateur principal (Surface Laptop, architecture Windows ARM, sans GPU NVIDIA) rendait tout entraînement local impossible. Une \textbf{architecture hybride déportée} a donc été conçue, alliant faible coût et haute efficacité --- en cohérence directe avec la thématique du projet.
+Une \textbf{architecture hybride déportée} a été conçue, alliant faible coût et haute efficacité, en cohérence directe avec la thématique du projet.
 
 \vspace{0.8em}
 \renewcommand{\arraystretch}{1.4}
@@ -295,7 +295,7 @@ Le jeu de données doit être suffisamment difficile pour que la dégradation vi
   STL-10 & 105 000 & Grand jeu non étiqueté (100k images) & Résolution native 96$\times$96 trop faible \\
   \tablerowodd
   Oxford Pets & 7 400 & Classification fine-grained, très sensible aux dégradations & Volume insuffisant, nécessite un pré-entraînement lourd \\
-  \textbf{Animals-10} & \textbf{26 179} & \textbf{Haute résolution, volume idéal, proche des conditions réelles} & Bruit de labels et filigranes (corrigés au nettoyage) \\
+  \textbf{Animals-10} & \textbf{26 179} & \textbf{Haute résolution, volume idéal, proche des conditions réelles} & Bruit de labels et filigranes (peuvent être corrigés) \\
   \bottomrule
 \end{tabularx}
 
@@ -312,12 +312,12 @@ Le jeu de données doit être suffisamment difficile pour que la dégradation vi
 % ============================================================
 \chapter{Construction de l'Environnement Multi-Fidélité}
 
-Afin d'étudier l'impact de la qualité des données sur les performances d'apprentissage, un environnement expérimental contrôlé a été construit : découpage asymétrique du dataset, pipeline de dégradation et métrique de coût.
+Afin d'étudier l'impact de la qualité des données sur les performances d'apprentissage, un environnement expérimental a été construit : découpage asymétrique du dataset, pipeline de dégradation et métrique de coût.
 
 % ---- 2.1 Découpage ----
 \section{Découpage et répartition des données}
 
-Le schéma ci-dessous illustre la stratégie de \textit{split} stricte et asymétrique appliquée au jeu Animals-10.
+Le schéma ci-dessous illustre le découpage du jeu Animals-10.
 
 % Schéma TikZ de la répartition
 \begin{center}
@@ -342,10 +342,10 @@ Le schéma ci-dessous illustre la stratégie de \textit{split} stricte et asymé
 
   % Sous-blocs HF / BF
   \node[box, fill=hfcolor!20, draw=hfcolor, right=1.5cm of train, yshift=1.1cm, text width=2.8cm]
-    (hf) {\textcolor{hfcolor}{\textbf{HF}}\\\footnotesize $\approx$2 340 img\\\footnotesize (10\%) --- 10 CA/img};
+    (hf) {\textcolor{hfcolor}{\textbf{HF}}\\\footnotesize $\approx$2 340 img\\\footnotesize (10\%)};
 
   \node[box, fill=bfcolor!20, draw=bfcolor, right=1.5cm of train, yshift=-1.1cm, text width=2.8cm]
-    (bf) {\textcolor{bfcolor}{\textbf{BF}}\\\footnotesize $\approx$21 060 img\\\footnotesize (90\%) --- 1 CA/img};
+    (bf) {\textcolor{bfcolor}{\textbf{BF}}\\\footnotesize $\approx$21 060 img\\\footnotesize (90\%)};
 
   \draw[arrow] (train) -- (hf);
   \draw[arrow] (train) -- (bf);
@@ -376,10 +376,10 @@ La génération des images Basse Fidélité applique deux transformations consé
   \tablerowodd
   \textbf{1} & Sous-échantillonnage (\textit{Downsampling}) &
     Réduction à 64$\times$64 px puis redimensionnement à 224$\times$224 px par interpolation bilinéaire &
-    Perte d'information spatiale haute-fréquence ; image floue et pixélisée \\
+    Perte d'information : image floue et pixélisée \\
   \textbf{2} & Bruit Gaussien &
     Ajout d'un bruit aléatoire (grain) aux tenseurs de l'image &
-    Simulation du bruit ISO des capteurs électroniques bas de gamme \\
+    Simulation du bruit ISO des capteurs électroniques\\
   \bottomrule
 \end{tabularx}
 
@@ -387,7 +387,7 @@ La génération des images Basse Fidélité applique deux transformations consé
 \section{Définition de la métrique de coût}
 
 \renewcommand{\arraystretch}{1.4}
-\begin{tabularx}{\linewidth}{L{5cm} C{2.5cm} L{5cm}}
+\begin{tabularx}{\linewidth}{L{3.5cm} C{3cm} L{9.3cm}}
   \arrayrulecolor{midgray}
   \toprule
   \tableheadcolor
@@ -411,7 +411,7 @@ La génération des images Basse Fidélité applique deux transformations consé
 % ============================================================
 \chapter{Construction des Modèles de Référence}
 
-Avant d'explorer des stratégies d'optimisation complexes, il est indispensable d'établir des \textbf{bornes de performances} (supérieure et inférieure) via des \textit{baselines} rigoureusement définies.
+Avant d'explorer des stratégies d'optimisation complexes, il est indispensable d'établir des \textbf{bornes de performances} (supérieure et inférieure) via des \textit{baselines}.
 
 % ---- 3.1 Évaluation croisée ----
 \section{Stratégie d'évaluation croisée face au décalage de domaine}
@@ -425,13 +425,13 @@ Un modèle entraîné sur des images floues (domaine BF) peut ne pas généralis
   arrow/.style={-Stealth, thick, color=accent}
 ]
   \node[testbox, fill=hfcolor!25, draw=hfcolor]
-    (thf) {\textbf{Test HF (Propre)}\\\footnotesize Images d'origine\\Score $S_{HF}$};
+    (thf) {\textbf{Test HF (Propre)}\\\footnotesize Images d'origine};
 
   \node[testbox, fill=bfcolor!25, draw=bfcolor, right=2cm of thf]
-    (tbf) {\textbf{Test BF (Bruité)}\\\footnotesize Pipeline de dégradation appliqué\\Score $S_{BF}$};
+    (tbf) {\textbf{Test BF (Bruité)}\\\footnotesize Pipeline de dégradation appliqué};
 
   \node[testbox, fill=primary!15, draw=primary, right=2cm of tbf]
-    (tmix) {\textbf{Test Mixte}\\\footnotesize Moyenne pondérée 50/50\\$S_{Mix} = \frac{S_{HF}+S_{BF}}{2}$};
+    (tmix) {\textbf{Test Mixte}\\\footnotesize Moitié HF moitié BF};
 
   \node[testbox, fill=lightgray, draw=midgray, above=1.6cm of tbf, text width=4cm]
     (model) {\textbf{Modèle évalué}\\(ResNet-18)};
@@ -519,14 +519,46 @@ Un modèle entraîné sur des images floues (domaine BF) peut ne pas généralis
 
 Afin d'éliminer tout biais d'implémentation, le code a été factorisé en un \textbf{unique script d'entraînement paramétrable}. Ce script accepte un argument de mode (\texttt{HF}, \texttt{BF}, ou \texttt{MIXTE}), charge dynamiquement le sous-ensemble correspondant, procède à l'entraînement et exécute automatiquement la séquence des trois tests d'évaluation croisée.
 
-\begin{tcolorbox}[
-  enhanced, colback=white, colframe=midgray,
-  fontupper=\ttfamily\small,
-  arc=3pt, left=8pt
-]
-  python train.py --mode \{HF | BF | MIXTE\} --epochs 30\\
-  \phantom{xxxxx}\# $\rightarrow$ entraînement + évaluation HF / BF / Mixte automatique
-\end{tcolorbox}
+% ---- 3.5 Analyse des résultats ----
+\section{Analyse des résultats}
+
+Les trois modèles de référence ont été entraînés avec succès sur 20 époques. Les résultats obtenus, résumés dans le tableau ci-dessous, mettent en évidence la dynamique du compromis coût/performance.
+
+\vspace{0.8em}
+\renewcommand{\arraystretch}{1.5}
+\begin{tabularx}{\linewidth}{L{3cm} C{2.2cm} C{2cm} C{2cm} C{2cm} C{2.4cm}}
+  \arrayrulecolor{midgray}
+  \toprule
+  \tableheadcolor
+  \textbf{Modèle Entraîné} & \textbf{Coût Total (CA)} & \textbf{Test HF} & \textbf{Test BF} & \textbf{Test Mixte} & \textbf{Temps d'entraînement} \\
+  \midrule
+  \tablerowodd
+  BL 1 (HF) & 470 400 & 56,20 \% & 35,16 \% & 45,68 \% & 2,84 min \\
+  BL 2 (BF) & 424 260 & 59,07 \% & 63,66 \% & 61,36 \% & 27,05 min \\
+  \tablerowodd
+  BL 3 (Mixte) & 894 660 & 75,90 \% & 65,03 \% & 70,47 \% & 29,78 min \\
+  \bottomrule
+\end{tabularx}
+\vspace{0.8em}
+
+L'analyse de ces métriques permet de tirer trois conclusions majeures concernant le comportement du réseau ResNet-18 face à nos données :
+
+\begin{itemize}
+    \item \textbf{L'effondrement face au bruit (\textit{Domain Shift}) :} La Baseline 1, entraînée exclusivement sur des données parfaites, obtient un score de 56,20\,\% sur le test HF. Cependant, confrontée au domaine BF (flou et bruit gaussien), sa précision s'effondre à 35,16\,\%. Ce résultat prouve l'incapacité d'un modèle "Premium" classique à généraliser face à des perturbations non rencontrées lors de l'apprentissage.
+    
+    \item \textbf{Le paradoxe de la quantité :} La Baseline 2 possède un budget inférieur à la Baseline 1 (424 260 CA contre 470 400 CA) mais la surpasse systématiquement, \textbf{y compris sur les images nettes} (59,07\,\%). Cela démontre qu'en apprentissage profond, l'immense diversité contenue dans $\approx$22 700 images floues prime sur la perfection visuelle de seulement $\approx$2 500 images.
+    
+    \item \textbf{La validation de la borne supérieure :} La Baseline 3 confirme son statut théorique. En ayant appris simultanément sur le volume massif (BF) et sur les détails discriminants (HF), elle atteint une précision de 75,9\,\% sur le test de haute fidélité. Toutefois, son coût d'acquisition est beaucoup plus élevé que les autres baseline.
+\end{itemize}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\linewidth]{figures/baselines_comparison.png}
+  \caption{Comparaison visuelle des trois baselines (BL 1(HF), BL 2(BF), BL 3(MIXTE)) : loss par époque, précisions de test, temps d'entraînement et coût total estimé.}
+  \label{fig:baseline_plots}
+\end{figure}
+
+
 
 \newpage
 
