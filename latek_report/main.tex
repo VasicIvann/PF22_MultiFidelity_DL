@@ -241,9 +241,217 @@ Animals-10
 \newpage
 
 % ============================================================
+%  CHAPITRE 0 — NOTIONS PRÉLIMINAIRES
+% ============================================================
+\chapter{Notions Préliminaires}
+
+Ce chapitre présente les concepts fondamentaux nécessaires à la compréhension du projet. Le lecteur familier avec l'apprentissage profond peut passer directement au Chapitre~2.
+
+% ---- 0.1 Réseaux de neurones ----
+\section{Les réseaux de neurones artificiels}
+
+Un réseau de neurones artificiel est un système de calcul inspiré du cerveau biologique. Il est constitué d'unités élémentaires, les \textbf{neurones}, organisées en \textbf{couches} successives. Chaque neurone reçoit des signaux numériques en entrée, les combine linéairement, puis applique une \textbf{fonction d'activation} non-linéaire avant de transmettre le résultat à la couche suivante.
+
+\vspace{0.8em}
+\begin{center}
+\begin{tikzpicture}[
+  font=\small,
+  neuron/.style={circle, draw=midgray, fill=lightgray, minimum size=0.72cm, inner sep=0pt},
+  hneuron/.style={circle, draw=hfcolor, fill=hfcolor!15, minimum size=0.72cm, inner sep=0pt},
+  oneuron/.style={circle, draw=accent, fill=accent!10, minimum size=0.72cm, inner sep=0pt},
+  arrow/.style={-Stealth, color=midgray, thin}
+]
+  % Couche d'entrée
+  \foreach \i in {1,2,3,4} {
+    \node[neuron] (i\i) at (0, -\i*1.1) {};
+  }
+  \node[above=0.2cm of i1, font=\footnotesize\bfseries, color=primary] {Entrée};
+
+  % Couche cachée 1
+  \foreach \i in {1,2,3,4,5} {
+    \node[hneuron] (h1\i) at (2.2, -\i*1.1+0.55) {};
+  }
+  \node[above=0.2cm of h11, font=\footnotesize\bfseries, color=hfcolor] {Couche cachée};
+
+  % Couche cachée 2
+  \foreach \i in {1,2,3,4,5} {
+    \node[hneuron] (h2\i) at (4.4, -\i*1.1+0.55) {};
+  }
+
+  % Couche de sortie
+  \foreach \i in {1,2,3} {
+    \node[oneuron] (o\i) at (6.6, -\i*1.1-0.55) {};
+  }
+  \node[above=0.2cm of o1, font=\footnotesize\bfseries, color=accent] {Sortie};
+
+  % Connexions entrée → h1
+  \foreach \i in {1,2,3,4} {
+    \foreach \j in {1,2,3,4,5} {
+      \draw[arrow] (i\i) -- (h1\j);
+    }
+  }
+  % Connexions h1 → h2
+  \foreach \i in {1,2,3,4,5} {
+    \foreach \j in {1,2,3,4,5} {
+      \draw[arrow] (h1\i) -- (h2\j);
+    }
+  }
+  % Connexions h2 → sortie
+  \foreach \i in {1,2,3,4,5} {
+    \foreach \j in {1,2,3} {
+      \draw[arrow] (h2\i) -- (o\j);
+    }
+  }
+\end{tikzpicture}
+\end{center}
+\vspace{0.4em}
+
+L'empilement de plusieurs couches cachées constitue un réseau dit \textbf{profond} (\textit{deep network}). La profondeur permet au réseau d'apprendre des représentations de plus en plus abstraites : les premières couches détectent des motifs simples (contours, textures), tandis que les couches profondes reconnaissent des concepts complexes (forme d'un animal, expression d'un visage).
+
+% ---- 0.2 Paramètres ----
+\section{Paramètres et poids du réseau}
+
+Les connexions entre neurones sont régies par des valeurs numériques appelées \textbf{poids} ($w$) et \textbf{biais} ($b$). Ce sont les \textbf{paramètres apprenables} du réseau : ils sont initialisés aléatoirement, puis ajustés itérativement au cours de l'entraînement.
+
+\vspace{0.8em}
+\renewcommand{\arraystretch}{1.4}
+\begin{tabularx}{\linewidth}{C{2.8cm} L{4.5cm} L{8cm}}
+  \arrayrulecolor{midgray}
+  \toprule
+  \tableheadcolor
+  \textbf{Paramètre} & \textbf{Rôle} & \textbf{Interprétation} \\
+  \midrule
+  Poids $w_{ij}$ & Pondère la connexion entre le neurone $i$ et $j$ & Fort poids $\Rightarrow$ le signal du neurone $i$ influence fortement $j$ \\
+  Biais $b_j$ & Décale le seuil d'activation du neurone $j$ & Permet au neurone de s'activer même en absence de signal fort \\
+  \bottomrule
+\end{tabularx}
+
+\vspace{0.5em}
+Un réseau comme ResNet-18 possède environ \textbf{11 millions de paramètres}. La qualité de l'apprentissage dépend de la capacité à trouver les valeurs optimales de l'ensemble de ces paramètres.
+
+% ---- 0.3 Entraînement ----
+\section{La boucle d'entraînement}
+
+L'entraînement d'un réseau de neurones est un processus itératif qui suit quatre étapes fondamentales, répétées pour chaque lot (\textit{batch}) d'images :
+
+\begin{center}
+\begin{tikzpicture}[
+  font=\small,
+  stepbox/.style={rounded corners=5pt, minimum height=1cm, text width=3.5cm, text centered, draw=midgray, fill=lightgray},
+  highlight/.style={rounded corners=5pt, minimum height=1cm, text width=3.5cm, text centered, draw=accent, fill=accent!10},
+  arrow/.style={-Stealth, thick, color=accent}
+]
+  \node[highlight] (fwd)  at (0,0)     {\textbf{1. Propagation avant}\\\footnotesize L'image traverse le réseau → prédiction};
+  \node[stepbox]      (loss) at (5.5,0)   {\textbf{2. Calcul de la perte}\\\footnotesize Mesure de l'erreur entre prédiction et vérité};
+  \node[stepbox]      (bwd)  at (5.5,-2)  {\textbf{3. Rétropropagation}\\\footnotesize Calcul du gradient de l'erreur};
+  \node[highlight] (upd)  at (0,-2)    {\textbf{4. Mise à jour}\\\footnotesize L'optimiseur corrige les poids};
+
+  \draw[arrow] (fwd)  -- (loss);
+  \draw[arrow] (loss) -- (bwd);
+  \draw[arrow] (bwd)  -- (upd);
+  \draw[arrow] (upd.west) -- +(-0.6,0) |- (fwd.west);
+\end{tikzpicture}
+\end{center}
+
+\vspace{0.4em}
+Une \textbf{époque} (\textit{epoch}) correspond au passage complet de l'intégralité du jeu de données d'entraînement à travers cette boucle. L'entraînement se déroule sur plusieurs dizaines d'époques jusqu'à convergence.
+
+\subsection{La fonction de perte}
+
+La \textbf{fonction de perte} (\textit{loss function}) quantifie l'écart entre la prédiction du réseau et la vérité terrain. Plus la perte est faible, plus le modèle est précis. Pour la classification multi-classes, la \textbf{Entropie Croisée} (\textit{Cross-Entropy Loss}) est le standard :
+
+\[
+\mathcal{L} = -\sum_{c=1}^{C} y_c \cdot \log(\hat{p}_c)
+\]
+
+où $C$ est le nombre de classes, $y_c$ la vraie étiquette (0 ou 1), et $\hat{p}_c$ la probabilité prédite par le réseau pour la classe $c$.
+
+\subsection{La descente de gradient et l'optimiseur}
+
+La \textbf{rétropropagation} calcule, pour chaque paramètre du réseau, le gradient de la perte : une mesure indiquant dans quelle direction et de quelle amplitude modifier ce paramètre pour réduire l'erreur. L'\textbf{optimiseur} utilise ensuite ces gradients pour mettre à jour les poids :
+
+\[
+w \leftarrow w - \eta \cdot \nabla_w \mathcal{L}
+\]
+
+où $\eta$ est le \textbf{taux d'apprentissage} (\textit{learning rate}), un hyperparamètre critique qui contrôle la taille du pas de correction. Un $\eta$ trop grand risque de faire diverger l'apprentissage ; trop petit, la convergence devient extrêmement lente.
+
+% ---- 0.4 Hyperparamètres ----
+\section{Hyperparamètres clés}
+
+Contrairement aux poids, les \textbf{hyperparamètres} ne sont pas appris automatiquement : ils doivent être fixés manuellement avant l'entraînement et conditionnent fortement la qualité du résultat final.
+
+\vspace{0.8em}
+\renewcommand{\arraystretch}{1.5}
+\begin{tabularx}{\linewidth}{C{3.2cm} L{4.2cm} L{8cm}}
+  \arrayrulecolor{midgray}
+  \toprule
+  \tableheadcolor
+  \textbf{Hyperparamètre} & \textbf{Définition} & \textbf{Impact} \\
+  \midrule
+  \tablerowodd
+  Taux d'apprentissage $\eta$ & Amplitude du pas de correction & Trop grand : divergence. Trop petit : apprentissage lent ou bloqué. \\
+  Taille de lot (\textit{batch size}) & Nombre d'images traitées simultanément & Influence la stabilité du gradient et l'utilisation mémoire du GPU. \\
+  \tablerowodd
+  Nombre d'époques & Nombre de passages complets sur les données & Trop faible : sous-apprentissage. Trop élevé : mémorisation (\textit{overfitting}). \\
+  Architecture & Nombre et type de couches & Détermine la capacité d'abstraction et la vitesse d'inférence. \\
+  \bottomrule
+\end{tabularx}
+
+% ---- 0.5 Sous-apprentissage et sur-apprentissage ----
+\section{Sous-apprentissage, sur-apprentissage et généralisation}
+
+L'objectif de l'entraînement n'est pas de mémoriser parfaitement les données d'entraînement, mais de \textbf{généraliser} : être capable de classer correctement des images jamais vues. Deux pathologies opposées peuvent survenir :
+
+\vspace{0.8em}
+\begin{tabularx}{\linewidth}{C{0.5cm} L{3.3cm} L{5.5cm} L{6.6cm}}
+  \arrayrulecolor{midgray}
+  \toprule
+  \tableheadcolor
+  & \textbf{Phénomène} & \textbf{Cause} & \textbf{Symptôme} \\
+  \midrule
+  \tablerowodd
+  & \textbf{Sous-apprentissage}\newline(\textit{Underfitting}) & Réseau trop simple ou entraînement trop court & Mauvaises performances aussi bien en entraînement qu'en test. \\
+  & \textbf{Sur-apprentissage}\newline(\textit{Overfitting}) & Réseau trop complexe ou trop peu de données & Excellentes performances en entraînement, chute sévère en test. \\
+  \bottomrule
+\end{tabularx}
+
+\vspace{0.5em}
+Le découpage systématique du jeu de données en un ensemble d'\textbf{entraînement} et un ensemble de \textbf{test} (jamais utilisé pendant l'apprentissage) permet de détecter ces phénomènes et de mesurer objectivement la généralisation du modèle.
+
+% ---- 0.6 Coût d'entraînement ----
+\section{Les différentes dimensions du coût en apprentissage profond}
+
+En apprentissage profond industriel, le terme « coût » recouvre trois réalités distinctes qu'il convient de ne pas confondre :
+
+\vspace{0.8em}
+\renewcommand{\arraystretch}{1.5}
+\begin{tabularx}{\linewidth}{C{0.5cm} L{3.2cm} L{5cm} L{7.3cm}}
+  \arrayrulecolor{midgray}
+  \toprule
+  \tableheadcolor
+  \textbf{\#} & \textbf{Type de coût} & \textbf{Nature} & \textbf{Exemples concrets} \\
+  \midrule
+  \tablerowodd
+  \textbf{1} & \textbf{Coût de la donnée} & Acquisition et annotation du jeu de données & Photographe professionnel, expert annotateur humain, équipement haute résolution. \\
+  \textbf{2} & \textbf{Coût de calcul} & Temps GPU nécessaire à l'entraînement & Location d'instances cloud, consommation électrique, durée d'entraînement. \\
+  \tablerowodd
+  \textbf{3} & \textbf{Coût de déploiement} & Inférence en production & Taille du modèle, latence de prédiction, mémoire requise. \\
+  \bottomrule
+\end{tabularx}
+
+\vspace{0.5em}
+Ce projet se concentre prioritairement sur le \textbf{Coût de la donnée} (type 1), qui représente le verrou économique principal dans la plupart des applications industrielles réelles. La métrique de \textbf{Crédit d'Annotation (CA)}, définie au Chapitre~1, permet de quantifier ce coût de manière rigoureuse et indépendante du matériel utilisé.
+
+\begin{hypothesebox}[Résumé des notions clés]
+  Un réseau de neurones apprend en ajustant itérativement ses \textbf{poids} pour minimiser une \textbf{fonction de perte}, via la \textbf{rétropropagation du gradient}. La qualité de cet apprentissage dépend des \textbf{hyperparamètres}, du \textbf{volume} et de la \textbf{qualité} des données d'entraînement. L'enjeu central de ce projet est de démontrer qu'il est possible de réduire le \textbf{coût d'acquisition des données} sans sacrifier les performances de généralisation.
+\end{hypothesebox}
+
+\newpage
+% ============================================================
 %  CHAPITRE 1
 % ============================================================
-\chapter{Préparation et Fondation}
+\chapter{Fondation et construction de l'environnement Multi-Fidélité}
 
 Les choix et la mise en place de l'environnement de travail ont été guidés par des contraintes matérielles et par la nécessité de disposer de données adaptées à la simulation d'une approche multi-fidélité.
 
@@ -305,18 +513,10 @@ Le jeu de données doit être suffisamment difficile pour que la dégradation vi
   Son volume (26 179 images après nettoyage) permet un entraînement \textit{from scratch} stable avec ResNet-18. Sa haute résolution native offre une large plage dynamique pour le pipeline de dégradation. Son caractère communautaire le rapproche des conditions industrielles réelles.
 \end{decisionbox}
 
-\newpage
-
-% ============================================================
-%  CHAPITRE 2
-% ============================================================
-\chapter{Construction de l'Environnement Multi-Fidélité}
-
-Afin d'étudier l'impact de la qualité des données sur les performances d'apprentissage, un environnement expérimental a été construit : découpage asymétrique du dataset, pipeline de dégradation et métrique de coût.
 
 % ---- 2.1 Découpage ----
 \section{Découpage et répartition des données}
-
+Afin d'étudier l'impact de la qualité des données sur les performances d'apprentissage, un environnement expérimental a été construit : découpage asymétrique du dataset, pipeline de dégradation et métrique de coût.
 Le schéma ci-dessous illustre le découpage du jeu Animals-10.
 
 % Schéma TikZ de la répartition
@@ -404,6 +604,70 @@ La génération des images Basse Fidélité applique deux transformations consé
   Le temps de calcul brut ($Temps_{Epoch} \times Nombre_{Epochs}$) a été écarté en raison de l'instabilité des environnements cloud (fluctuations de charge serveur, allocation dynamique GPU, goulots I/O). Le \textbf{Crédit d'Annotation} offre un référentiel \textbf{invariant, agnostique au matériel}, centré sur la valeur intrinsèque de la donnée.
 \end{hypothesebox}
 
+% ---- 3.2 Architecture ----
+\section{Sélection et justification de l'architecture neuronale}
+
+Pour que la comparaison entre nos différents jeux de données (HF, BF, Mixte) soit scientifiquement valide, l'architecture doit rester strictement identique. Plusieurs architectures standards de vision par ordinateur ont été évaluées :
+
+\renewcommand{\arraystretch}{1.5}
+\begin{tabularx}{\linewidth}{C{2.5cm} C{2cm} L{5.8cm} L{5cm}}
+  \arrayrulecolor{midgray}
+  \toprule
+  \tableheadcolor
+  \textbf{Architecture} &
+  \textbf{Paramètres} &
+  \textbf{Points forts} &
+  \textbf{Limites / Pertinence} \\
+  \midrule
+  \tablerowodd
+  \cellcolor{hfcolor!20}\textbf{ResNet-18 \checkmark} & $\approx$11 M &
+    Standard académique, connexions résiduelles, robuste au bruit. &
+    \textbf{Pertinence excellente} --- compromis idéal. \\
+  MobileNetV2 & $\approx$3,4 M &
+    Ultra-léger, économe en VRAM, itérations rapides. &
+    S'effondre sur données fortement bruitées. \\
+  \tablerowodd
+  EfficientNet-B0 & $\approx$5,3 M &
+    Ratio précision/paramètres optimisé mathématiquement. &
+    Difficile à faire converger \textit{from scratch}. \\
+  ViT-Tiny & $\approx$5 M &
+    Architecture Transformer, vision globale. &
+    Sur-apprend massivement sans pré-entraînement. \\
+  \bottomrule
+\end{tabularx}
+
+\vspace{0.8em}
+\begin{decisionbox}
+  \textbf{\color{primary}Architecture retenue : ResNet-18 (Entraîné \textit{from scratch})} \\[3pt]
+  Ses $\approx$11 millions de paramètres lui confèrent une capacité d'abstraction suffisante pour extraire des caractéristiques à travers le bruit. Il a été délibérément choisi de ne pas utiliser de poids pré-entraînés (\texttt{weights=None}) afin de mesurer le véritable impact qualitatif de notre jeu de données Animals-10 sur l'apprentissage, sans biais cognitif préalable. La dernière couche (classifieur) a été adaptée pour générer 10 vecteurs de sortie correspondant à nos 10 classes animales.
+\end{decisionbox}
+
+\subsection{Mécanique interne de ResNet-18}
+L'architecture \textit{Residual Network} (ResNet) a révolutionné l'apprentissage profond en introduisant les \textbf{connexions résiduelles} (\textit{skip connections}). Dans un réseau convolutionnel classique profond, le signal du gradient a tendance à s'estomper lors de la phase de rétropropagation (le problème de la disparition du gradient). ResNet contourne ce problème en ajoutant l'entrée d'une couche directement à sa sortie mathématique ($F(x) + x$). 
+
+Dans le contexte de données Basse Fidélité (flou et bruit gaussien), cette architecture est cruciale : si une couche convolutionnelle n'arrive pas à extraire d'information pertinente à cause du bruit, la connexion résiduelle permet à l'information globale de l'image de continuer à circuler librement à travers le réseau sans être détruite. La version à 18 couches (ResNet-18) offre le compromis parfait entre expressivité et prévention du sur-apprentissage (\textit{overfitting}) sur notre corpus de $\approx$25 000 images.
+
+\subsection{Justification des hyperparamètres et de la fonction de coût}
+
+Pour garantir la reproductibilité et la comparabilité des \textit{Baselines}, une configuration stricte d'hyperparamètres a été codée en dur dans notre script d'entraînement (\texttt{train\_baselines.py}) :
+
+\begin{itemize}
+    \item \textbf{Fonction de perte (Loss) -- \texttt{CrossEntropyLoss}} : Il s'agit du standard mathématique pour les problèmes de classification multi-classes. Cette fonction combine une activation Softmax (pour transformer les sorties brutes du modèle en probabilités de 0 à 1) et une perte log-vraisemblance négative (NLL). Elle pénalise fortement le modèle s'il est très confiant sur une mauvaise prédiction, ce qui est idéal pour forcer le réseau à douter sur des images floues.
+    \item \textbf{Optimiseur -- \texttt{Adam}} : Contrairement à une descente de gradient stochastique classique (SGD), Adam adapte dynamiquement le taux d'apprentissage pour chaque paramètre individuel en utilisant les moments du premier et second ordre des gradients. Cela permet une convergence beaucoup plus rapide et stable, particulièrement utile lors d'un entraînement \textit{from scratch}.
+    \item \textbf{Taux d'apprentissage (\textit{Learning Rate})} : Fixé à $lr = 0.001$. C'est la valeur par défaut recommandée pour l'optimiseur Adam, offrant un pas de descente suffisamment grand pour échapper aux minima locaux lors des premières époques, tout en évitant la divergence.
+    \item \textbf{Taille de lot (\textit{Batch Size})} : Fixée à $64$. Cette valeur permet d'optimiser l'utilisation de la mémoire vidéo (VRAM) du GPU T4, tout en garantissant un gradient stochastique suffisamment lissé pour ne pas rendre l'apprentissage chaotique face au bruit des images BF.
+    \item \textbf{Nombre d'époques} : Fixé à $20$. Des tests préliminaires ont montré qu'au-delà de 20 époques, la courbe d'apprentissage sur le jeu d'entraînement atteint un plateau asymptotique, et le risque de mémorisation du bruit (\textit{overfitting}) augmente considérablement.
+\end{itemize}
+
+\subsection{Prétraitement et optimisations matérielles}
+
+Afin d'exploiter pleinement l'architecture hybride (VS Code / Google Colab), deux optimisations logicielles majeures ont été intégrées à l'implémentation :
+
+\begin{enumerate}
+    \item \textbf{Normalisation des tenseurs} : Avant d'entrer dans le réseau, toutes les images (redimensionnées en $224 \times 224$ pixels) subissent une normalisation spatiale basée sur les statistiques du jeu de données ImageNet (Moyennes : \texttt{[0.485, 0.456, 0.406]}, Écarts-types : \texttt{[0.229, 0.224, 0.225]}). Cette opération centre les données autour de zéro, accélérant la convergence de la descente de gradient.
+    \item \textbf{Précision Mixte Automatique (AMP)} : L'entraînement utilise les modules \texttt{torch.amp.autocast} et \texttt{GradScaler}. Cette technique exécute certaines opérations mathématiques en virgule flottante 16 bits (FP16) au lieu de 32 bits (FP32). Cela a permis de réduire drastiquement la consommation mémoire et d'accélérer le temps de calcul sur les Tensor Cores du GPU NVIDIA T4, réduisant la durée d'une époque de plusieurs minutes à une quarantaine de secondes, sans aucune perte de précision prédictive.
+\end{enumerate}
+
 \newpage
 
 % ============================================================
@@ -441,42 +705,6 @@ Un modèle entraîné sur des images floues (domaine BF) peut ne pas généralis
   \draw[arrow] (model) -- (tmix);
 \end{tikzpicture}
 \end{center}
-
-% ---- 3.2 Architecture ----
-\section{Sélection et justification de l'architecture neuronale}
-
-\renewcommand{\arraystretch}{1.5}
-\begin{tabularx}{\linewidth}{C{2.5cm} C{2cm} L{5.8cm} L{5cm}}
-  \arrayrulecolor{midgray}
-  \toprule
-  \tableheadcolor
-  \textbf{Architecture} &
-  \textbf{Paramètres} &
-  \textbf{Points forts} &
-  \textbf{Limites / Pertinence} \\
-  \midrule
-  \tablerowodd
-  \cellcolor{hfcolor!20}\textbf{ResNet-18 \checkmark} & $\approx$11 M &
-    Standard académique, connexions résiduelles, robuste au bruit &
-    \textbf{Pertinence excellente} --- compromis idéal \\
-  MobileNetV2 & $\approx$3,4 M &
-    Ultra-léger, économe en VRAM, itérations rapides &
-    S'effondre sur données fortement bruitées \\
-  \tablerowodd
-  EfficientNet-B0 & $\approx$5,3 M &
-    Ratio précision/paramètres optimisé mathématiquement &
-    Difficile à faire converger \textit{from scratch} \\
-  ViT-Tiny & $\approx$5 M &
-    Architecture Transformer, vision globale &
-    Sur-apprend massivement sans pré-entraînement \\
-  \bottomrule
-\end{tabularx}
-
-\vspace{0.8em}
-\begin{decisionbox}
-  \textbf{\color{primary}Architecture retenue : ResNet-18} \\[3pt]
-  Ses $\approx$11M paramètres permettent l'extraction de caractéristiques à travers le bruit. Ses connexions résiduelles garantissent un entraînement stable. Les hyperparamètres (Optimiseur Adam, taux d'apprentissage, taille de lot) resteront \textbf{strictement identiques} pour toutes les expériences.
-\end{decisionbox}
 
 % ---- 3.3 Baselines ----
 \section{Définition des modèles de référence}
@@ -562,13 +790,51 @@ L'analyse de ces métriques permet de tirer trois conclusions majeures concernan
 
 \newpage
 
-\begin{thebibliography}{9}
+\begin{thebibliography}{99}
 
+% --- Architecture ---
 \bibitem{resnet}
 Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun.
 \textit{Deep Residual Learning for Image Recognition}.
-Proceedings of the IEEE conference on computer vision and pattern recognition (CVPR), 2016.
+Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR), 2016.
 
+% --- Optimisation & entraînement ---
+\bibitem{adam}
+Diederik P. Kingma, Jimmy Ba.
+\textit{Adam: A Method for Stochastic Optimization}.
+International Conference on Learning Representations (ICLR), 2015.
+
+\bibitem{crossentropy}
+Ian Goodfellow, Yoshua Bengio, Aaron Courville.
+\textit{Deep Learning}.
+MIT Press, 2016.
+Disponible en ligne : \url{https://www.deeplearningbook.org}
+
+% --- Normalisation & transfert (ImageNet stats) ---
+\bibitem{imagenet}
+Olga Russakovsky, Jia Deng, Hao Su, Jonathan Krause, Sanjeev Satheesh, Sean Ma,
+Zhiheng Huang, Andrej Karpathy, Aditya Khosla, Michael Bernstein, Alexander C. Berg, Li Fei-Fei.
+\textit{ImageNet Large Scale Visual Recognition Challenge}.
+International Journal of Computer Vision (IJCV), 123(3):211--252, 2015.
+
+% --- Dégradation d'image & robustesse ---
+\bibitem{hendrycks2019}
+Dan Hendrycks, Thomas Dietterich.
+\textit{Benchmarking Neural Network Robustness to Common Corruptions and Perturbations}.
+International Conference on Learning Representations (ICLR), 2019.
+
+% --- Multi-fidélité ---
+\bibitem{multifidelity}
+Marc Peter Deisenroth, Jun Wei Ng.
+\textit{Distributed Gaussian Processes}.
+International Conference on Machine Learning (ICML), 2015.
+
+\bibitem{kennedy2000}
+Marc C. Kennedy, Anthony O'Hagan.
+\textit{Predicting the Output from a Complex Computer Code When Fast Approximations Are Available}.
+Biometrika, 87(1):1--13, 2000.
+
+% --- Méthodes de réentraînement robuste ---
 \bibitem{ren2018reweight}
 Mengye Ren, Wenyuan Zeng, Bin Yang, Raquel Urtasun.
 \textit{Learning to Reweight Examples for Robust Deep Learning}.
