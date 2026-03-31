@@ -787,6 +787,121 @@ L'analyse de ces métriques permet de tirer trois conclusions majeures concernan
 \end{figure}
 
 
+% ============================================================
+%  CHAPITRE 4
+% ============================================================
+\chapter{Stratégies Multi-Fidélité}
+
+Ce chapitre inaugure la Partie 4 et présente l'\textbf{Étape 1 : Transfer Learning Séquentiel} (pré-entraînement BF puis fine-tuning HF). L'objectif est de tester si une phase d'apprentissage large sur données peu coûteuses peut servir de socle, puis être spécialisée rapidement sur une fraction réduite de données HF.
+
+\section{Stratégie 1 -- Transfer Learning Séquentiel (BF $\rightarrow$ HF)}
+
+% ---- 4.1.1 Protocole ----
+\subsection{Protocole}
+
+La stratégie retenue repose sur deux phases d'entraînement consécutives avec la même architecture ResNet-18 :
+
+\begin{enumerate}
+  \item \textbf{Pré-entraînement BF} : apprentissage sur le volume principal de données dégradées pour acquérir une représentation robuste et générique des classes.
+  \item \textbf{Fine-tuning HF} : spécialisation sur un sous-ensemble HF plus petit, afin de récupérer les détails discriminants de haute fidélité.
+\end{enumerate}
+
+Configuration expérimentale utilisée :
+
+\vspace{0.6em}
+\renewcommand{\arraystretch}{1.45}
+\begin{tabularx}{\linewidth}{L{4.1cm} C{3cm} L{7.6cm}}
+  \arrayrulecolor{midgray}
+  \toprule
+  \tableheadcolor
+  \textbf{Paramètre} & \textbf{Valeur} & \textbf{Commentaire} \\
+  \midrule
+  Architecture & ResNet-18 & Entraînée \textit{from scratch}, tête de classification 10 classes \\
+  Optimiseur & Adam & Identique aux baselines pour conserver la comparabilité \\
+  Batch size & 64 & Compromis stabilité/vitesse sur GPU T4 \\
+  Époques BF & 10 & 21\,213 images BF (332 batches/époque) \\
+  Époques HF & 10 & 1\,881 images HF train + 471 images HF val \\
+  Learning rates & 0,001 puis 0,0003 & Plus faible en fine-tuning pour stabiliser l'adaptation \\
+  Accélération & AMP (FP16) & \texttt{autocast} + \texttt{GradScaler} \\
+  \bottomrule
+\end{tabularx}
+
+% ---- 4.1.2 Résultats ----
+\subsection{Résultats quantitatifs obtenus}
+
+Les résultats finaux de l'Étape 1 sont résumés ci-dessous.
+Dans cette étude, le critère prioritaire est la performance sur \textbf{Test HF}.
+
+\vspace{0.6em}
+\renewcommand{\arraystretch}{1.45}
+\begin{tabularx}{\linewidth}{L{5.3cm} C{2.4cm} C{2.4cm} C{2.4cm} C{2.4cm}}
+  \arrayrulecolor{midgray}
+  \toprule
+  \tableheadcolor
+  \textbf{Méthode} & \textbf{Test HF} & \textbf{Test BF} & \textbf{Test Mixte} & \textbf{Coût (CA)} \\
+  \midrule
+  \tablerowodd
+  Stratégie 1 (BF $\rightarrow$ HF) & 78,84\% & 57,65\% & 68,25\% & 400\,230 \\
+  \bottomrule
+\end{tabularx}
+
+\vspace{0.8em}
+\begin{hypothesebox}[Lecture rapide des courbes d'entraînement]
+  La phase BF converge rapidement en \textit{train loss} (1,694 $\rightarrow$ 0,226), alors que la validation HF fluctue fortement (39,28\% $\rightarrow$ 57,75\% puis 50,96\%).
+  Après transition vers HF, la précision validation HF bondit immédiatement autour de 78--79\%, puis se stabilise ; la \textit{val loss} remonte légèrement en fin de fine-tuning, signalant un début de sur-apprentissage.
+\end{hypothesebox}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\linewidth]{figures/strategy1_transfer_learning_curves.png}
+  \caption{Évolution de la loss et de la précision validation HF pendant le pré-entraînement BF puis le fine-tuning HF.}
+  \label{fig:strategy1_curves_placeholder}
+\end{figure}
+
+% ---- 4.1.3 Comparaison ----
+\subsection{Comparaison avec les baselines du Chapitre 3}
+
+\vspace{0.6em}
+\renewcommand{\arraystretch}{1.45}
+\begin{tabularx}{\linewidth}{L{4.5cm} C{2.2cm} C{2.2cm} C{2.2cm} C{2.5cm}}
+  \arrayrulecolor{midgray}
+  \toprule
+  \tableheadcolor
+  \textbf{Modèle} & \textbf{HF} & \textbf{BF} & \textbf{Mixte} & \textbf{Coût (CA)} \\
+  \midrule
+  \tablerowodd
+  BL 1 (HF) & 56,20\% & 35,16\% & 45,68\% & 470\,400 \\
+  BL 2 (BF) & 59,07\% & 63,66\% & 61,36\% & 424\,260 \\
+  \tablerowodd
+  BL 3 (Mixte) & 75,90\% & 65,03\% & 70,47\% & 894\,660 \\
+  \textbf{Stratégie 1 (BF $\rightarrow$ HF)} & \textbf{78,84\%} & \textbf{57,65\%} & \textbf{68,25\%} & \textbf{400\,230} \\
+  \bottomrule
+\end{tabularx}
+
+\vspace{0.8em}
+Comparaisons clés :
+
+\begin{itemize}
+  \item \textbf{Objectif principal HF atteint} : la stratégie 1 obtient \textbf{78,84\% sur Test HF}, soit le \textbf{meilleur score HF de toutes les approches testées} (BL 3 = 75,90\%, BL 2 = 59,07\%, BL 1 = 56,20\%).
+  \item \textbf{Vs BL 3 (Mixte)} : tout en dépassant BL 3 sur HF (+2,94 points), la stratégie 1 réduit fortement le coût (894\,660 $\rightarrow$ 400\,230 CA, soit $\approx$\,55\%).
+  \item \textbf{Compromis BF accepté} : la précision BF reste inférieure à BL 2 et BL 3 (57,65\% vs 63,66\% et 65,03\%), mais ce compromis est cohérent avec la priorité explicitement fixée sur la qualité HF.
+\end{itemize}
+
+% ---- 4.1.4 Analyse ----
+\subsection{Analyse : ce qui a marché, ce qui a moins marché, et enseignements}
+
+\begin{itemize}
+  \item \textbf{Ce qui a bien marché (HF)} : la phase BF fournit une initialisation robuste, puis le fine-tuning HF spécialise efficacement le modèle ; le gain final en Test HF est net et place la stratégie 1 en tête.
+  \item \textbf{Limite observée} : la spécialisation HF entraîne une perte partielle de robustesse BF (\textit{domain forgetting}), ce qui était attendu dans une optimisation orientée domaine propre.
+  \item \textbf{Signal de sur-apprentissage léger} : en fin de fine-tuning, la \textit{train loss} continue de baisser tandis que la \textit{val loss} HF se dégrade légèrement ; un \textit{early stopping} piloté par Test/Val HF améliorerait encore la stabilité.
+  \item \textbf{Leçon principale} : pour un objectif centré sur la performance HF, le transfer learning séquentiel offre le meilleur compromis observé entre précision cible et coût d'annotation.
+\end{itemize}
+
+\begin{decisionbox}
+  \textbf{Conclusion Étape 1 (objectif HF prioritaire) :} la stratégie BF $\rightarrow$ HF est validée comme meilleure option actuelle pour maximiser la performance sur données propres. L'Étape 2 (co-training pondéré) visera désormais à conserver ce niveau HF tout en regagnant de la robustesse sur BF.
+\end{decisionbox}
+
+
 
 \newpage
 

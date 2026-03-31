@@ -1,5 +1,5 @@
 # Fdb version 4
-["pdflatex"] 1774629399.4372 "c:/VSCode/PF22_MultiFidelity_DL/latek_report/main.tex" "main.pdf" "main" 1774629402.30675 0
+["pdflatex"] 1774991000.49864 "c:/VSCode/PF22_MultiFidelity_DL/latek_report/main.tex" "main.pdf" "main" 1774991005.51762 0
   "C:/Users/ivann/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map" 1774540428 83609 ebbc432e6cbbb238d39535255db2c8bd ""
   "C:/Users/ivann/AppData/Local/MiKTeX/fonts/pk/ljfour/jknappen/ec/dpi600/tcss0900.pk" 1774628809 9548 8ac32ede65d77e2b46124016345ee3a0 ""
   "C:/Users/ivann/AppData/Local/MiKTeX/miktex/data/le/pdftex/pdflatex.fmt" 1764794073 13333511 9770f3d53d6a4e47ffc9b9f0200686f6 ""
@@ -32,6 +32,7 @@
   "C:/Users/ivann/AppData/Local/Programs/MiKTeX/fonts/tfm/public/lm/ec-lmtt10.tfm" 1256929440 1372 2ef2c2b492b3c4cd7879fe083abbb061 ""
   "C:/Users/ivann/AppData/Local/Programs/MiKTeX/fonts/tfm/public/lm/lmex10.tfm" 1256929440 992 ce925c9346c7613270a79afbee98c070 ""
   "C:/Users/ivann/AppData/Local/Programs/MiKTeX/fonts/tfm/public/lm/lmmi10.tfm" 1256929440 1528 6d36b2385e0ca062a654de6ac59cb34f ""
+  "C:/Users/ivann/AppData/Local/Programs/MiKTeX/fonts/tfm/public/lm/lmmi12.tfm" 1256929440 1524 753b192b18f2991794f9d41a8228510b ""
   "C:/Users/ivann/AppData/Local/Programs/MiKTeX/fonts/tfm/public/lm/lmmi5.tfm" 1256929440 1508 51526923e80e59e37a4e87448b5af6e0 ""
   "C:/Users/ivann/AppData/Local/Programs/MiKTeX/fonts/tfm/public/lm/lmmi6.tfm" 1256929440 1512 94a3fd88c6f27dbd9ecb46987e297a4e ""
   "C:/Users/ivann/AppData/Local/Programs/MiKTeX/fonts/tfm/public/lm/lmmi7.tfm" 1256929440 1528 d5b028dd23da623848ef0645c96a1ed7 ""
@@ -44,6 +45,7 @@
   "C:/Users/ivann/AppData/Local/Programs/MiKTeX/fonts/tfm/public/lm/lmsy8.tfm" 1256929440 1304 cdc9a17df9ef0d2dc320eff37bbab1c4 ""
   "C:/Users/ivann/AppData/Local/Programs/MiKTeX/fonts/tfm/public/lm/lmsy9.tfm" 1256929440 1300 ca37bc0213808d24f74bf4d32f81f80d ""
   "C:/Users/ivann/AppData/Local/Programs/MiKTeX/fonts/tfm/public/lm/rm-lmr10.tfm" 1256929440 11868 4f81e9b6033c032bdaf9884f4d7ef412 ""
+  "C:/Users/ivann/AppData/Local/Programs/MiKTeX/fonts/tfm/public/lm/rm-lmr12.tfm" 1256929440 11888 6841b91e46b65cf41a49b160e6e74130 ""
   "C:/Users/ivann/AppData/Local/Programs/MiKTeX/fonts/tfm/public/lm/rm-lmr5.tfm" 1256929440 11804 aefb10c002e6492c25236524a447f969 ""
   "C:/Users/ivann/AppData/Local/Programs/MiKTeX/fonts/tfm/public/lm/rm-lmr6.tfm" 1256929440 11836 e3b6ce3e601aec94f64a536e7f4224d5 ""
   "C:/Users/ivann/AppData/Local/Programs/MiKTeX/fonts/tfm/public/lm/rm-lmr7.tfm" 1256929440 11852 5a9022f105fd1ee2797df861e79ae9a0 ""
@@ -229,12 +231,13 @@
   "C:/Users/ivann/AppData/Local/Programs/MiKTeX/tex/latex/trimspaces/trimspaces.sty" 1253169183 1380 971a51b00a14503ddf754cab24c3f209 ""
   "C:/Users/ivann/AppData/Local/Programs/MiKTeX/tex/latex/url/url.sty" 1388490452 12796 8edb7d69a20b857904dd0ea757c14ec9 ""
   "C:/Users/ivann/AppData/Local/Programs/MiKTeX/tex/latex/xcolor/xcolor.sty" 1729265222 55384 b454dec21c2d9f45ec0b793f0995b992 ""
-  "c:/VSCode/PF22_MultiFidelity_DL/latek_report/main.tex" 1774629395 41209 441980ea6341100c3cf04bd815a78c8c ""
+  "c:/VSCode/PF22_MultiFidelity_DL/latek_report/main.tex" 1774990994 47563 75a9e897c003c41a3f0bcda0ce2d1ded ""
   "figures/baselines_comparison.png" 1774626919 110281 59beefe8c7464920e26ea1c80f97f71c ""
-  "main.aux" 1774629401 4772 c4b161af4d4693b1e232f1a44b14b05e "pdflatex"
-  "main.out" 1774629402 6305 b4d351fb104e3f3fc07fd52f0d4442aa "pdflatex"
-  "main.tex" 1774629395 41209 441980ea6341100c3cf04bd815a78c8c ""
-  "main.toc" 1774629402 2476 3f521882bc6bf2b9f90ba1633713cae2 "pdflatex"
+  "figures/strategy1_transfer_learning_curves.png" 1774990669 77813 ae17574f0ce7489975df29b254d70a4c ""
+  "main.aux" 1774991005 6155 88547551ab4674aa32c4304a718d4a65 "pdflatex"
+  "main.out" 1774991005 7897 e5229345ad07b59884d140c13e394891 "pdflatex"
+  "main.tex" 1774990994 47563 75a9e897c003c41a3f0bcda0ce2d1ded ""
+  "main.toc" 1774991005 3127 8633f0677550fce53fc9f9062e522078 "pdflatex"
   (generated)
   "main.aux"
   "main.log"
