@@ -29,3 +29,10 @@
 \contentsline {subsection}{\numberline {4.1.2}Résultats quantitatifs obtenus}{18}{subsection.4.1.2}%
 \contentsline {subsection}{\numberline {4.1.3}Comparaison avec les baselines du Chapitre 3}{18}{subsection.4.1.3}%
 \contentsline {subsection}{\numberline {4.1.4}Analyse : ce qui a marché, ce qui a moins marché, et enseignements}{19}{subsection.4.1.4}%
+\contentsline {subsection}{\numberline {4.1.5}Améliorations possibles de la méthode (Stratégie 1)}{19}{subsection.4.1.5}%
+\contentsline {section}{\numberline {4.2}Stratégie 2 -- Co-training par Batch avec Pondération (Reweighting)}{20}{section.4.2}%
+\contentsline {subsection}{\numberline {4.2.1}Protocole}{20}{subsection.4.2.1}%
+\contentsline {subsection}{\numberline {4.2.2}Résultats quantitatifs obtenus}{21}{subsection.4.2.2}%
+\contentsline {subsection}{\numberline {4.2.3}Comparaison avec les baselines et la Stratégie 1}{22}{subsection.4.2.3}%
+\contentsline {subsection}{\numberline {4.2.4}Analyse : ce qui a marché, ce qui a moins marché, et enseignements}{23}{subsection.4.2.4}%
+\contentsline {subsection}{\numberline {4.2.5}Améliorations possibles de la méthode (Stratégie 2)}{23}{subsection.4.2.5}%

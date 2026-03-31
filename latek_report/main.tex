@@ -792,7 +792,7 @@ L'analyse de ces métriques permet de tirer trois conclusions majeures concernan
 % ============================================================
 \chapter{Stratégies Multi-Fidélité}
 
-Ce chapitre inaugure la Partie 4 et présente l'\textbf{Étape 1 : Transfer Learning Séquentiel} (pré-entraînement BF puis fine-tuning HF). L'objectif est de tester si une phase d'apprentissage large sur données peu coûteuses peut servir de socle, puis être spécialisée rapidement sur une fraction réduite de données HF.
+Ce chapitre inaugure la Partie 4 et présente les premières stratégies multi-fidélité orientées \textbf{objectif HF prioritaire}. Après une approche séquentielle (Étape 1), nous analysons une approche conjointe (Étape 2) où les données HF et BF sont vues simultanément avec une pondération explicite de la perte.
 
 \section{Stratégie 1 -- Transfer Learning Séquentiel (BF $\rightarrow$ HF)}
 
@@ -900,6 +900,153 @@ Comparaisons clés :
 \begin{decisionbox}
   \textbf{Conclusion Étape 1 (objectif HF prioritaire) :} la stratégie BF $\rightarrow$ HF est validée comme meilleure option actuelle pour maximiser la performance sur données propres. L'Étape 2 (co-training pondéré) visera désormais à conserver ce niveau HF tout en regagnant de la robustesse sur BF.
 \end{decisionbox}
+
+\subsection{Améliorations possibles de la méthode (Stratégie 1)}
+
+Les résultats obtenus montrent que la stratégie séquentielle est déjà très compétitive sur HF, mais plusieurs leviers peuvent encore être optimisés.
+
+\begin{itemize}
+  \item \textbf{Nombre d'époques BF et HF} : modifier la durée relative pré-entraînement/fine-tuning (par ex. 5/15, 8/12, 12/8) peut déplacer le compromis robustesse BF vs spécialisation HF. \textit{Comment optimiser :} effectuer une recherche en grille sur le couple $(E_{BF}, E_{HF})$ et sélectionner la configuration maximisant Test HF.
+  \item \textbf{Learning rates par phase} : un LR trop élevé en fine-tuning peut détruire des représentations utiles, trop faible peut sous-adapter HF. \textit{Comment optimiser :} tester plusieurs couples $(lr_{BF}, lr_{HF})$ avec schémas de décroissance (Cosine, StepLR, ReduceLROnPlateau).
+  \item \textbf{Politique de gel/dégel des couches} : geler partiellement le backbone au début du fine-tuning peut limiter l'oubli BF tout en spécialisant la tête. \textit{Comment optimiser :} comparer \textit{full fine-tuning} vs \textit{head-only} puis dégel progressif bloc par bloc.
+  \item \textbf{Split HF train/validation} : la proportion 80/20 peut être remplacée (70/30, 85/15) pour stabiliser la sélection de modèle. \textit{Comment optimiser :} valider sur plusieurs seeds et retenir la configuration la plus stable en variance de score HF.
+  \item \textbf{Batch size} : influe sur la stabilité du gradient et la généralisation. \textit{Comment optimiser :} explorer 32/64/96 (selon VRAM) en ajustant le LR selon une règle de mise à l'échelle.
+  \item \textbf{Régularisation} : ajouter \textit{weight decay}, \textit{dropout} ou \textit{label smoothing} peut réduire le sur-apprentissage en fin de phase HF. \textit{Comment optimiser :} balayage de plages courtes (ex. weight decay $\in [10^{-5},10^{-3}]$, label smoothing $\in [0.0,0.1]$).
+  \item \textbf{Augmentations de données} : RandAugment, ColorJitter léger, RandomErasing peuvent améliorer la robustesse sans dégrader HF si bien dosés. \textit{Comment optimiser :} ablations une augmentation à la fois puis combinaison des plus bénéfiques.
+  \item \textbf{Early stopping et checkpointing} : arrêter sur la meilleure validation HF évite la dégradation tardive. \textit{Comment optimiser :} utiliser une patience (3 à 5 époques) et conserver systématiquement le meilleur checkpoint HF.
+  \item \textbf{Architecture backbone} : ResNet-18 est un bon compromis, mais ResNet-34 ou EfficientNet-B0 peuvent améliorer la représentation. \textit{Comment optimiser :} comparer à budget de coût constant et même protocole d'évaluation.
+  \item \textbf{Fonction de coût avancée} : Focal Loss ou marges additives peuvent mieux séparer des classes ambiguës en HF. \textit{Comment optimiser :} tests contrôlés en remplaçant uniquement la loss, avec mêmes données et mêmes hyperparamètres de base.
+\end{itemize}
+
+
+\section{Stratégie 2 -- Co-training par Batch avec Pondération (Reweighting)}
+
+% ---- 4.2.1 Protocole ----
+\subsection{Protocole}
+
+Contrairement à la stratégie séquentielle BF $\rightarrow$ HF, cette approche entraîne le modèle sur les deux domaines \textbf{au sein d'un même lot}. L'idée est de conserver la diversité BF tout en imposant une priorité d'optimisation sur les exemples HF, considérés comme plus fiables.
+
+Deux mécanismes sont appliqués conjointement :
+
+\begin{enumerate}
+  \item \textbf{Co-training à ratio fixe par batch} : chaque lot contient exactement 16 images HF et 48 images BF (batch size = 64), soit un ratio HF de 25\%.
+  \item \textbf{Loss pondérée par domaine} : la perte individuelle est multipliée par un poids plus fort sur HF ($w_{HF}=2.0$) et plus faible sur BF ($w_{BF}=0.7$), avant agrégation.
+\end{enumerate}
+
+Configuration expérimentale utilisée :
+
+\vspace{0.6em}
+\renewcommand{\arraystretch}{1.45}
+\begin{tabularx}{\linewidth}{L{4.1cm} C{3cm} L{7.6cm}}
+  \arrayrulecolor{midgray}
+  \toprule
+  \tableheadcolor
+  \textbf{Paramètre} & \textbf{Valeur} & \textbf{Commentaire} \\
+  \midrule
+  Architecture & ResNet-18 & Entraînée \textit{from scratch}, classifieur 10 classes \\
+  Optimiseur & Adam & Même famille d'optimisation que les expériences précédentes \\
+  Batch size & 64 & Composition contrôlée HF/BF à chaque itération \\
+  Époques & 20 & Entraînement conjoint sur 117 batches par époque \\
+  Ratio batch & 16 HF / 48 BF & Ratio HF fixé à 25\% par \textit{MixedBatchSampler} \\
+  Poids de loss & HF: 2.0 ; BF: 0.7 & Accent mis sur les erreurs HF dans la mise à jour des gradients \\
+  Données utilisées & 1\,881 HF train + 21\,213 BF train & Validation sur 471 HF ; test sur 2\,614 images \\
+  \bottomrule
+\end{tabularx}
+
+% ---- 4.2.2 Résultats ----
+\subsection{Résultats quantitatifs obtenus}
+
+Les résultats finaux de l'Étape 2 sont résumés ci-dessous.
+Le critère prioritaire reste la précision sur \textbf{Test HF}.
+
+\vspace{0.6em}
+\renewcommand{\arraystretch}{1.45}
+\begin{tabularx}{\linewidth}{L{5.3cm} C{2.4cm} C{2.4cm} C{2.4cm} C{2.4cm}}
+  \arrayrulecolor{midgray}
+  \toprule
+  \tableheadcolor
+  \textbf{Méthode} & \textbf{Test HF} & \textbf{Test BF} & \textbf{Test Mixte} & \textbf{Coût (CA)} \\
+  \midrule
+  \tablerowodd
+  Stratégie 2 (Co-training pondéré) & 70,12\% & 61,90\% & 66,01\% & 486\,720 \\
+  \bottomrule
+\end{tabularx}
+
+\vspace{0.8em}
+\begin{hypothesebox}[Lecture rapide des courbes d'entraînement]
+  La \textit{train weighted loss} décroît de 2,148 (époque 1) à 0,365 (époque 20), avec une baisse plus rapide de la loss HF non pondérée (2,093 $\rightarrow$ 0,070) que de la loss BF (2,098 $\rightarrow$ 0,630), ce qui confirme l'effet attendu du reweighting.
+  La validation HF progresse globalement de 30,57\% à 69,85\%, avec des oscillations intermédiaires (ex. époques 11, 14, 17) indiquant une optimisation plus instable qu'en stratégie séquentielle.
+\end{hypothesebox}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\linewidth]{figures/strategy2_cotraining_reweighting_curves.png}
+  \caption{Évolution des losses et de la précision validation HF pour la Stratégie 2 (co-training pondéré HF/BF).}
+  \label{fig:strategy2_cotraining_curves}
+\end{figure}
+
+% ---- 4.2.3 Comparaison ----
+\subsection{Comparaison avec les baselines et la Stratégie 1}
+
+\vspace{0.6em}
+\renewcommand{\arraystretch}{1.45}
+\begin{tabularx}{\linewidth}{L{4.5cm} C{2.2cm} C{2.2cm} C{2.2cm} C{2.5cm}}
+  \arrayrulecolor{midgray}
+  \toprule
+  \tableheadcolor
+  \textbf{Modèle} & \textbf{HF} & \textbf{BF} & \textbf{Mixte} & \textbf{Coût (CA)} \\
+  \midrule
+  \tablerowodd
+  BL 1 (HF) & 56,20\% & 35,16\% & 45,68\% & 470\,400 \\
+  BL 2 (BF) & 59,07\% & 63,66\% & 61,36\% & 424\,260 \\
+  \tablerowodd
+  BL 3 (Mixte) & 75,90\% & 65,03\% & 70,47\% & 894\,660 \\
+  Stratégie 1 (BF $\rightarrow$ HF) & 78,84\% & 57,65\% & 68,25\% & 400\,230 \\
+  \tablerowodd
+  \textbf{Stratégie 2 (Co-training pondéré)} & \textbf{70,12\%} & \textbf{61,90\%} & \textbf{66,01\%} & \textbf{486\,720} \\
+  \bottomrule
+\end{tabularx}
+
+\vspace{0.8em}
+Comparaisons clés :
+
+\begin{itemize}
+  \item \textbf{Gain net vs BL 1 et BL 2 sur HF} : la stratégie 2 atteint 70,12\% sur Test HF, soit +13,92 points vs BL 1 et +11,05 points vs BL 2.
+  \item \textbf{Robustesse BF préservée} : avec 61,90\% sur BF, la stratégie 2 reste proche de BL 2 (63,66\%) et supérieure à la stratégie 1 (57,65\%), ce qui traduit une meilleure conservation de la robustesse inter-domaines.
+  \item \textbf{Compromis face à la stratégie 1} : la stratégie 2 perd 8,72 points sur HF par rapport à la stratégie 1 (70,12\% vs 78,84\%), mais améliore BF de +4,25 points.
+  \item \textbf{Compromis coût} : le coût de la stratégie 2 (486\,720 CA) reste bien inférieur à BL 3 (894\,660 CA), mais supérieur à la stratégie 1 (400\,230 CA).
+\end{itemize}
+
+% ---- 4.2.4 Analyse ----
+\subsection{Analyse : ce qui a marché, ce qui a moins marché, et enseignements}
+
+\begin{itemize}
+  \item \textbf{Ce qui a bien marché (équilibre des domaines)} : le mélange systématique HF/BF dans chaque batch limite l'oubli de domaine et maintient un niveau BF solide tout en dépassant nettement les baselines mono-domaine sur HF.
+  \item \textbf{Effet du reweighting confirmé} : la décroissance plus rapide de la loss HF non pondérée montre que le modèle a effectivement priorisé les erreurs HF pendant l'optimisation.
+  \item \textbf{Limite principale (objectif HF prioritaire)} : malgré la pondération HF, la stratégie 2 ne retrouve pas le niveau HF de la stratégie 1, suggérant qu'une spécialisation finale explicite sur HF reste plus efficace lorsqu'on vise la performance maximale sur domaine propre.
+  \item \textbf{Leçon principale} : le co-training pondéré constitue une stratégie de compromis robuste HF/BF, mais pas l'option optimale si la cible unique est la précision HF maximale.
+\end{itemize}
+
+\begin{decisionbox}
+  \textbf{Conclusion Étape 2 (objectif HF prioritaire) :} la stratégie de co-training pondéré valide sa pertinence pour stabiliser le compromis inter-domaines, mais la stratégie 1 reste meilleure sur la métrique cible Test HF. Les étapes suivantes devront chercher à conserver ce gain HF tout en maintenant la robustesse BF observée ici.
+\end{decisionbox}
+
+\subsection{Améliorations possibles de la méthode (Stratégie 2)}
+
+La stratégie de co-training pondéré offre une bonne robustesse inter-domaines ; son optimisation repose surtout sur le réglage fin du mélange de données et des poids de perte.
+
+\begin{itemize}
+  \item \textbf{Ratio HF/BF dans le batch} : le choix 16/48 (25\% HF) conditionne directement le compromis HF-BF. \textit{Comment optimiser :} tester plusieurs ratios (20/80, 30/70, 40/60) et tracer la frontière de Pareto entre Test HF et Test BF.
+  \item \textbf{Poids de loss $w_{HF}$ et $w_{BF}$} : ce sont les hyperparamètres centraux de la méthode. \textit{Comment optimiser :} recherche en grille ou bayésienne sur $(w_{HF}, w_{BF})$ (ex. $w_{HF}\in[1.0,3.0]$, $w_{BF}\in[0.4,1.0]$), en fixant d'abord le ratio batch.
+  \item \textbf{Planning dynamique des poids} : garder des poids constants peut être sous-optimal selon la phase d'apprentissage. \textit{Comment optimiser :} démarrer avec un poids HF modéré puis l'augmenter progressivement (curriculum de pondération).
+  \item \textbf{Nombre d'époques} : des oscillations de validation suggèrent qu'un arrêt plus précoce peut être préférable à 20 époques fixes. \textit{Comment optimiser :} early stopping sur validation HF avec patience et sauvegarde du meilleur modèle.
+  \item \textbf{Learning rate et scheduler} : un LR fixe peut accentuer l'instabilité tardive. \textit{Comment optimiser :} comparer LR fixes vs Cosine Annealing / OneCycleLR pour lisser la convergence.
+  \item \textbf{Composition des batches (stochastique contrôlée)} : la variabilité intra-batch peut influencer la stabilité. \textit{Comment optimiser :} conserver le ratio global mais imposer une diversité de classes par domaine (batch balancing par classe).
+  \item \textbf{Fonction de loss alternative} : Balanced Softmax, focal reweighting, ou class-balanced loss peuvent mieux traiter classes rares et bruitées. \textit{Comment optimiser :} protocole d'ablation en ne changeant qu'une composante de loss à la fois.
+  \item \textbf{Qualité de la dégradation BF} : le niveau de bruit/sous-échantillonnage détermine l'écart de domaine. \textit{Comment optimiser :} calibrer plusieurs intensités de dégradation puis choisir celle qui maximise la généralisation HF sans effondrer BF.
+  \item \textbf{Régularisation et normalisation} : weight decay, EMA des poids, mixup/cutmix peuvent améliorer la robustesse de l'entraînement mixte. \textit{Comment optimiser :} introduire les techniques progressivement et évaluer le gain marginal.
+  \item \textbf{Validation multi-critères} : optimiser uniquement HF peut dégrader excessivement BF. \textit{Comment optimiser :} utiliser un score composé (ex. $S=\alpha\,Acc_{HF}+(1-\alpha)\,Acc_{BF}$) avec $\alpha$ élevé, cohérent avec la priorité HF.
+\end{itemize}
 
 
 

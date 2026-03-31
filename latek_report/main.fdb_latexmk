@@ -1,5 +1,5 @@
 # Fdb version 4
-["pdflatex"] 1774991000.49864 "c:/VSCode/PF22_MultiFidelity_DL/latek_report/main.tex" "main.pdf" "main" 1774991005.51762 0
+["pdflatex"] 1774994941.80955 "c:/VSCode/PF22_MultiFidelity_DL/latek_report/main.tex" "main.pdf" "main" 1774994947.23095 0
   "C:/Users/ivann/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map" 1774540428 83609 ebbc432e6cbbb238d39535255db2c8bd ""
   "C:/Users/ivann/AppData/Local/MiKTeX/fonts/pk/ljfour/jknappen/ec/dpi600/tcss0900.pk" 1774628809 9548 8ac32ede65d77e2b46124016345ee3a0 ""
   "C:/Users/ivann/AppData/Local/MiKTeX/miktex/data/le/pdftex/pdflatex.fmt" 1764794073 13333511 9770f3d53d6a4e47ffc9b9f0200686f6 ""
@@ -58,6 +58,7 @@
   "C:/Users/ivann/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr10.pfb" 1256929440 119235 05e5c8d6d60439433e50047898c2c0e0 ""
   "C:/Users/ivann/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr8.pfb" 1256929440 122174 a2d5e73f396ddbeb3bdf5c79aea0993d ""
   "C:/Users/ivann/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmsy10.pfb" 1256929440 27863 09ce3735688ffde955e72da27c95b61a ""
+  "C:/Users/ivann/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmsy8.pfb" 1256929440 27802 5c876bb2c4040caaf035d60bd74a86bd ""
   "C:/Users/ivann/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmsy9.pfb" 1256929440 27835 e135c98a7736a509f536880c6a6e3bd9 ""
   "C:/Users/ivann/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmtk10.pfb" 1256929440 117319 28a05fff1cac98366062ffbb2e22858d ""
   "C:/Users/ivann/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmtt10.pfb" 1256929440 113227 d3d1adc024746ff57b20efba82c6d365 ""
@@ -231,13 +232,14 @@
   "C:/Users/ivann/AppData/Local/Programs/MiKTeX/tex/latex/trimspaces/trimspaces.sty" 1253169183 1380 971a51b00a14503ddf754cab24c3f209 ""
   "C:/Users/ivann/AppData/Local/Programs/MiKTeX/tex/latex/url/url.sty" 1388490452 12796 8edb7d69a20b857904dd0ea757c14ec9 ""
   "C:/Users/ivann/AppData/Local/Programs/MiKTeX/tex/latex/xcolor/xcolor.sty" 1729265222 55384 b454dec21c2d9f45ec0b793f0995b992 ""
-  "c:/VSCode/PF22_MultiFidelity_DL/latek_report/main.tex" 1774990994 47563 75a9e897c003c41a3f0bcda0ce2d1ded ""
+  "c:/VSCode/PF22_MultiFidelity_DL/latek_report/main.tex" 1774994934 59947 10d4ca15f575b9effacc80c7e556dd56 ""
   "figures/baselines_comparison.png" 1774626919 110281 59beefe8c7464920e26ea1c80f97f71c ""
   "figures/strategy1_transfer_learning_curves.png" 1774990669 77813 ae17574f0ce7489975df29b254d70a4c ""
-  "main.aux" 1774991005 6155 88547551ab4674aa32c4304a718d4a65 "pdflatex"
-  "main.out" 1774991005 7897 e5229345ad07b59884d140c13e394891 "pdflatex"
-  "main.tex" 1774990994 47563 75a9e897c003c41a3f0bcda0ce2d1ded ""
-  "main.toc" 1774991005 3127 8633f0677550fce53fc9f9062e522078 "pdflatex"
+  "figures/strategy2_cotraining_reweighting_curves.png" 1774994408 106057 a640c5592788a5175840591e6aa3f593 ""
+  "main.aux" 1774994946 7662 4d46ce2b525d09c45f1a77709262cb46 "pdflatex"
+  "main.out" 1774994946 10109 85159a19e59e3397df5e514be363e38b "pdflatex"
+  "main.tex" 1774994934 59947 10d4ca15f575b9effacc80c7e556dd56 ""
+  "main.toc" 1774994946 3948 862e643af577375d9d6638bb8bb09121 "pdflatex"
   (generated)
   "main.aux"
   "main.log"

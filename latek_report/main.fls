@@ -453,6 +453,13 @@ INPUT .\figures\strategy1_transfer_learning_curves.png
 INPUT .\figures\strategy1_transfer_learning_curves.png
 INPUT .\figures\strategy1_transfer_learning_curves.png
 INPUT .\figures\strategy1_transfer_learning_curves.png
+INPUT .\figures\strategy2_cotraining_reweighting_curves.png
+INPUT .\figures\strategy2_cotraining_reweighting_curves.png
+INPUT .\figures\strategy2_cotraining_reweighting_curves.png
+INPUT .\figures\strategy2_cotraining_reweighting_curves.png
+INPUT .\figures\strategy2_cotraining_reweighting_curves.png
+INPUT .\figures\strategy2_cotraining_reweighting_curves.png
+INPUT .\figures\strategy2_cotraining_reweighting_curves.png
 INPUT main.aux
 INPUT .\main.out
 INPUT .\main.out
@@ -470,6 +477,8 @@ INPUT C:\Users\ivann\AppData\Local\Programs\MiKTeX\fonts\type1\public\lm\lmr8.pf
 INPUT C:\Users\ivann\AppData\Local\Programs\MiKTeX\fonts\type1\public\lm\lmr8.pfb
 INPUT C:\Users\ivann\AppData\Local\Programs\MiKTeX\fonts\type1\public\lm\lmsy10.pfb
 INPUT C:\Users\ivann\AppData\Local\Programs\MiKTeX\fonts\type1\public\lm\lmsy10.pfb
+INPUT C:\Users\ivann\AppData\Local\Programs\MiKTeX\fonts\type1\public\lm\lmsy8.pfb
+INPUT C:\Users\ivann\AppData\Local\Programs\MiKTeX\fonts\type1\public\lm\lmsy8.pfb
 INPUT C:\Users\ivann\AppData\Local\Programs\MiKTeX\fonts\type1\public\lm\lmsy9.pfb
 INPUT C:\Users\ivann\AppData\Local\Programs\MiKTeX\fonts\type1\public\lm\lmsy9.pfb
 INPUT C:\Users\ivann\AppData\Local\Programs\MiKTeX\fonts\type1\public\lm\lmtk10.pfb
