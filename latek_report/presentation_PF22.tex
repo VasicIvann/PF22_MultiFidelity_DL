@@ -1,0 +1,798 @@
+% ============================================================
+%  PRÉSENTATION BEAMER — Projet PF22 — Approche Multi-Fidélité
+%  Auteur : Ivann Vasic — UTBM — Mars–Juin 2026
+% ============================================================
+\documentclass[aspectratio=169, 10pt]{beamer}
+
+% ============================================================
+%  PAQUETS
+% ============================================================
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{helvet}
+\renewcommand{\familydefault}{\sfdefault}
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{colortbl}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows.meta, positioning, fit, backgrounds, calc}
+\usepackage{xcolor}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+% ============================================================
+%  COULEURS
+% ============================================================
+\definecolor{darkblue}{RGB}{15,32,60}
+\definecolor{accent}{RGB}{0,168,230}
+\definecolor{accentlight}{RGB}{160,220,245}
+\definecolor{lightbg}{RGB}{240,245,250}
+\definecolor{midgray}{RGB}{150,160,175}
+\definecolor{darktext}{RGB}{30,40,55}
+\definecolor{hfcolor}{RGB}{0,140,190}
+\definecolor{bfcolor}{RGB}{110,130,160}
+\definecolor{successgreen}{RGB}{30,160,100}
+\definecolor{warnorange}{RGB}{220,120,30}
+\definecolor{dangerred}{RGB}{200,60,60}
+\definecolor{cardgray}{RGB}{248,250,252}
+
+% ============================================================
+%  THÈME BEAMER PERSONNALISÉ
+% ============================================================
+\usetheme{default}
+\usecolortheme{default}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{frametitle continuation}{}
+
+\setbeamercolor{background canvas}{bg=lightbg}
+\setbeamercolor{frametitle}{fg=darkblue, bg=white}
+\setbeamerfont{frametitle}{series=\bfseries, size=\large}
+\setbeamercolor{title}{fg=white}
+\setbeamercolor{subtitle}{fg=accentlight}
+\setbeamercolor{author}{fg=accentlight}
+\setbeamercolor{date}{fg=midgray}
+\setbeamercolor{item}{fg=accent}
+\setbeamercolor{subitem}{fg=midgray}
+\setbeamertemplate{itemize item}{\color{accent}\rule{0.55em}{0.55em}}
+\setbeamertemplate{itemize subitem}{\color{bfcolor}\small$\triangleright$}
+
+% Footline
+\setbeamertemplate{footline}{%
+  \begin{beamercolorbox}[wd=\paperwidth, ht=0.45cm, dp=0.2cm]{footline}%
+    \begin{tikzpicture}[overlay, remember picture]
+      \fill[darkblue] (current page.south west) rectangle +(\paperwidth, 0.65cm);
+      \node[anchor=west, text=midgray, font=\tiny] at ([xshift=0.3cm, yshift=0.32cm]current page.south west)
+        {Ivann Vasic --- Projet PF22 --- UTBM 2026};
+      \node[anchor=east, text=accentlight, font=\tiny\bfseries] at ([xshift=-0.3cm, yshift=0.32cm]current page.south east)
+        {\insertframenumber{} / \inserttotalframenumber};
+    \end{tikzpicture}%
+  \end{beamercolorbox}%
+}
+
+% Frametitle avec bande colorée gauche
+\setbeamertemplate{frametitle}{%
+  \nointerlineskip%
+  \begin{beamercolorbox}[wd=\paperwidth, ht=0.7cm, dp=0.15cm, leftskip=0.55cm]{frametitle}%
+    \begin{tikzpicture}[overlay]
+      \fill[accent] (-0.4cm, -0.25cm) rectangle (-0.12cm, 0.55cm);
+    \end{tikzpicture}%
+    \usebeamerfont{frametitle}\insertframetitle%
+    \ifx\insertframesubtitle\@empty\else
+      \hfill{\color{midgray}\small\textit{\insertframesubtitle}}%
+    \fi
+  \end{beamercolorbox}%
+  \vspace{0.05cm}
+}
+
+% Blocks
+\setbeamercolor{block title}{bg=darkblue, fg=white}
+\setbeamercolor{block body}{bg=white, fg=darktext}
+\setbeamercolor{block title alerted}{bg=dangerred!80, fg=white}
+\setbeamercolor{block body alerted}{bg=dangerred!8, fg=darktext}
+\setbeamercolor{block title example}{bg=successgreen!85, fg=white}
+\setbeamercolor{block body example}{bg=successgreen!8, fg=darktext}
+
+% ============================================================
+%  MÉTADONNÉES
+% ============================================================
+\title{\textbf{R\'{e}duction des Co\^{u}ts d'Apprentissage}}
+\subtitle{par Approche Multi-Fid\'{e}lit\'{e}}
+\author{Ivann Vasic}
+\institute{UTBM --- Universit\'{e} de Technologie de Belfort-Montb\'{e}liard}
+\date{Pr\'{e}sentation de mi-parcours --- Mars--Juin 2026}
+
+% ============================================================
+%  COMMANDES UTILITAIRES
+% ============================================================
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+
+% ============================================================
+\begin{document}
+% ============================================================
+
+% ============================================================
+%  SLIDE DE TITRE
+% ============================================================
+{
+\setbeamertemplate{footline}{}
+\setbeamertemplate{frametitle}{}
+\begin{frame}[plain]
+  \begin{tikzpicture}[overlay, remember picture]
+    \fill[darkblue] (current page.south west) rectangle (current page.north east);
+    \fill[accent] ([xshift=0cm]current page.south west) rectangle ([xshift=0.55cm]current page.north west);
+    \fill[accent!20] ([xshift=6.5cm, yshift=-1cm]current page.north east) circle (3.5cm);
+    \fill[accent!10] ([xshift=7.5cm, yshift=-2.5cm]current page.north east) circle (2.2cm);
+    \fill[darkblue] ([xshift=7.2cm, yshift=-1.5cm]current page.north east) circle (2.8cm);
+    \node[anchor=north west, text=accentlight, font=\small\bfseries]
+      at ([xshift=0.95cm, yshift=-0.55cm]current page.north west)
+      {UNIVERSIT\'{E} DE TECHNOLOGIE DE BELFORT-MONTB\'{E}LIARD};
+    \node[anchor=north west, text=midgray, font=\footnotesize]
+      at ([xshift=0.95cm, yshift=-1.0cm]current page.north west)
+      {Projet PF22};
+    \node[anchor=north west, text=white, font=\LARGE\bfseries, text width=10cm]
+      at ([xshift=0.95cm, yshift=-1.7cm]current page.north west)
+      {R\'{e}duction des Co\^{u}ts};
+    \node[anchor=north west, text=white, font=\LARGE\bfseries, text width=10cm]
+      at ([xshift=0.95cm, yshift=-2.5cm]current page.north west)
+      {d'Apprentissage};
+    \node[anchor=north west, text=accent, font=\Large\bfseries]
+      at ([xshift=0.95cm, yshift=-3.3cm]current page.north west)
+      {par Approche Multi-Fid\'{e}lit\'{e}};
+    \node[anchor=north west, text=accentlight!80, font=\small, text width=9cm]
+      at ([xshift=0.95cm, yshift=-4.1cm]current page.north west)
+      {Exploration de la combinaison de donn\'{e}es Haute et Basse Fid\'{e}lit\'{e} pour r\'{e}duire le co\^{u}t d'acquisition des jeux de donn\'{e}es en deep learning.};
+    \draw[accent!40, line width=0.5pt]
+      ([xshift=0.95cm,  yshift=1.5cm]current page.south west) --
+      ([xshift=12.5cm, yshift=1.5cm]current page.south west);
+    \node[anchor=west, text=white, font=\small\bfseries]
+      at ([xshift=0.95cm, yshift=1.15cm]current page.south west)
+      {Ivann Vasic};
+    \node[anchor=west, text=midgray, font=\footnotesize]
+      at ([xshift=0.95cm, yshift=0.75cm]current page.south west)
+      {Mars -- Juin 2026 \quad|\quad Pr\'{e}sentation de mi-parcours};
+  \end{tikzpicture}
+\end{frame}
+}
+
+% ============================================================
+%  SLIDE PLAN — CORRIGÉ : texte blanc lisible sur fond sombre
+% ============================================================
+{
+\setbeamertemplate{footline}{}
+\begin{frame}[plain]
+  \begin{tikzpicture}[overlay, remember picture]
+    \fill[darkblue] (current page.south west) rectangle (current page.north east);
+    \fill[accent] ([xshift=0cm]current page.south west) rectangle ([xshift=0.55cm]current page.north west);
+    \node[anchor=north west, text=white, font=\LARGE\bfseries]
+      at ([xshift=0.95cm, yshift=-0.55cm]current page.north west)
+      {Plan de la pr\'{e}sentation};
+  \end{tikzpicture}
+
+  \vspace{1.0cm}
+  \begin{columns}[T]
+    \begin{column}{0.47\textwidth}
+      \begin{tikzpicture}
+        \foreach \n/\t in {
+          1/{Contexte et objectifs},
+          2/{Environnement de travail},
+          3/{Jeu de donn\'{e}es \& pipeline},
+          4/{Architecture ResNet-18}
+        } {
+          \pgfmathsetmacro{\y}{-(\n-1)*0.85}
+          \fill[accent!30, rounded corners=3pt] (0, \y) rectangle (6.8, \y+0.65);
+          \draw[accent!80, line width=1pt, rounded corners=3pt] (0, \y) rectangle (6.8, \y+0.65);
+          \node[anchor=west, text=white, font=\small\bfseries] at (0.2, \y+0.32)
+            {\textcolor{accentlight}{\n.}\ \t};
+        }
+      \end{tikzpicture}
+    \end{column}
+    \begin{column}{0.47\textwidth}
+      \begin{tikzpicture}
+        \foreach \n/\t in {
+          5/{Baselines (mod\`{e}les de r\'{e}f\'{e}rence)},
+          6/{Strat\'{e}gie 1 : Transfer Learning},
+          7/{Strat\'{e}gie 2 : Co-training pond\'{e}r\'{e}},
+          8/{Strat\'{e}gie 3 : Noisy Student},
+          9/{Bilan et perspectives}
+        } {
+          \pgfmathsetmacro{\y}{-(\n-5)*0.85}
+          \fill[accent!30, rounded corners=3pt] (0, \y) rectangle (6.8, \y+0.65);
+          \draw[accent!80, line width=1pt, rounded corners=3pt] (0, \y) rectangle (6.8, \y+0.65);
+          \node[anchor=west, text=white, font=\small\bfseries] at (0.2, \y+0.32)
+            {\textcolor{accentlight}{\n.}\ \t};
+        }
+      \end{tikzpicture}
+    \end{column}
+  \end{columns}
+\end{frame}
+}
+
+% ============================================================
+%  SECTION 1 : CONTEXTE
+% ============================================================
+\begin{frame}{Contexte et probl\'{e}matique}
+  \begin{columns}[T]
+    \begin{column}{0.56\textwidth}
+      \textbf{\color{darkblue}Le co\^{u}t de la donn\'{e}e : verrou \'{e}conomique principal}
+
+      \smallskip
+      L'entra\^{i}nement de r\'{e}seaux profonds performants n\'{e}cessite de vastes jeux de donn\'{e}es \textbf{annot\'{e}s de haute qualit\'{e}}. Or~:
+
+      \medskip
+      \begin{itemize}\setlength\itemsep{5pt}
+        \item Photographe professionnel, \'{e}quipement haute r\'{e}solution $\Rightarrow$ co\^{u}t \'{e}lev\'{e}
+        \item Annotation manuelle par experts $\Rightarrow$ temps long
+        \item Passage \`{a} l'\'{e}chelle industriel difficile
+      \end{itemize}
+
+      \begin{alertblock}{Question centrale}
+        Peut-on remplacer la majorit\'{e} des images co\^{u}teuses (\textbf{HF}) par des images d\'{e}grad\'{e}es bon march\'{e} (\textbf{BF}) sans sacrifier les performances~?
+      \end{alertblock}
+    \end{column}
+    \begin{column}{0.40\textwidth}
+      \begin{tikzpicture}[font=\small]
+        \node[rounded corners=4pt, fill=hfcolor!15, draw=hfcolor,
+              text width=4.2cm, align=center, minimum height=1.1cm] at (0, 2.8)
+          {\textbf{\color{hfcolor}Haute Fid\'{e}lit\'{e} (HF)}\\\footnotesize Photo nette, r\'{e}solution native\\\footnotesize\textbf{Co\^{u}t : 10 CA / image}};
+        \node[rounded corners=4pt, fill=bfcolor!15, draw=bfcolor,
+              text width=4.2cm, align=center, minimum height=1.1cm] at (0, 0.7)
+          {\textbf{\color{bfcolor}Basse Fid\'{e}lit\'{e} (BF)}\\\footnotesize Floue, bruit\'{e}e, sous-\'{e}chantillonn\'{e}e\\\footnotesize\textbf{Co\^{u}t : 1 CA / image}};
+        \draw[-Stealth, thick, accent] (0, 2.0) -- (0, 1.5)
+          node[midway, right=2pt, text=darkblue, font=\footnotesize] {\textbf{\texttimes 10}};
+        \node[rounded corners=4pt, fill=accent!15, draw=accent,
+              text width=4.2cm, align=center, minimum height=0.8cm] at (0, -1.0)
+          {\textbf{\color{darkblue}Approche Multi-Fid\'{e}lit\'{e}}\\\footnotesize 10\% HF + 90\% BF};
+      \end{tikzpicture}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ============================================================
+%  SECTION 2 : ENVIRONNEMENT
+% ============================================================
+\begin{frame}{Environnement de travail}
+  \framesubtitle{Architecture hybride d\'{e}port\'{e}e}
+  \begin{columns}[T]
+    \begin{column}{0.52\textwidth}
+      \renewcommand{\arraystretch}{1.35}
+      \begin{tabular}{@{}lL{5.2cm}@{}}
+        \toprule
+        \textbf{Outil} & \textbf{R\^{o}le} \\
+        \midrule
+        \textbf{VS Code} & IDE local, gestion terminaux \\
+        \textbf{Google Colab} & GPU NVIDIA T4 cloud \\
+        \textbf{Google Drive} & Stockage persistant datasets \\
+        \textbf{GitHub} & Versioning du code source \\
+        \bottomrule
+      \end{tabular}
+
+      \medskip
+      \begin{exampleblock}{Optimisation cl\'{e} : Pr\'{e}cision Mixte (AMP)}
+        R\'{e}duction \'{e}poque : \textbf{plusieurs min $\rightarrow$ $\approx$40\,sec}\\
+        \footnotesize\texttt{torch.amp.autocast} + \texttt{GradScaler} (FP16)
+      \end{exampleblock}
+    \end{column}
+    \begin{column}{0.44\textwidth}
+      \begin{tikzpicture}[font=\scriptsize, node distance=0.6cm]
+        \node[rounded corners=3pt, fill=accent!20, draw=accent,
+              text width=3.5cm, align=center, minimum height=0.6cm]
+          (local) {\textbf{VS Code local}\\\tiny \'{E}dition + debug};
+        \node[rounded corners=3pt, fill=hfcolor!15, draw=hfcolor,
+              text width=3.5cm, align=center, minimum height=0.6cm, below=0.5cm of local]
+          (colab) {\textbf{Google Colab (T4)}\\\tiny Entra\^{i}nement GPU};
+        \node[rounded corners=3pt, fill=bfcolor!15, draw=bfcolor,
+              text width=3.5cm, align=center, minimum height=0.6cm, below=0.5cm of colab]
+          (drive) {\textbf{Google Drive}\\\tiny Dataset + checkpoints};
+        \node[rounded corners=3pt, fill=midgray!15, draw=midgray,
+              text width=3.5cm, align=center, minimum height=0.6cm, below=0.5cm of drive]
+          (github) {\textbf{GitHub}\\\tiny Code + versioning};
+        \draw[-Stealth, accent] (local) -- (colab);
+        \draw[-Stealth, accent] (colab) -- (drive);
+        \draw[-Stealth, accent, dashed] (local.east) to[bend left=45] (github.east);
+      \end{tikzpicture}
+      \vspace{0.2cm}
+
+      \begin{alertblock}{I/O Bottleneck r\'{e}solu}
+        \footnotesize Extraction ZIP locale sur SSD Colab au lieu de lecture FUSE Drive
+      \end{alertblock}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ============================================================
+%  SECTION 3 : DATASET
+% ============================================================
+\begin{frame}{Jeu de donn\'{e}es : Animals-10}
+  \framesubtitle{S\'{e}lection parmi 4 candidats}
+  \begin{columns}[T]
+    \begin{column}{0.55\textwidth}
+      \renewcommand{\arraystretch}{1.3}
+      \begin{tabular}{@{}lC{1.2cm}L{3.5cm}@{}}
+        \toprule
+        \textbf{Dataset} & \textbf{Images} & \textbf{Verdict} \\
+        \midrule
+        Imagenette  & 13k   & Trop facile ($\approx$95\%) \\
+        STL-10      & 105k  & R\'{e}solution 96px trop faible \\
+        Oxford Pets & 7.4k  & Volume insuffisant \\
+        \rowcolor{accent!15}\textbf{Animals-10} & \textbf{26k} & \textbf{\color{successgreen}Retenu $\checkmark$} \\
+        \bottomrule
+      \end{tabular}
+
+      \medskip
+      \textbf{\color{darkblue}Pourquoi Animals-10 ?}
+      \begin{itemize}\setlength\itemsep{3pt}
+        \item Haute r\'{e}solution native $\Rightarrow$ large plage de d\'{e}gradation
+        \item Volume id\'{e}al pour entra\^{i}nement \textit{from scratch}
+        \item Proche des conditions industrielles r\'{e}elles
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.41\textwidth}
+      \begin{tikzpicture}[font=\small, node distance=0.4cm]
+        \node[rounded corners=3pt, fill=midgray!15, draw=midgray,
+              text width=3.5cm, align=center, minimum height=0.7cm]
+          (src) {\textbf{Animals-10}\\\footnotesize 26\,179 images};
+        \node[rounded corners=3pt, fill=accent!20, draw=accent,
+              text width=3.2cm, align=center, minimum height=0.6cm,
+              below right=-0.1cm and -0.3cm of src, yshift=-0.7cm]
+          (test) {\textbf{Test} (10\%)\\\footnotesize $\approx$2\,600 img --- 100\% HF};
+        \node[rounded corners=3pt, fill=midgray!10, draw=midgray,
+              text width=3.2cm, align=center, minimum height=0.6cm, below=1.4cm of src]
+          (train) {\textbf{Train} (90\%)\\\footnotesize $\approx$23\,400 img};
+        \draw[-Stealth, accent] (src.north east) -- ++(0.3,0) |- (test.east);
+        \draw[-Stealth, midgray] (src) -- (train);
+        \node[rounded corners=3pt, fill=hfcolor!15, draw=hfcolor,
+              text width=2.8cm, align=center, minimum height=0.55cm,
+              below right=-0.1cm and -0.2cm of train, yshift=-0.65cm]
+          (hf) {\textcolor{hfcolor}{\textbf{HF}} --- 10\%\\\footnotesize $\approx$2\,340 img};
+        \node[rounded corners=3pt, fill=bfcolor!15, draw=bfcolor,
+              text width=2.8cm, align=center, minimum height=0.55cm, below=1.1cm of train]
+          (bf) {\textcolor{bfcolor}{\textbf{BF}} --- 90\%\\\footnotesize $\approx$21\,060 img};
+        \draw[-Stealth, hfcolor] (train.south) -- ++(0,-0.3) -| (hf.north);
+        \draw[-Stealth, bfcolor] (train.south) -- ++(0,-0.3) -| (bf.north);
+      \end{tikzpicture}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ============================================================
+%  PIPELINE & COÛT
+% ============================================================
+\begin{frame}{Pipeline de d\'{e}gradation \& M\'{e}trique de co\^{u}t}
+  \begin{columns}[T]
+    \begin{column}{0.52\textwidth}
+      \textbf{\color{darkblue}G\'{e}n\'{e}ration des images Basse Fid\'{e}lit\'{e} (\`{a} la vol\'{e}e)}
+
+      \medskip
+      \begin{tikzpicture}[font=\scriptsize, node distance=0.3cm]
+        \node[rounded corners=3pt, fill=hfcolor!15, draw=hfcolor,
+              text width=2.5cm, align=center, minimum height=0.7cm]
+          (hf) at (0, 0.8) {\textbf{Image HF}\\\footnotesize 224\texttimes 224};
+        \node[rounded corners=3pt, fill=bfcolor!10, draw=midgray,
+              text width=3cm, align=center, minimum height=0.7cm, below=0.45cm of hf]
+          (ds) {\textbf{\'{E}tape 1}\\\footnotesize Sous-\'{e}chantillonnage\\\footnotesize $\rightarrow$ 64px $\rightarrow$ 224px};
+        \node[rounded corners=3pt, fill=bfcolor!10, draw=midgray,
+              text width=3cm, align=center, minimum height=0.7cm, below=0.45cm of ds]
+          (noise) {\textbf{\'{E}tape 2}\\\footnotesize Bruit Gaussien\\\footnotesize (grain capteur)};
+        \draw[-Stealth, bfcolor] (hf) -- (ds);
+        \draw[-Stealth, bfcolor] (ds) -- (noise);
+      \end{tikzpicture}
+
+      \bigskip
+      \textbf{Effets simul\'{e}s :}
+      \begin{itemize}\setlength\itemsep{3pt}
+        \item Flou + pix\'{e}lisation (interpolation bilin\'{e}aire)
+        \item Bruit ISO des capteurs \'{e}lectroniques
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.44\textwidth}
+      \textbf{\color{darkblue}Cr\'{e}dit d'Annotation (CA)}
+
+      \smallskip
+      M\'{e}trique ind\'{e}pendante du mat\'{e}riel, centr\'{e}e sur la valeur intrins\`{e}que de la donn\'{e}e.
+
+      \medskip
+      \renewcommand{\arraystretch}{1.4}
+      \begin{tabular}{@{}lcc@{}}
+        \toprule
+        \textbf{Type} & \textbf{Co\^{u}t} & \textbf{Raison} \\
+        \midrule
+        \rowcolor{hfcolor!15}HF & \textbf{10 CA} & Expert / \'{e}quipement \\
+        \rowcolor{bfcolor!10}BF & \textbf{1 CA}  & Collecte auto. \\
+        \bottomrule
+      \end{tabular}
+
+      \medskip
+      \begin{block}{Principe}
+        \footnotesize Le test est \textbf{exclusivement HF} pour toutes les exp\'{e}riences : on \'{e}value toujours la g\'{e}n\'{e}ralisation sur donn\'{e}es de haute qualit\'{e}.
+      \end{block}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ============================================================
+%  SECTION 4 : ARCHITECTURE
+% ============================================================
+\begin{frame}{Architecture : ResNet-18 \textit{from scratch}}
+  \begin{columns}[T]
+    \begin{column}{0.55\textwidth}
+      \textbf{\color{darkblue}Pourquoi ResNet-18 ?}
+      \begin{itemize}\setlength\itemsep{4pt}
+        \item $\approx$11M param\`{e}tres : compromis expressivit\'{e} / overfitting
+        \item \textbf{Connexions r\'{e}siduelles} ($F(x)+x$) : r\'{e}sistance au bruit
+        \item Standard acad\'{e}mique reproductible
+        \item Poids \textbf{al\'{e}atoires} (\texttt{weights=None}) : mesure l'impact pur du dataset
+        \item T\^{e}te adapt\'{e}e : \textbf{10 classes Animals-10}
+      \end{itemize}
+
+      \medskip
+      \begin{exampleblock}{Hyperparam\`{e}tres}
+        \footnotesize
+        Loss: \textbf{CrossEntropyLoss} \quad Opt: \textbf{Adam} $lr=0.001$\\
+        Batch: \textbf{64} \quad \'{E}poques: \textbf{20} \quad AMP: FP16
+      \end{exampleblock}
+    \end{column}
+    \begin{column}{0.41\textwidth}
+      \begin{tikzpicture}[font=\scriptsize, node distance=0.2cm]
+        \node[rounded corners=3pt, fill=midgray!15, draw=midgray,
+              text width=3cm, align=center, minimum height=0.55cm]
+          (inp) {Entr\'{e}e 224\texttimes 224\texttimes 3};
+        \node[rounded corners=3pt, fill=accent!15, draw=accent,
+              text width=3cm, align=center, minimum height=0.55cm, below=0.3cm of inp]
+          (conv) {Conv 7\texttimes 7, stride 2};
+        \node[rounded corners=3pt, fill=hfcolor!15, draw=hfcolor,
+              text width=3cm, align=center, minimum height=0.55cm, below=0.3cm of conv]
+          (r1) {R\'{e}sidual Block \texttimes 2};
+        \node[rounded corners=3pt, fill=hfcolor!15, draw=hfcolor,
+              text width=3cm, align=center, minimum height=0.55cm, below=0.3cm of r1]
+          (r2) {R\'{e}sidual Block \texttimes 2};
+        \node[rounded corners=3pt, fill=hfcolor!15, draw=hfcolor,
+              text width=3cm, align=center, minimum height=0.55cm, below=0.3cm of r2]
+          (r3) {R\'{e}sidual Block \texttimes 2};
+        \node[rounded corners=3pt, fill=hfcolor!15, draw=hfcolor,
+              text width=3cm, align=center, minimum height=0.55cm, below=0.3cm of r3]
+          (r4) {R\'{e}sidual Block \texttimes 2};
+        \node[rounded corners=3pt, fill=successgreen!15, draw=successgreen,
+              text width=3cm, align=center, minimum height=0.55cm, below=0.3cm of r4]
+          (fc) {AvgPool + FC $\rightarrow$ 10};
+        \foreach \a/\b in {inp/conv, conv/r1, r1/r2, r2/r3, r3/r4, r4/fc}
+          \draw[-Stealth, midgray] (\a) -- (\b);
+        \draw[-Stealth, hfcolor!60, dashed]
+          ([xshift=1.7cm]r1.north) to[bend left=45] ([xshift=1.7cm]r2.south);
+        \node[text=hfcolor, font=\tiny] at (2.4, -2.4) {skip};
+      \end{tikzpicture}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ============================================================
+%  SECTION 5 : BASELINES
+% ============================================================
+\begin{frame}{Mod\`{e}les de r\'{e}f\'{e}rence (Baselines)}
+  \framesubtitle{Bornes de performance inf\'{e}rieure et sup\'{e}rieure}
+  \begin{columns}[T]
+    \begin{column}{0.58\textwidth}
+      \renewcommand{\arraystretch}{1.4}
+      \begin{tabular}{@{}lC{1.5cm}C{1.5cm}C{1.5cm}C{1.6cm}@{}}
+        \toprule
+        \textbf{Mod\`{e}le} & \textbf{HF} & \textbf{BF} & \textbf{Mix.} & \textbf{Co\^{u}t (CA)} \\
+        \midrule
+        \rowcolor{hfcolor!8}BL 1 (HF)    & 56,20\% & 35,16\% & 45,68\% & 470k \\
+        \rowcolor{bfcolor!8}BL 2 (BF)    & 59,07\% & 63,66\% & 61,36\% & 424k \\
+        \rowcolor{accent!10}BL 3 (Mixte) & \textbf{75,90\%} & \textbf{65,03\%} & \textbf{70,47\%} & 894k \\
+        \bottomrule
+      \end{tabular}
+    \end{column}
+    \begin{column}{0.38\textwidth}
+      \hspace*{1cm}
+      \begin{tikzpicture}[font=\scriptsize]
+        \begin{axis}[
+          ybar, bar width=0.35cm,
+          width=4.65cm, height=4.5cm,
+          xtick={1,2,3},
+          xticklabels={BL1 HF, BL2 BF, BL3 Mixte},
+          xticklabel style={font=\tiny},
+          ymin=0, ymax=100,
+          ymajorgrids=true, grid style={dotted, midgray!40},
+          axis line style={midgray!60},
+          legend style={font=\tiny, at={(0.5,-0.22)}, anchor=north,
+                        legend columns=2, draw=none},
+          tick style={draw=none},
+        ]
+          \addplot[fill=hfcolor!70, draw=none]
+            coordinates {(1,56.2)(2,59.07)(3,75.9)};
+          \addplot[fill=bfcolor!70, draw=none]
+            coordinates {(1,35.16)(2,63.66)(3,65.03)};
+          \legend{HF, BF}
+        \end{axis}
+      \end{tikzpicture}
+    \end{column}
+  \end{columns}
+
+  \medskip
+  \textbf{\color{darkblue}Trois enseignements cl\'{e}s :}
+  \begin{columns}[T]
+    \begin{column}{0.32\textwidth}
+      \begin{alertblock}{\footnotesize Domain Shift}
+        \tiny BL1 passe de 56\% (HF) \`{a} 35\% (BF) : effondrement face au bruit non vu.
+      \end{alertblock}
+    \end{column}
+    \begin{column}{0.32\textwidth}
+      \begin{exampleblock}{\footnotesize Paradoxe quantit\'{e}}
+        \tiny BL2 surpasse BL1 \textbf{m\^{e}me sur HF} avec budget inf\'{e}rieur : 22k images floues $>$ 2.5k nettes.
+      \end{exampleblock}
+    \end{column}
+    \begin{column}{0.32\textwidth}
+      \begin{block}{\footnotesize Borne sup\'{e}rieure}
+        \tiny BL3 fixe le plafond \`{a} 75,9\% HF mais co\^{u}te 2\texttimes{} plus cher. \textbf{Objectif : l'atteindre \`{a} moindre co\^{u}t.}
+      \end{block}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ============================================================
+%  SECTION 6 : STRATÉGIE 1
+%  CORRIGÉ : \begin{figure} supprimé, \includegraphics direct
+%            + légende manuelle sous l'image
+% ============================================================
+\begin{frame}{Strat\'{e}gie 1 --- Transfer Learning S\'{e}quentiel}
+  \framesubtitle{BF $\rightarrow$ HF : pr\'{e}-entra\^{i}nement puis fine-tuning}
+  \begin{center}
+    \includegraphics[width=0.96\linewidth,height=0.37\textheight,keepaspectratio]{figures/strategy1_transfer_learning_curves.png}\\[2pt]
+    {\color{midgray}\scriptsize Loss et pr\'{e}cision validation HF --- Strat\'{e}gie 1}
+  \end{center}
+
+  \vspace{0.08cm}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.50\textwidth}
+      \scriptsize
+      \renewcommand{\arraystretch}{1.25}
+      \begin{tabular}{@{}lC{1.15cm}C{1.15cm}C{1.15cm}C{1.1cm}@{}}
+        \toprule
+        \textbf{M\'{e}thode} & \textbf{HF} & \textbf{BF} & \textbf{Mix} & \textbf{Co\^{u}t} \\
+        \midrule
+        \rowcolor{bfcolor!8}BL 2     & 59,07\% & 63,66\% & 61,36\% & 424k \\
+        \rowcolor{accent!8}BL 3      & 75,90\% & 65,03\% & 70,47\% & 894k \\
+        \rowcolor{successgreen!15}\textbf{Strat.\ 1} & \textbf{78,84\%} & 57,65\% & 68,25\% & \textbf{400k} \\
+        \bottomrule
+      \end{tabular}
+    \end{column}
+    \begin{column}{0.47\textwidth}
+      {\footnotesize\textbf{\color{darkblue}Protocole en deux phases}}
+      \begin{itemize}\footnotesize\setlength\itemsep{2pt}
+        \item \textbf{Pr\'{e}-entra\^{i}nement BF} (10 \'{e}poques, $lr=0.001$)
+        \item \textbf{Fine-tuning HF} (10 \'{e}poques, $lr=0.0003$)
+      \end{itemize}
+      \scriptsize
+      \textbf{\color{successgreen}Points forts :} 78,84\% HF (meilleur score), $-$55\% de co\^{u}t vs BL3.\\
+      \textbf{\color{dangerred}Limite :} Domain forgetting BF et l\'{e}ger overfitting en fin d'entra\^{i}nement.
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ============================================================
+%  SECTION 7 : STRATÉGIE 2
+%  CORRIGÉ : même correction
+% ============================================================
+\begin{frame}{\vspace{-0.25cm}Strat\'{e}gie 2 --- Co-training par Batch avec Reweighting}
+  \framesubtitle{HF et BF dans chaque batch avec pond\'{e}ration de la perte}
+  \begin{center}
+    \includegraphics[width=0.96\linewidth,height=0.37\textheight,keepaspectratio]{figures/strategy2_cotraining_reweighting_curves.png}\\[2pt]
+    {\color{midgray}\scriptsize Losses et pr\'{e}cision HF --- Strat\'{e}gie 2}
+  \end{center}
+
+  \vspace{0.08cm}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.50\textwidth}
+      \scriptsize
+      \renewcommand{\arraystretch}{1.25}
+      \begin{tabular}{@{}lC{1.15cm}C{1.15cm}C{1.15cm}C{1.1cm}@{}}
+        \toprule
+        \textbf{M\'{e}thode} & \textbf{HF} & \textbf{BF} & \textbf{Mix} & \textbf{Co\^{u}t} \\
+        \midrule
+        \rowcolor{bfcolor!8}BL 2            & 59,07\% & 63,66\% & 61,36\% & 424k \\
+        \rowcolor{successgreen!8}Strat.\ 1 & 78,84\% & 57,65\% & 68,25\% & 400k \\
+        \rowcolor{accent!10}\textbf{Strat.\ 2} & \textbf{70,12\%} & \textbf{61,90\%} & \textbf{66,01\%} & 486k \\
+        \bottomrule
+      \end{tabular}
+    \end{column}
+    \begin{column}{0.47\textwidth}
+      {\footnotesize\textbf{\color{darkblue}M\'{e}canisme dual}}
+      \begin{itemize}\footnotesize\setlength\itemsep{2pt}
+        \item Batch mixte : \textbf{16 HF + 48 BF} (25\% HF)
+        \item Pond\'{e}ration : $w_{HF}=2.0$, $w_{BF}=0.7$
+        \item Entra\^{i}nement conjoint sur 20 \'{e}poques
+      \end{itemize}
+      \scriptsize
+      \textbf{\color{successgreen}Points forts :} robustesse BF (61,90\%) et gain de +13,9 pts HF vs BL1.\\
+      \textbf{\color{dangerred}Limite :} performance HF inf\'{e}rieure \`{a} la Strat\'{e}gie 1 (70,12\% vs 78,84\%).
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ============================================================
+%  SECTION 8 : STRATÉGIE 3
+%  CORRIGÉ : même correction
+% ============================================================
+\begin{frame}{Strat\'{e}gie 3 --- Teacher-Student (Noisy Student adapt\'{e})}
+  \begin{center}
+    \includegraphics[width=0.96\linewidth,height=0.37\textheight,keepaspectratio]{figures/strategy3_noisy_student_curves.png}\\[2pt]
+    {\color{midgray}\scriptsize Pertes Teacher/Student --- Strat\'{e}gie 3}
+  \end{center}
+
+  \vspace{0.08cm}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.50\textwidth}
+      \scriptsize
+      \renewcommand{\arraystretch}{1.25}
+      \begin{tabular}{@{}lC{1.15cm}C{1.15cm}C{1.15cm}C{1.1cm}@{}}
+        \toprule
+        \textbf{M\'{e}thode} & \textbf{HF} & \textbf{BF} & \textbf{Mix} & \textbf{Co\^{u}t} \\
+        \midrule
+        \rowcolor{hfcolor!8}BL 1             & 56,20\% & 35,16\% & 45,68\% & 470k \\
+        \rowcolor{successgreen!8}Strat.\ 1  & \textbf{78,84\%} & 57,65\% & 68,25\% & 400k \\
+        \rowcolor{dangerred!10}\textbf{Strat.\ 3} & 52,72\% & 28,46\% & 40,59\% & 988k \\
+        \bottomrule
+      \end{tabular}
+    \end{column}
+    \begin{column}{0.47\textwidth}
+      {\footnotesize\textbf{\color{darkblue}Sch\'{e}ma en trois \'{e}tapes}}
+      \begin{itemize}\footnotesize\setlength\itemsep{2pt}
+        \item Teacher HF (10 \'{e}poques), puis gel des poids
+        \item Pseudo-labeling BF via probabilit\'{e}s Softmax
+        \item Student noised : HF (hard) + BF (soft), $\alpha=1.0$
+      \end{itemize}
+      \scriptsize
+      \textbf{\color{successgreen}Points forts :} pipeline Teacher--Student complet et transf\'{e}rable \`{a} d'autres jeux de donn\'{e}es.\\
+      \textbf{\color{dangerred}Limite :} Teacher faible ($\sim$43\% val HF), pseudo-labels bruit\'{e}s et co\^{u}t tr\`{e}s \'{e}lev\'{e} (988k) pour des performances faibles.
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ============================================================
+%  SECTION 9 : BILAN
+% ============================================================
+\begin{frame}{Bilan comparatif complet}
+  \begin{columns}[T]
+    \begin{column}{0.54\textwidth}
+      \scriptsize
+      \renewcommand{\arraystretch}{1.25}
+      \begin{tabular}{@{}lC{1.2cm}C{1.2cm}C{1.2cm}C{1.3cm}@{}}
+        \toprule
+        \textbf{Approche} & \textbf{HF} & \textbf{BF} & \textbf{Mix} & \textbf{Co\^{u}t} \\
+        \midrule
+        \rowcolor{hfcolor!8}BL 1 (HF)    & 56,20 & 35,16 & 45,68 & 470k \\
+        \rowcolor{bfcolor!8}BL 2 (BF)    & 59,07 & 63,66 & 61,36 & 424k \\
+        \rowcolor{accent!8}BL 3 (Mixte)  & 75,90 & 65,03 & 70,47 & 894k \\
+        \rowcolor{successgreen!20}\textbf{Strat.\ 1} & \textbf{78,84} & 57,65 & 68,25 & \textbf{400k} \\
+        \rowcolor{hfcolor!12}Strat.\ 2   & 70,12 & \textbf{61,90} & 66,01 & 486k \\
+        \rowcolor{dangerred!10}Strat.\ 3  & 52,72 & 28,46 & 40,59 & 988k \\
+        \bottomrule
+      \end{tabular}
+
+      \medskip
+      \begin{exampleblock}{\footnotesize R\'{e}sultat principal}
+        \footnotesize \textbf{Strat\'{e}gie 1} d\'{e}passe BL3 sur HF\\
+        (\textbf{78,84\% vs 75,90\%}) \`{a} \textbf{55\% du co\^{u}t} (400k vs 894k CA).
+      \end{exampleblock}
+    \end{column}
+    \begin{column}{0.42\textwidth}
+      \hspace*{0.35cm}
+      \begin{tikzpicture}[font=\scriptsize]
+        \begin{axis}[
+          xbar, bar width=0.32cm,
+          width=4.9cm, height=6cm,
+          ytick={1,2,3,4,5,6},
+          yticklabels={Strat.3, Strat.2, BL1, BL2, BL3, Strat.1},
+          yticklabel style={font=\scriptsize},
+          xmin=0, xmax=100,
+          xlabel={\tiny Pr\'{e}cision Test HF (\%)},
+          xlabel style={font=\tiny},
+          xmajorgrids=true, grid style={dotted, midgray!40},
+          axis line style={midgray!60},
+          tick style={draw=none},
+        ]
+          \addplot[fill=dangerred!70,    draw=none] coordinates {(52.72,1)};
+          \addplot[fill=hfcolor!70,      draw=none] coordinates {(70.12,2)};
+          \addplot[fill=bfcolor!50,      draw=none] coordinates {(56.20,3)};
+          \addplot[fill=bfcolor!70,      draw=none] coordinates {(59.07,4)};
+          \addplot[fill=accent!70,       draw=none] coordinates {(75.90,5)};
+          \addplot[fill=successgreen!80, draw=none] coordinates {(78.84,6)};
+          \addplot[draw=midgray!80, dashed, forget plot]
+            coordinates {(75.90,0.5)(75.90,6.5)};
+        \end{axis}
+      \end{tikzpicture}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ============================================================
+%  PERSPECTIVES — CORRIGÉ : texte complet, aucune troncature
+% ============================================================
+\begin{frame}{Perspectives et prochaines \'{e}tapes}
+  \begin{columns}[T]
+    \begin{column}{0.47\textwidth}
+      {\footnotesize\textbf{\color{darkblue}Am\'{e}liorations Strat\'{e}gie 1 (priorit\'{e} HF)}}
+      \begin{itemize}\footnotesize\setlength\itemsep{2pt}
+        \item Early stopping + checkpointing val HF
+        \item Grille $(E_{BF},\,E_{HF})$ pour optimiser dur\'{e}e relative
+        \item Gel partiel du backbone en fine-tuning
+        \item Augmentations cibl\'{e}es (RandAugment, Mixup)
+      \end{itemize}
+
+      \medskip
+      {\footnotesize\textbf{\color{darkblue}Am\'{e}liorations Strat\'{e}gie 3 (Noisy Student)}}
+      \begin{itemize}\footnotesize\setlength\itemsep{2pt}
+        \item Renforcer le Teacher (plus d'\'{e}poques, meilleur LR)
+        \item Seuil de confiance pseudo-labels ($>0.7$)
+        \item R\'{e}duire $\alpha$ BF (0.2--0.6), augmentations moins agressives
+        \item Warm-up Student sur HF seul avant injection BF
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.47\textwidth}
+      {\footnotesize\textbf{\color{darkblue}Axes de recherche restants}}
+      \begin{itemize}\footnotesize\setlength\itemsep{2pt}
+        \item Fronti\`{e}re de Pareto co\^{u}t/performance HF
+        \item Variation du ratio HF/BF (5\%, 15\%, 20\%\ldots)
+        \item Combinaison Strat\'{e}gie 1 + curriculum pond\'{e}r\'{e}
+        \item Architecture backbone alternative (ResNet-34)
+      \end{itemize}
+
+      \medskip
+      \begin{block}{\footnotesize Objectif de fin de projet}
+        \footnotesize D\'{e}montrer rigoureusement qu'une approche multi-fid\'{e}lit\'{e} permet d'atteindre ou d\'{e}passer les performances d'un mod\`{e}le 100\% HF \`{a} \textbf{co\^{u}t d'annotation r\'{e}duit d'au moins 50\%}.
+      \end{block}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ============================================================
+%  SLIDE DE CONCLUSION
+% ============================================================
+{
+\setbeamertemplate{footline}{}
+\setbeamertemplate{frametitle}{}
+\begin{frame}[plain]
+  \begin{tikzpicture}[overlay, remember picture]
+    \fill[darkblue] (current page.south west) rectangle (current page.north east);
+    \fill[accent] ([xshift=0cm]current page.south west) rectangle ([xshift=0.55cm]current page.north west);
+    \fill[accent!15] ([xshift=6.5cm, yshift=-1cm]current page.north east) circle (3cm);
+    \fill[accent!8]  ([xshift=7.5cm, yshift=-2.5cm]current page.north east) circle (2cm);
+    \fill[darkblue]  ([xshift=7.2cm, yshift=-1.5cm]current page.north east) circle (2.5cm);
+    \node[anchor=north west, text=white, font=\LARGE\bfseries]
+      at ([xshift=0.95cm, yshift=-0.7cm]current page.north west)
+      {Merci pour votre attention};
+    \node[anchor=north west, text=accentlight, font=\normalsize\bfseries]
+      at ([xshift=0.95cm, yshift=-1.6cm]current page.north west)
+      {Conclusion};
+    \node[anchor=north west, text=white!85, font=\small, text width=9cm]
+      at ([xshift=0.95cm, yshift=-2.1cm]current page.north west)
+      {La \textbf{Strat\'{e}gie 1 (Transfer Learning BF$\rightarrow$HF)} valide la faisabilit\'{e} de l'approche multi-fid\'{e}lit\'{e} : 78,84\% sur Test HF, d\'{e}passant la borne sup\'{e}rieure, \`{a} 55\% du co\^{u}t. Le projet se poursuit vers l'optimisation et la robustesse inter-domaines.};
+    \node[rounded corners=4pt, fill=successgreen!30, draw=successgreen,
+          text width=2.8cm, align=center, minimum height=1cm]
+      at ([xshift=2.6cm, yshift=1.8cm]current page.south west)
+      {\color{white}\bfseries 78,84\%\\\footnotesize Test HF};
+    \node[rounded corners=4pt, fill=accent!30, draw=accent,
+          text width=2.8cm, align=center, minimum height=1cm]
+      at ([xshift=6.0cm, yshift=1.8cm]current page.south west)
+      {\color{white}\bfseries $-$55\% co\^{u}t\\\footnotesize vs BL3};
+    \node[rounded corners=4pt, fill=hfcolor!30, draw=hfcolor,
+          text width=2.8cm, align=center, minimum height=1cm]
+      at ([xshift=9.4cm, yshift=1.8cm]current page.south west)
+      {\color{white}\bfseries 3 strat\'{e}gies\\\footnotesize test\'{e}es};
+    \node[rounded corners=4pt, fill=midgray!30, draw=midgray,
+          text width=2.8cm, align=center, minimum height=1cm]
+      at ([xshift=12.8cm, yshift=1.8cm]current page.south west)
+      {\color{white}\bfseries 6 mod\`{e}les\\\footnotesize compar\'{e}s};
+  \end{tikzpicture}
+\end{frame}
+}
+
+\end{document}

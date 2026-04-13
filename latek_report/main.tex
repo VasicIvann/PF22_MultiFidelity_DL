@@ -1049,6 +1049,143 @@ La stratégie de co-training pondéré offre une bonne robustesse inter-domaines
 \end{itemize}
 
 
+\section{Stratégie 3 -- Teacher-Student inspirée de Noisy Student}
+
+% ---- 4.3.1 Protocole ----
+\subsection{Protocole}
+
+Cette stratégie adapte le schéma \textit{Teacher-Student} de Xie et al. (2020) à notre contexte multi-fidélité :
+
+\begin{enumerate}
+  \item \textbf{Teacher HF} : un ResNet-18 est entraîné uniquement sur HF (10 époques), puis figé en mode \texttt{eval()}.
+  \item \textbf{Pseudo-labeling BF} : le Teacher produit des \textit{soft pseudo-labels} (probabilités Softmax) pour l'ensemble BF d'entraînement.
+  \item \textbf{Student noised} : un nouveau ResNet-18 est entraîné \textit{from scratch} avec augmentation agressive (RandAugment, ColorJitter, RandomErasing, flips), sur un mélange :
+  \begin{itemize}
+    \item HF avec labels réels (\texttt{CrossEntropyLoss}),
+    \item BF avec pseudo-labels mous (\textit{Soft Cross-Entropy}).
+  \end{itemize}
+\end{enumerate}
+
+La perte globale est définie par :
+\[
+\mathcal{L}_{tot} = \mathcal{L}_{HF} + \alpha \cdot \mathcal{L}_{BF}, \quad \alpha=1.0
+\]
+
+Configuration expérimentale utilisée :
+
+\vspace{0.6em}
+\renewcommand{\arraystretch}{1.45}
+\begin{tabularx}{\linewidth}{L{4.1cm} C{3cm} L{7.6cm}}
+  \arrayrulecolor{midgray}
+  \toprule
+  \tableheadcolor
+  \textbf{Paramètre} & \textbf{Valeur} & \textbf{Commentaire} \\
+  \midrule
+  Architecture Teacher/Student & ResNet-18 / ResNet-18 & Student avec dropout (p=0,3) sur la tête \\
+  Entraînement Teacher & 10 époques HF & HF train = 1\,881 ; HF val = 471 \\
+  Pseudo-labeling BF & Softmax (température 1,0) & 21\,213 images BF pseudo-labellisées \\
+  Entraînement Student & 20 époques HF+BF & Loss mixte hard HF + soft BF \\
+  Pondération BF & $\alpha = 1,0$ & Même poids global HF/BF dans la loss \\
+  Augmentations Student & Agressives & RandAugment, ColorJitter, RandomErasing, flips \\
+  \bottomrule
+\end{tabularx}
+
+% ---- 4.3.2 Résultats ----
+\subsection{Résultats quantitatifs obtenus}
+
+Les résultats finaux de l'Étape 3 sont résumés ci-dessous.
+Le critère prioritaire reste la précision sur \textbf{Test HF}.
+
+\vspace{0.6em}
+\renewcommand{\arraystretch}{1.45}
+\begin{tabularx}{\linewidth}{L{5.3cm} C{2.4cm} C{2.4cm} C{2.4cm} C{2.4cm}}
+  \arrayrulecolor{midgray}
+  \toprule
+  \tableheadcolor
+  \textbf{Méthode} & \textbf{Test HF} & \textbf{Test BF} & \textbf{Test Mixte} & \textbf{Coût (CA)} \\
+  \midrule
+  \tablerowodd
+  Stratégie 3 (Noisy Student adapté) & 52,72\% & 28,46\% & 40,59\% & 988\,560 \\
+  \bottomrule
+\end{tabularx}
+
+\vspace{0.8em}
+\begin{hypothesebox}[Lecture rapide des courbes d'entraînement]
+  Le Teacher progresse en validation HF jusqu'à environ 45,65\% (époque 9), puis termine à 43,10\% (époque 10), indiquant une qualité de pseudo-labels limitée.
+  Le Student réduit sa loss d'entraînement (4,46 $\rightarrow$ 3,13) et atteint 50,11\% en validation HF (époque 19), mais la généralisation finale reste insuffisante sur les trois tests.
+\end{hypothesebox}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\linewidth]{figures/strategy3_noisy_student_curves.png}
+  \caption{Évolution des pertes Teacher/Student pour la Stratégie 3 (Noisy Student adapté au cadre multi-fidélité).}
+  \label{fig:strategy3_noisy_student_curves}
+\end{figure}
+
+% ---- 4.3.3 Comparaison ----
+\subsection{Comparaison avec les autres stratégies}
+
+\vspace{0.6em}
+\renewcommand{\arraystretch}{1.45}
+\begin{tabularx}{\linewidth}{L{4.5cm} C{2.2cm} C{2.2cm} C{2.2cm} C{2.5cm}}
+  \arrayrulecolor{midgray}
+  \toprule
+  \tableheadcolor
+  \textbf{Modèle} & \textbf{HF} & \textbf{BF} & \textbf{Mixte} & \textbf{Coût (CA)} \\
+  \midrule
+  \tablerowodd
+  BL 1 (HF) & 56,20\% & 35,16\% & 45,68\% & 470\,400 \\
+  BL 2 (BF) & 59,07\% & 63,66\% & 61,36\% & 424\,260 \\
+  \tablerowodd
+  BL 3 (Mixte) & 75,90\% & 65,03\% & 70,47\% & 894\,660 \\
+  Stratégie 1 (BF $\rightarrow$ HF) & 78,84\% & 57,65\% & 68,25\% & 400\,230 \\
+  \tablerowodd
+  Stratégie 2 (Co-training pondéré) & 70,12\% & 61,90\% & 66,01\% & 486\,720 \\
+  \textbf{Stratégie 3 (Noisy Student adapté)} & \textbf{52,72\%} & \textbf{28,46\%} & \textbf{40,59\%} & \textbf{988\,560} \\
+  \bottomrule
+\end{tabularx}
+
+\vspace{0.8em}
+Comparaisons clés :
+
+\begin{itemize}
+  \item \textbf{Objectif HF non atteint} : avec 52,72\% sur HF, la stratégie 3 est en dessous de BL 1 (56,20\%) et très loin des stratégies 1 et 2.
+  \item \textbf{Effondrement BF} : la précision BF chute à 28,46\%, soit la plus faible de toutes les approches testées.
+  \item \textbf{Coût défavorable} : le coût total (988\,560 CA) devient le plus élevé du panel, sans gain de performance.
+  \item \textbf{Bilan global} : la stratégie 3 est dominée simultanément en précision et en coût par les stratégies précédentes.
+\end{itemize}
+
+% ---- 4.3.4 Analyse ----
+\subsection{Analyse : pourquoi la stratégie 3 échoue dans ce contexte}
+
+\begin{itemize}
+  \item \textbf{Teacher insuffisamment performant} : un pseudo-labeling n'est utile que si le Teacher est déjà solide. Ici, sa validation HF reste modeste, ce qui injecte du bruit sémantique dans BF.
+  \item \textbf{Accumulation de bruit} : BF est déjà un domaine dégradé ; lui ajouter des pseudo-labels imparfaits puis des augmentations agressives sur le Student peut amplifier l'erreur au lieu de la corriger.
+  \item \textbf{Désalignement de domaine} : dans cette configuration, les pseudo-labels BF ne compensent pas le décalage HF/BF, et le Student n'apprend pas de représentations transférables vers le test HF.
+  \item \textbf{Poids BF potentiellement trop élevé} : avec $\alpha=1.0$, la composante BF peut dominer l'optimisation malgré la priorité HF du projet.
+\end{itemize}
+
+\begin{decisionbox}
+  \textbf{Conclusion Étape 3 (objectif HF prioritaire) :} l'adaptation directe de Noisy Student n'est pas validée dans notre cadre multi-fidélité actuel. Les performances chutent fortement alors que le coût augmente. Les prochaines variantes devront d'abord renforcer la qualité du Teacher et réduire l'influence des pseudo-labels BF (filtrage par confiance, pondération BF plus faible, augmentations moins agressives, ou Teacher plus robuste).
+\end{decisionbox}
+
+\subsection{Améliorations possibles de la méthode (Stratégie 3)}
+
+Pour rendre cette approche exploitable, plusieurs paramètres critiques doivent être ré-optimisés :
+
+\begin{itemize}
+  \item \textbf{Qualité initiale du Teacher} : c'est le facteur principal. \textit{Comment optimiser :} entraîner plus longtemps, ajuster LR/scheduler, et sélectionner le meilleur checkpoint val HF avant pseudo-labeling.
+  \item \textbf{Seuil de confiance pseudo-labels} : utiliser tous les pseudo-labels propage les erreurs. \textit{Comment optimiser :} ne conserver que les échantillons BF au-dessus d'un seuil de confiance (ex. max prob > 0,7/0,8).
+  \item \textbf{Température de pseudo-labeling} : la température contrôle la netteté des distributions. \textit{Comment optimiser :} balayer $T \in [0,7, 2,0]$ et mesurer l'impact sur HF final.
+  \item \textbf{Pondération BF ($\alpha$)} : \(\alpha=1\) peut sur-pondérer BF bruité. \textit{Comment optimiser :} tester des valeurs plus faibles (0,2 ; 0,4 ; 0,6 ; 0,8) avec priorité sur Test HF.
+  \item \textbf{Intensité du bruit Student} : augmentation trop agressive peut détruire les signaux utiles. \textit{Comment optimiser :} réduire progressivement RandAugment/ColorJitter/RandomErasing et faire des ablations.
+  \item \textbf{Mix HF/BF par batch} : un mélange non contrôlé peut défavoriser HF. \textit{Comment optimiser :} imposer un ratio HF minimal par batch (sampler dédié) pour ancrer l'optimisation sur les labels fiables.
+  \item \textbf{Architecture Teacher/Student} : un Teacher plus capacitaire peut améliorer la qualité des pseudo-labels. \textit{Comment optimiser :} Teacher ResNet-34/EfficientNet-B0, Student plus léger ou équivalent, à protocole constant.
+  \item \textbf{Fonction de perte BF} : la Soft CE simple peut être insuffisante. \textit{Comment optimiser :} tester KLDiv, entropie régularisée, ou pondération par confiance échantillon.
+  \item \textbf{Curriculum d'apprentissage} : lancer d'emblée HF+BF pseudo peut être instable. \textit{Comment optimiser :} warm-up Student sur HF seul, puis injection progressive des données BF pseudo-labellisées.
+\end{itemize}
+
+
 
 \newpage
 

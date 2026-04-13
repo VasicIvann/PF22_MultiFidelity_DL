@@ -36,3 +36,9 @@
 \contentsline {subsection}{\numberline {4.2.3}Comparaison avec les baselines et la Stratégie 1}{22}{subsection.4.2.3}%
 \contentsline {subsection}{\numberline {4.2.4}Analyse : ce qui a marché, ce qui a moins marché, et enseignements}{23}{subsection.4.2.4}%
 \contentsline {subsection}{\numberline {4.2.5}Améliorations possibles de la méthode (Stratégie 2)}{23}{subsection.4.2.5}%
+\contentsline {section}{\numberline {4.3}Stratégie 3 -- Teacher-Student inspirée de Noisy Student}{24}{section.4.3}%
+\contentsline {subsection}{\numberline {4.3.1}Protocole}{24}{subsection.4.3.1}%
+\contentsline {subsection}{\numberline {4.3.2}Résultats quantitatifs obtenus}{25}{subsection.4.3.2}%
+\contentsline {subsection}{\numberline {4.3.3}Comparaison avec les autres stratégies}{26}{subsection.4.3.3}%
+\contentsline {subsection}{\numberline {4.3.4}Analyse : pourquoi la stratégie 3 échoue dans ce contexte}{27}{subsection.4.3.4}%
+\contentsline {subsection}{\numberline {4.3.5}Améliorations possibles de la méthode (Stratégie 3)}{27}{subsection.4.3.5}%
