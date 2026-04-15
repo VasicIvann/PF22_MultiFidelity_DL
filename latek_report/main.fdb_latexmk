@@ -1,6 +1,6 @@
 # Fdb version 4
-["pdflatex"] 1776077151.69411 "c:/VSCode/PF22_MultiFidelity_DL/latek_report/main.tex" "main.pdf" "main" 1776077157.48787 0
-  "C:/Users/ivann/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map" 1774540428 83609 ebbc432e6cbbb238d39535255db2c8bd ""
+["pdflatex"] 1776180772.49287 "c:/VSCode/PF22_MultiFidelity_DL/latek_report/main.tex" "main.pdf" "main" 1776180779.294 0
+  "C:/Users/ivann/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map" 1776179216 83788 3e06ff692e1323f668f12ea28ca579e9 ""
   "C:/Users/ivann/AppData/Local/MiKTeX/fonts/pk/ljfour/jknappen/ec/dpi600/tcss0900.pk" 1774628809 9548 8ac32ede65d77e2b46124016345ee3a0 ""
   "C:/Users/ivann/AppData/Local/MiKTeX/miktex/data/le/pdftex/pdflatex.fmt" 1764794073 13333511 9770f3d53d6a4e47ffc9b9f0200686f6 ""
   "C:/Users/ivann/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/base/8r.enc" 1458473887 4993 80dc9bab7f31fb78a000ccfed0e27cab ""
@@ -237,10 +237,10 @@
   "figures/strategy1_transfer_learning_curves.png" 1774990669 77813 ae17574f0ce7489975df29b254d70a4c ""
   "figures/strategy2_cotraining_reweighting_curves.png" 1774994408 106057 a640c5592788a5175840591e6aa3f593 ""
   "figures/strategy3_noisy_student_curves.png" 1776077139 89020 3c27f2c9f7b3f7984364285dfca6b6cd ""
-  "main.aux" 1776077156 8980 4e8ddf04ab907c18680766bcf2090c74 "pdflatex"
-  "main.out" 1776077156 11794 0281a53d4966dca4945d6045680834c4 "pdflatex"
+  "main.aux" 1776180778 8980 4e8ddf04ab907c18680766bcf2090c74 "pdflatex"
+  "main.out" 1776180778 11794 0281a53d4966dca4945d6045680834c4 "pdflatex"
   "main.tex" 1776077069 68420 8b47982dde2c332841e4984f44c3a03d ""
-  "main.toc" 1776077156 4614 731483e296ec1f907a6e5b723f79a304 "pdflatex"
+  "main.toc" 1776180778 4614 731483e296ec1f907a6e5b723f79a304 "pdflatex"
   (generated)
   "main.aux"
   "main.log"
