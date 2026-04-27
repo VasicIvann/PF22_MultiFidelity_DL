@@ -89,25 +89,27 @@ def run_baseline(mode, epochs=10, batch_size=64, lr=0.001):
 
     # --- 4. Boucle d'entraînement ---
     start_time = time.time()
+    loss_history = []
     for epoch in range(epochs):
         model.train()
         running_loss = 0.0
-        
+
         for inputs, labels in train_loader:
             inputs, labels = inputs.to(device), labels.to(device)
             optimizer.zero_grad()
-            
+
             with autocast('cuda'):
                 outputs = model(inputs)
                 loss = criterion(outputs, labels)
-                
+
             scaler.scale(loss).backward()
             scaler.step(optimizer)
             scaler.update()
-            
+
             running_loss += loss.item() * inputs.size(0)
-            
+
         epoch_loss = running_loss / len(train_dataset)
+        loss_history.append(epoch_loss)
         print(f"Époque {epoch+1}/{epochs} | Loss: {epoch_loss:.4f}")
 
     training_time = time.time() - start_time
@@ -143,7 +145,8 @@ def run_baseline(mode, epochs=10, batch_size=64, lr=0.001):
         "training_time_sec": training_time,
         "accuracy_HF": acc_hf,
         "accuracy_BF": acc_bf,
-        "accuracy_Mixte": acc_mixte
+        "accuracy_Mixte": acc_mixte,
+        "loss_history": loss_history
     }
     
     # Enregistrer le JSON
