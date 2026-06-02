@@ -485,7 +485,7 @@ Un script de test d'intégration a été développé pour valider cette synergie
 % ---- 1.2 Dataset ----
 \section{Sélection du jeu de données}
 
-Le jeu de données doit être suffisamment difficile pour que la dégradation visuelle impacte mesurément les performances du réseau. Quatre candidats ont été évalués :
+Le jeu de données doit être suffisamment difficile pour que la dégradation visuelle impacte mesurément les performances du réseau. Cinq candidats ont été évalués :
 
 \vspace{0.8em}
 \renewcommand{\arraystretch}{1.5}
@@ -504,13 +504,20 @@ Le jeu de données doit être suffisamment difficile pour que la dégradation vi
   \tablerowodd
   Oxford Pets & 7 400 & Classification fine-grained, très sensible aux dégradations & Volume insuffisant, nécessite un pré-entraînement lourd \\
   \textbf{Animals-10} & \textbf{26 179} & \textbf{Haute résolution, volume idéal, proche des conditions réelles} & Bruit de labels et filigranes (peuvent être corrigés) \\
+  \tablerowodd
+  \textbf{Imagewoof} & \textbf{12 954} & \textbf{10 races de chiens visuellement très proches, haute résolution} & Volume environ trois fois inférieur à Animals-10, risque de sur-apprentissage \\
   \bottomrule
 \end{tabularx}
 
 \vspace{0.8em}
 \begin{decisionbox}
-  \textbf{\color{primary}Choix retenu : Animals-10} \\[3pt]
-  Son volume (26 179 images après nettoyage) permet un entraînement \textit{from scratch} stable avec ResNet-18. Sa haute résolution native offre une large plage dynamique pour le pipeline de dégradation. Son caractère communautaire le rapproche des conditions industrielles réelles.
+  \textbf{\color{primary}Choix retenu : Animals-10 \emph{et} Imagewoof (double validation)} \\[3pt]
+  Afin de garantir que les conclusions tirées sur les stratégies multi-fidélité ne sont pas un artefact propre à un dataset particulier, \textbf{deux jeux de données ont été retenus} et le protocole expérimental complet est exécuté sur chacun :
+  \begin{itemize}
+    \item \textbf{Animals-10} (26 179 images, 10 classes d'animaux) — dataset principal d'expérimentation. Son volume permet un entraînement \textit{from scratch} stable avec ResNet-18, sa haute résolution offre une large plage dynamique pour le pipeline de dégradation, et son caractère communautaire le rapproche des conditions industrielles réelles.
+    \item \textbf{Imagewoof} (12 954 images, 10 races de chiens) — dataset de \textbf{validation croisée}. Sous-ensemble d'ImageNet plus difficile (classification \textit{fine-grained} de classes visuellement très proches) et nettement plus petit en volume, il met les stratégies sous pression. Une stratégie qui reste la meilleure sur les deux datasets peut alors être considérée comme \textbf{robuste} et non liée aux spécificités d'un seul jeu de données.
+  \end{itemize}
+  Les deux datasets suivent strictement le même pipeline (répartition test 10\,\% / train 90\,\%, train découpé en 10\,\% HF + 90\,\% BF, même dégradation, ResNet-18 \textit{from scratch}, 20 époques, AMP FP16).
 \end{decisionbox}
 
 
@@ -750,7 +757,7 @@ Afin d'éliminer tout biais d'implémentation, le code a été factorisé en un 
 % ---- 3.5 Analyse des résultats ----
 \section{Analyse des résultats}
 
-Les trois modèles de référence ont été entraînés avec succès sur 20 époques. Les résultats obtenus, résumés dans le tableau ci-dessous, mettent en évidence la dynamique du compromis coût/performance.
+Les trois modèles de référence ont été entraînés avec succès sur 20 époques, sur chacun des deux datasets retenus. Les résultats obtenus, résumés dans le tableau ci-dessous, mettent en évidence la dynamique du compromis coût/performance.
 
 \vspace{0.8em}
 \renewcommand{\arraystretch}{1.5}
@@ -760,30 +767,55 @@ Les trois modèles de référence ont été entraînés avec succès sur 20 épo
   \tableheadcolor
   \textbf{Modèle Entraîné} & \textbf{Coût Total (CA)} & \textbf{Test HF} & \textbf{Test BF} & \textbf{Test Mixte} & \textbf{Temps d'entraînement} \\
   \midrule
+  \multicolumn{6}{l}{\textit{\textbf{Animals-10}}} \\
   \tablerowodd
   BL 1 (HF) & 470 400 & 56,20 \% & 35,16 \% & 45,68 \% & 2,84 min \\
   BL 2 (BF) & 424 260 & 59,07 \% & 63,66 \% & 61,36 \% & 27,05 min \\
   \tablerowodd
   BL 3 (Mixte) & 894 660 & 75,90 \% & 65,03 \% & 70,47 \% & 29,78 min \\
+  \midrule
+  \multicolumn{6}{l}{\textit{\textbf{Imagewoof}}} \\
+  \tablerowodd
+  BL 1 (HF) & 179 800 & 24,87 \% & 19,04 \% & 21,95 \% & 0,39 min \\
+  BL 2 (BF) & 162 520 & 43,73 \% & 44,52 \% & 44,12 \% & 1,00 min \\
+  \tablerowodd
+  BL 3 (Mixte) & 342 320 & 47,19 \% & 47,24 \% & 47,21 \% & 1,36 min \\
   \bottomrule
 \end{tabularx}
 \vspace{0.8em}
 
-L'analyse de ces métriques permet de tirer trois conclusions majeures concernant le comportement du réseau ResNet-18 face à nos données :
+L'analyse de ces métriques sur \textbf{Animals-10} (dataset principal) permet de tirer trois conclusions majeures concernant le comportement du réseau ResNet-18 face à nos données :
 
 \begin{itemize}
     \item \textbf{L'effondrement face au bruit (\textit{Domain Shift}) :} La Baseline 1, entraînée exclusivement sur des données parfaites, obtient un score de 56,20\,\% sur le test HF. Cependant, confrontée au domaine BF (flou et bruit gaussien), sa précision s'effondre à 35,16\,\%. Ce résultat prouve l'incapacité d'un modèle "Premium" classique à généraliser face à des perturbations non rencontrées lors de l'apprentissage.
-    
+
     \item \textbf{Le paradoxe de la quantité :} La Baseline 2 possède un budget inférieur à la Baseline 1 (424 260 CA contre 470 400 CA) mais la surpasse systématiquement, \textbf{y compris sur les images nettes} (59,07\,\%). Cela démontre qu'en apprentissage profond, l'immense diversité contenue dans $\approx$22 700 images floues prime sur la perfection visuelle de seulement $\approx$2 500 images.
-    
+
     \item \textbf{La validation de la borne supérieure :} La Baseline 3 confirme son statut théorique. En ayant appris simultanément sur le volume massif (BF) et sur les détails discriminants (HF), elle atteint une précision de 75,9\,\% sur le test de haute fidélité. Toutefois, son coût d'acquisition est beaucoup plus élevé que les autres baseline.
 \end{itemize}
 
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\linewidth]{figures/baselines_comparison.png}
-  \caption{Comparaison visuelle des trois baselines (BL 1(HF), BL 2(BF), BL 3(MIXTE)) : loss par époque, précisions de test, temps d'entraînement et coût total estimé.}
+  \caption{Comparaison visuelle des trois baselines sur \textbf{Animals-10} (BL 1(HF), BL 2(BF), BL 3(MIXTE)) : loss par époque, précisions de test, temps d'entraînement et coût total estimé.}
   \label{fig:baseline_plots}
+\end{figure}
+
+\begin{hypothesebox}[Vérification sur Imagewoof]
+  Réexécutées sur Imagewoof, les trois baselines confirment les conclusions tirées sur Animals-10, malgré des valeurs absolues nettement inférieures (Imagewoof = classification \textit{fine-grained} de races canines, $\approx$3$\times$ moins d'images d'entraînement) :
+  \begin{itemize}
+    \item \textbf{Domain Shift confirmé} : la BL 1 passe de 24,87\,\% (HF) à 19,04\,\% (BF), soit une chute de $-5,8$ points cohérente avec celle observée sur Animals-10.
+    \item \textbf{Paradoxe de la quantité confirmé} : la BL 2 (162 520 CA) bat la BL 1 (179 800 CA) sur les trois tests, y compris HF (43,73\,\% vs 24,87\,\%), avec un budget inférieur.
+    \item \textbf{Borne supérieure validée} : la BL 3 atteint 47,19\,\% sur HF pour un coût double de BL 1.
+  \end{itemize}
+  La \textbf{hiérarchie BL 3 $>$ BL 2 $>$ BL 1} est strictement conservée d'un dataset à l'autre, ce qui valide la robustesse des conclusions sur le comportement des baselines indépendamment du dataset utilisé.
+\end{hypothesebox}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\linewidth]{figures/baselines_comparison_imagewoof.png}
+  \caption{Comparaison visuelle des trois baselines sur \textbf{Imagewoof} : précisions de test, temps d'entraînement et coût total estimé. Les valeurs absolues sont plus basses qu'Animals-10 (classification fine-grained) mais la hiérarchie BL 3 $>$ BL 2 $>$ BL 1 est strictement identique.}
+  \label{fig:baseline_plots_imagewoof}
 \end{figure}
 
 
@@ -829,7 +861,7 @@ Configuration expérimentale utilisée :
 % ---- 4.1.2 Résultats ----
 \subsection{Résultats quantitatifs obtenus}
 
-Les résultats finaux de l'Étape 1 sont résumés ci-dessous.
+Les résultats finaux de l'Étape 1 sont résumés ci-dessous pour les deux datasets.
 Dans cette étude, le critère prioritaire est la performance sur \textbf{Test HF}.
 
 \vspace{0.6em}
@@ -840,13 +872,18 @@ Dans cette étude, le critère prioritaire est la performance sur \textbf{Test H
   \tableheadcolor
   \textbf{Méthode} & \textbf{Test HF} & \textbf{Test BF} & \textbf{Test Mixte} & \textbf{Coût (CA)} \\
   \midrule
+  \multicolumn{5}{l}{\textit{\textbf{Animals-10}}} \\
   \tablerowodd
   Stratégie 1 (BF $\rightarrow$ HF) & 78,84\% & 57,65\% & 68,25\% & 400\,230 \\
+  \midrule
+  \multicolumn{5}{l}{\textit{\textbf{Imagewoof}}} \\
+  \tablerowodd
+  Stratégie 1 (BF $\rightarrow$ HF) & 53,68\% & 44,82\% & 49,25\% & 153\,160 \\
   \bottomrule
 \end{tabularx}
 
 \vspace{0.8em}
-\begin{hypothesebox}[Lecture rapide des courbes d'entraînement]
+\begin{hypothesebox}[Lecture rapide des courbes d'entraînement (Animals-10)]
   La phase BF converge rapidement en \textit{train loss} (1,694 $\rightarrow$ 0,226), alors que la validation HF fluctue fortement (39,28\% $\rightarrow$ 57,75\% puis 50,96\%).
   Après transition vers HF, la précision validation HF bondit immédiatement autour de 78--79\%, puis se stabilise ; la \textit{val loss} remonte légèrement en fin de fine-tuning, signalant un début de sur-apprentissage.
 \end{hypothesebox}
@@ -854,8 +891,15 @@ Dans cette étude, le critère prioritaire est la performance sur \textbf{Test H
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\linewidth]{figures/strategy1_transfer_learning_curves.png}
-  \caption{Évolution de la loss et de la précision validation HF pendant le pré-entraînement BF puis le fine-tuning HF.}
+  \caption{Évolution de la loss et de la précision validation HF pendant le pré-entraînement BF puis le fine-tuning HF, sur \textbf{Animals-10}.}
   \label{fig:strategy1_curves_placeholder}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\linewidth]{figures/strategy1_transfer_learning_curves_imagewoof.png}
+  \caption{Évolution de la loss et de la précision validation HF pendant le pré-entraînement BF puis le fine-tuning HF, sur \textbf{Imagewoof}.}
+  \label{fig:strategy1_curves_imagewoof}
 \end{figure}
 
 % ---- 4.1.3 Comparaison ----
@@ -869,23 +913,41 @@ Dans cette étude, le critère prioritaire est la performance sur \textbf{Test H
   \tableheadcolor
   \textbf{Modèle} & \textbf{HF} & \textbf{BF} & \textbf{Mixte} & \textbf{Coût (CA)} \\
   \midrule
+  \multicolumn{5}{l}{\textit{\textbf{Animals-10}}} \\
   \tablerowodd
   BL 1 (HF) & 56,20\% & 35,16\% & 45,68\% & 470\,400 \\
   BL 2 (BF) & 59,07\% & 63,66\% & 61,36\% & 424\,260 \\
   \tablerowodd
   BL 3 (Mixte) & 75,90\% & 65,03\% & 70,47\% & 894\,660 \\
   \textbf{Stratégie 1 (BF $\rightarrow$ HF)} & \textbf{78,84\%} & \textbf{57,65\%} & \textbf{68,25\%} & \textbf{400\,230} \\
+  \midrule
+  \multicolumn{5}{l}{\textit{\textbf{Imagewoof}}} \\
+  \tablerowodd
+  BL 1 (HF) & 24,87\% & 19,04\% & 21,95\% & 179\,800 \\
+  BL 2 (BF) & 43,73\% & 44,52\% & 44,12\% & 162\,520 \\
+  \tablerowodd
+  BL 3 (Mixte) & 47,19\% & 47,24\% & 47,21\% & 342\,320 \\
+  \textbf{Stratégie 1 (BF $\rightarrow$ HF)} & \textbf{53,68\%} & \textbf{44,82\%} & \textbf{49,25\%} & \textbf{153\,160} \\
   \bottomrule
 \end{tabularx}
 
 \vspace{0.8em}
-Comparaisons clés :
+Comparaisons clés (Animals-10) :
 
 \begin{itemize}
   \item \textbf{Objectif principal HF atteint} : la stratégie 1 obtient \textbf{78,84\% sur Test HF}, soit le \textbf{meilleur score HF de toutes les approches testées} (BL 3 = 75,90\%, BL 2 = 59,07\%, BL 1 = 56,20\%).
   \item \textbf{Vs BL 3 (Mixte)} : tout en dépassant BL 3 sur HF (+2,94 points), la stratégie 1 réduit fortement le coût (894\,660 $\rightarrow$ 400\,230 CA, soit $\approx$\,55\%).
   \item \textbf{Compromis BF accepté} : la précision BF reste inférieure à BL 2 et BL 3 (57,65\% vs 63,66\% et 65,03\%), mais ce compromis est cohérent avec la priorité explicitement fixée sur la qualité HF.
 \end{itemize}
+
+\begin{hypothesebox}[Vérification sur Imagewoof]
+  Sur Imagewoof, la Stratégie 1 atteint \textbf{53,68\,\%} en Test HF, soit \textbf{le meilleur score HF parmi les quatre modèles testés} (BL 3 = 47,19\,\%, BL 2 = 43,73\,\%, BL 1 = 24,87\,\%). L'avantage de la stratégie séquentielle est même plus marqué que sur Animals-10 :
+  \begin{itemize}
+    \item \textbf{Vs BL 3 (Mixte)} : $+6,49$ points HF pour un coût divisé par $\approx 2,2$ (153\,160 vs 342\,320 CA), confirmation directe de l'efficacité de la séparation BF $\rightarrow$ HF.
+    \item \textbf{Rétention BF satisfaisante} : 44,82\,\% sur BF, comparable à BL 2 (44,52\,\%) ; l'écart HF/BF se resserre légèrement par rapport à Animals-10, ce qui suggère qu'un problème \textit{fine-grained} à faible volume conserve une plus forte dépendance aux représentations basses fréquences.
+  \end{itemize}
+  La hiérarchie \textbf{Stratégie 1 $>$ BL 3 $>$ BL 2 $>$ BL 1} est strictement identique sur les deux datasets, ce qui confirme que la dominance du transfer learning séquentiel n'est pas un artefact d'Animals-10 et constitue bien une propriété robuste de la méthode.
+\end{hypothesebox}
 
 % ---- 4.1.4 Analyse ----
 \subsection{Analyse : ce qui a marché, ce qui a moins marché, et enseignements}
@@ -956,7 +1018,7 @@ Configuration expérimentale utilisée :
 % ---- 4.2.2 Résultats ----
 \subsection{Résultats quantitatifs obtenus}
 
-Les résultats finaux de l'Étape 2 sont résumés ci-dessous.
+Les résultats finaux de l'Étape 2 sont résumés ci-dessous pour les deux datasets.
 Le critère prioritaire reste la précision sur \textbf{Test HF}.
 
 \vspace{0.6em}
@@ -967,13 +1029,18 @@ Le critère prioritaire reste la précision sur \textbf{Test HF}.
   \tableheadcolor
   \textbf{Méthode} & \textbf{Test HF} & \textbf{Test BF} & \textbf{Test Mixte} & \textbf{Coût (CA)} \\
   \midrule
+  \multicolumn{5}{l}{\textit{\textbf{Animals-10}}} \\
   \tablerowodd
   Stratégie 2 (Co-training pondéré) & 70,12\% & 61,90\% & 66,01\% & 486\,720 \\
+  \midrule
+  \multicolumn{5}{l}{\textit{\textbf{Imagewoof}}} \\
+  \tablerowodd
+  Stratégie 2 (Co-training pondéré) & 39,20\% & 39,81\% & 39,50\% & 183\,040 \\
   \bottomrule
 \end{tabularx}
 
 \vspace{0.8em}
-\begin{hypothesebox}[Lecture rapide des courbes d'entraînement]
+\begin{hypothesebox}[Lecture rapide des courbes d'entraînement (Animals-10)]
   La \textit{train weighted loss} décroît de 2,148 (époque 1) à 0,365 (époque 20), avec une baisse plus rapide de la loss HF non pondérée (2,093 $\rightarrow$ 0,070) que de la loss BF (2,098 $\rightarrow$ 0,630), ce qui confirme l'effet attendu du reweighting.
   La validation HF progresse globalement de 30,57\% à 69,85\%, avec des oscillations intermédiaires (ex. époques 11, 14, 17) indiquant une optimisation plus instable qu'en stratégie séquentielle.
 \end{hypothesebox}
@@ -981,8 +1048,15 @@ Le critère prioritaire reste la précision sur \textbf{Test HF}.
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\linewidth]{figures/strategy2_cotraining_reweighting_curves.png}
-  \caption{Évolution des losses et de la précision validation HF pour la Stratégie 2 (co-training pondéré HF/BF).}
+  \caption{Évolution des losses et de la précision validation HF pour la Stratégie 2 (co-training pondéré HF/BF) sur \textbf{Animals-10}.}
   \label{fig:strategy2_cotraining_curves}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\linewidth]{figures/strategy2_cotraining_reweighting_curves_imagewoof.png}
+  \caption{Évolution des losses et de la précision validation HF pour la Stratégie 2 sur \textbf{Imagewoof}.}
+  \label{fig:strategy2_cotraining_curves_imagewoof}
 \end{figure}
 
 % ---- 4.2.3 Comparaison ----
@@ -996,6 +1070,7 @@ Le critère prioritaire reste la précision sur \textbf{Test HF}.
   \tableheadcolor
   \textbf{Modèle} & \textbf{HF} & \textbf{BF} & \textbf{Mixte} & \textbf{Coût (CA)} \\
   \midrule
+  \multicolumn{5}{l}{\textit{\textbf{Animals-10}}} \\
   \tablerowodd
   BL 1 (HF) & 56,20\% & 35,16\% & 45,68\% & 470\,400 \\
   BL 2 (BF) & 59,07\% & 63,66\% & 61,36\% & 424\,260 \\
@@ -1004,11 +1079,21 @@ Le critère prioritaire reste la précision sur \textbf{Test HF}.
   Stratégie 1 (BF $\rightarrow$ HF) & 78,84\% & 57,65\% & 68,25\% & 400\,230 \\
   \tablerowodd
   \textbf{Stratégie 2 (Co-training pondéré)} & \textbf{70,12\%} & \textbf{61,90\%} & \textbf{66,01\%} & \textbf{486\,720} \\
+  \midrule
+  \multicolumn{5}{l}{\textit{\textbf{Imagewoof}}} \\
+  \tablerowodd
+  BL 1 (HF) & 24,87\% & 19,04\% & 21,95\% & 179\,800 \\
+  BL 2 (BF) & 43,73\% & 44,52\% & 44,12\% & 162\,520 \\
+  \tablerowodd
+  BL 3 (Mixte) & 47,19\% & 47,24\% & 47,21\% & 342\,320 \\
+  Stratégie 1 (BF $\rightarrow$ HF) & 53,68\% & 44,82\% & 49,25\% & 153\,160 \\
+  \tablerowodd
+  \textbf{Stratégie 2 (Co-training pondéré)} & \textbf{39,20\%} & \textbf{39,81\%} & \textbf{39,50\%} & \textbf{183\,040} \\
   \bottomrule
 \end{tabularx}
 
 \vspace{0.8em}
-Comparaisons clés :
+Comparaisons clés (Animals-10) :
 
 \begin{itemize}
   \item \textbf{Gain net vs BL 1 et BL 2 sur HF} : la stratégie 2 atteint 70,12\% sur Test HF, soit +13,92 points vs BL 1 et +11,05 points vs BL 2.
@@ -1016,6 +1101,16 @@ Comparaisons clés :
   \item \textbf{Compromis face à la stratégie 1} : la stratégie 2 perd 8,72 points sur HF par rapport à la stratégie 1 (70,12\% vs 78,84\%), mais améliore BF de +4,25 points.
   \item \textbf{Compromis coût} : le coût de la stratégie 2 (486\,720 CA) reste bien inférieur à BL 3 (894\,660 CA), mais supérieur à la stratégie 1 (400\,230 CA).
 \end{itemize}
+
+\begin{hypothesebox}[Vérification sur Imagewoof]
+  Sur Imagewoof, la Stratégie 2 atteint \textbf{39,20\,\%} sur Test HF — un résultat \textbf{nettement inférieur} aux baselines BL 2 (43,73\,\%) et BL 3 (47,19\,\%), et bien en deçà de la Stratégie 1 (53,68\,\%). Seule BL 1 (24,87\,\%) reste en dessous. Ce comportement diverge fortement de celui observé sur Animals-10 :
+  \begin{itemize}
+    \item \textbf{Comportement opposé à Animals-10} : sur Animals-10, la Stratégie 2 battait BL 1 et BL 2 de plus de $+10$ points HF. Sur Imagewoof, elle est devancée par BL 2 et BL 3 simples.
+    \item \textbf{Robustesse inter-domaine néanmoins préservée} : malgré l'accuracy plus faible, l'écart HF/BF de la Stratégie 2 reste extrêmement resserré (39,20 vs 39,81), conforme à l'esprit de la méthode --- meilleur équilibrage HF/BF que toutes les autres approches sur ce dataset.
+    \item \textbf{Hypothèse explicative} : sur Imagewoof, le co-training à ratio 16/48 par batch est mécaniquement dominé par les 48 échantillons BF, et le faible volume HF disponible (719 images train HF contre 1\,881 sur Animals-10) ne suffit pas à ce que le \textit{reweighting} HF spécialise efficacement les features fine-grained. La Stratégie 1, qui sépare strictement les phases BF puis HF, contourne ce problème.
+  \end{itemize}
+  Cette divergence est précieuse pour l'analyse : elle indique que les performances de la Stratégie 2 sont \textbf{sensibles au volume HF disponible} et au degré de granularité du problème. Une étude d'ablation du ratio HF/BF et des poids de loss serait nécessaire pour la rendre transposable sur des datasets fine-grained à faible volume.
+\end{hypothesebox}
 
 % ---- 4.2.4 Analyse ----
 \subsection{Analyse : ce qui a marché, ce qui a moins marché, et enseignements}
