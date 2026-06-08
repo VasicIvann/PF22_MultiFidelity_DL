@@ -1,13 +1,26 @@
 # --- Fichier : src/train_baselines.py ---
 import os
+import sys
 import time
 import json
+import random
+import statistics
+
 import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader, ConcatDataset
 from torchvision import datasets, transforms, models
 from torch.amp import autocast, GradScaler
+
+# --- Modules partagés (source unique dégradation + coût) ---
+# Ils se trouvent dans le même dossier que ce script (src/), ajouté au sys.path.
+# Sur Colab, ce dossier est /content/drive/MyDrive/UTBM_PF22/src.
+_THIS_DIR = os.path.dirname(os.path.abspath(__file__))
+if _THIS_DIR not in sys.path:
+    sys.path.insert(0, _THIS_DIR)
+from degradation import hf_transform, clean_tensor_transform, DegradedDataset
+from cost import data_cost, unit_cost
 
 try:
     import wandb
@@ -20,173 +33,157 @@ BASE_DIR = "/content/processed_multifidelity"
 RESULTS_DIR = "/content/drive/MyDrive/UTBM_PF22/results"
 os.makedirs(RESULTS_DIR, exist_ok=True)
 
-# Définition des coûts unitaires
-COST_HF = 10
-COST_BF = 1
+# Coûts unitaires d'acquisition (modèle de coût résolution², src/cost.py)
+COST_HF = unit_cost(None)   # image HF pleine résolution (= 10 CA)
+COST_BF = unit_cost(64)     # image BF canonique 64px (≈ 1 CA)
+
+# Seeds par défaut pour le multi-seed (moyenne ± écart-type)
+DEFAULT_SEEDS = (42, 1, 2)
 
 # Configuration W&B par défaut
 WANDB_PROJECT_DEFAULT = "PF22-MultiFidelity"
 
-# --- 1. Custom Transform pour le Test BF à la volée ---
-class AddDegradationTransform:
-    """Applique le flou et le bruit à la volée pour évaluer sur le domaine BF"""
-    def __call__(self, img_tensor):
-        # 1. Baisse de résolution et upscale
-        h, w = img_tensor.shape[1], img_tensor.shape[2]
-        img_degraded = transforms.functional.resize(img_tensor, (64, 64), antialias=True)
-        img_degraded = transforms.functional.resize(img_degraded, (h, w), antialias=True)
-        # 2. Ajout de Bruit Gaussien
-        noise = torch.randn_like(img_degraded) * 0.15
-        img_noisy = img_degraded + noise
-        return torch.clamp(img_noisy, 0, 1)
 
-def run_baseline(mode, epochs=10, batch_size=64, lr=0.001,
-                 dataset_name=None, use_wandb=True,
-                 wandb_project=WANDB_PROJECT_DEFAULT, wandb_run_name=None):
+def _set_seed(seed):
+    """Fixe toutes les sources d'aléa (reproductibilité par seed)."""
+    random.seed(seed)
+    try:
+        import numpy as _np
+        _np.random.seed(seed)
+    except Exception:
+        pass
+    torch.manual_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(seed)
+
+
+def _train_eval_once(mode, epochs, batch_size, lr, seed, device,
+                     dataset_name, track_wandb, wandb_project, wandb_run_name):
+    """Un entraînement + évaluation complet pour UN seed donné.
+
+    Returns:
+        (results_single: dict, model: nn.Module, costs: dict)
     """
-    Entraîne et évalue une baseline pour un mode donné.
+    _set_seed(seed)
 
-    Args:
-        mode (str): "HF", "BF" ou "MIXTE".
-        epochs (int): nombre d'époques.
-        batch_size (int): taille du batch.
-        lr (float): learning rate.
-        dataset_name (str|None): nom du dataset (ex: "Animals-10", "Imagewoof"),
-            ajouté aux tags W&B et au config pour différencier les runs.
-        use_wandb (bool): active/désactive le tracking W&B (auto-désactivé si la
-            librairie n'est pas installée).
-        wandb_project (str): nom du projet W&B.
-        wandb_run_name (str|None): nom du run W&B. Par défaut "Baseline_{mode}".
-    """
-    print(f"\n{'='*50}\n🚀 DÉMARRAGE BASELINE : {mode}\n{'='*50}")
+    # --- Datasets / transforms (via le module partagé) ---
+    transform_hf = hf_transform()
+    transform_clean = clean_tensor_transform()
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f"🔥 Entraînement en cours sur : {device}")
+    dataset_hf = datasets.ImageFolder(os.path.join(BASE_DIR, 'train/HF'), transform=transform_hf)
+    dataset_bf = DegradedDataset(
+        datasets.ImageFolder(os.path.join(BASE_DIR, 'train/BF'), transform=transform_clean),
+        seeded=True,
+    )
 
-    track_wandb = bool(use_wandb and _WANDB_AVAILABLE)
-    if use_wandb and not _WANDB_AVAILABLE:
-        print("⚠️ wandb non installé : tracking désactivé pour ce run.")
-    
-    # --- 2. Préparation des Datasets ---
-    # Transformations basiques pour ResNet
-    transform_standard = transforms.Compose([
-        transforms.Resize((224, 224)),
-        transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-    ])
-    
-    # Transformations pour le Test BF (On dégrade d'abord, on normalise ensuite)
-    transform_bf_test = transforms.Compose([
-        transforms.Resize((224, 224)),
-        transforms.ToTensor(),
-        AddDegradationTransform(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-    ])
-
-    # Chargement des données d'entraînement selon le mode
-    dataset_hf = datasets.ImageFolder(os.path.join(BASE_DIR, 'train/HF'), transform=transform_standard)
-    dataset_bf = datasets.ImageFolder(os.path.join(BASE_DIR, 'train/BF'), transform=transform_standard)
-    
     if mode == "HF":
         train_dataset = dataset_hf
-        cost_per_epoch = len(train_dataset) * COST_HF
+        data_cost_CA = data_cost(n_hf=len(dataset_hf))
     elif mode == "BF":
         train_dataset = dataset_bf
-        cost_per_epoch = len(train_dataset) * COST_BF
+        data_cost_CA = data_cost(n_bf=len(dataset_bf))
     elif mode == "MIXTE":
         train_dataset = ConcatDataset([dataset_hf, dataset_bf])
-        cost_per_epoch = (len(dataset_hf) * COST_HF) + (len(dataset_bf) * COST_BF)
+        data_cost_CA = data_cost(n_hf=len(dataset_hf), n_bf=len(dataset_bf))
     else:
         raise ValueError("Le mode doit être 'HF', 'BF' ou 'MIXTE'")
 
+    # Coût CALCUL (images vues, non pondéré) et coût TOTAL (pondéré = ancien coût).
+    compute_images_seen = len(train_dataset) * epochs
+    total_cost_CA = data_cost_CA * epochs
+
+    # Décomposition par domaine (pour l'analyse de sensibilité au ratio HF:BF).
+    n_hf_pool = len(dataset_hf) if mode in ("HF", "MIXTE") else 0
+    n_bf_pool = len(dataset_bf) if mode in ("BF", "MIXTE") else 0
+    hf_images_seen = n_hf_pool * epochs
+    bf_images_seen = n_bf_pool * epochs
+
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=2)
-    
-    # Chargement des données de test (Le même dossier, mais lu avec 2 transforms différents)
-    test_hf_loader = DataLoader(datasets.ImageFolder(os.path.join(BASE_DIR, 'test'), transform=transform_standard), batch_size=batch_size, shuffle=False)
-    test_bf_loader = DataLoader(datasets.ImageFolder(os.path.join(BASE_DIR, 'test'), transform=transform_bf_test), batch_size=batch_size, shuffle=False)
 
-    print(f"📦 Images d'entraînement : {len(train_dataset)}")
-    print(f"💰 Coût par époque : {cost_per_epoch} CA | Coût total estimé : {cost_per_epoch * epochs} CA")
+    test_hf_loader = DataLoader(
+        datasets.ImageFolder(os.path.join(BASE_DIR, 'test'), transform=transform_hf),
+        batch_size=batch_size, shuffle=False)
+    test_bf_loader = DataLoader(
+        DegradedDataset(
+            datasets.ImageFolder(os.path.join(BASE_DIR, 'test'), transform=transform_clean),
+            seeded=True,
+        ),
+        batch_size=batch_size, shuffle=False)
 
-    # --- 2bis. Initialisation W&B ---
+    costs = {
+        "data_cost_CA": data_cost_CA,
+        "compute_images_seen": compute_images_seen,
+        "total_cost_CA": total_cost_CA,
+        "n_hf_pool": n_hf_pool,
+        "n_bf_pool": n_bf_pool,
+        "hf_images_seen": hf_images_seen,
+        "bf_images_seen": bf_images_seen,
+    }
+
+    # --- W&B (un run par seed) ---
     if track_wandb:
-        run_name = wandb_run_name or f"Baseline_{mode}"
-        tags = ["baseline", f"mode_{mode}"]
+        base_name = wandb_run_name or f"Baseline_{mode}"
+        run_name = f"{base_name}_seed{seed}"
+        tags = ["baseline", f"mode_{mode}", f"seed_{seed}"]
         if dataset_name:
             tags.append(dataset_name)
         wandb.init(
-            project=wandb_project,
-            name=run_name,
-            tags=tags,
-            reinit=True,
+            project=wandb_project, name=run_name, tags=tags, reinit=True,
             config={
-                "strategy": "baseline",
-                "mode": mode,
-                "dataset": dataset_name or "unknown",
-                "architecture": "resnet18",
-                "weights_init": "from_scratch",
-                "num_classes": 10,
-                "epochs": epochs,
-                "batch_size": batch_size,
-                "learning_rate": lr,
-                "optimizer": "Adam",
-                "loss": "CrossEntropyLoss",
-                "amp_fp16": True,
-                "input_size": 224,
-                "cost_HF_per_image": COST_HF,
-                "cost_BF_per_image": COST_BF,
-                "cost_per_epoch_CA": cost_per_epoch,
-                "total_cost_CA_planned": cost_per_epoch * epochs,
-                "train_size": len(train_dataset),
+                "strategy": "baseline", "mode": mode,
+                "dataset": dataset_name or "unknown", "architecture": "resnet18",
+                "weights_init": "from_scratch", "num_classes": 10,
+                "epochs": epochs, "batch_size": batch_size, "learning_rate": lr,
+                "seed": seed, "optimizer": "Adam", "loss": "CrossEntropyLoss",
+                "amp_fp16": True, "input_size": 224,
+                "cost_HF_per_image": COST_HF, "cost_BF_per_image": COST_BF,
+                "data_cost_CA": data_cost_CA, "compute_images_seen": compute_images_seen,
+                "total_cost_CA": total_cost_CA, "train_size": len(train_dataset),
             },
         )
 
-    # --- 3. Initialisation du Modèle (ResNet-18) ---
-    model = models.resnet18(weights=None) # weights=None car on entraîne "from scratch"
-    model.fc = nn.Linear(model.fc.in_features, 10) # 10 classes d'animaux
+    # --- Modèle ResNet-18 from scratch ---
+    model = models.resnet18(weights=None)
+    model.fc = nn.Linear(model.fc.in_features, 10)
     model = model.to(device)
 
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=lr)
-    scaler = GradScaler('cuda') # Pour le FP16 (accélération)
+    scaler = GradScaler('cuda')
 
-    # --- 4. Boucle d'entraînement ---
+    # --- Boucle d'entraînement ---
     start_time = time.time()
     loss_history = []
     for epoch in range(epochs):
         model.train()
         running_loss = 0.0
-
         for inputs, labels in train_loader:
             inputs, labels = inputs.to(device), labels.to(device)
             optimizer.zero_grad()
-
             with autocast('cuda'):
                 outputs = model(inputs)
                 loss = criterion(outputs, labels)
-
             scaler.scale(loss).backward()
             scaler.step(optimizer)
             scaler.update()
-
             running_loss += loss.item() * inputs.size(0)
 
         epoch_loss = running_loss / len(train_dataset)
         loss_history.append(epoch_loss)
-        print(f"Époque {epoch+1}/{epochs} | Loss: {epoch_loss:.4f}")
+        print(f"  [seed {seed}] Époque {epoch+1}/{epochs} | Loss: {epoch_loss:.4f}")
 
         if track_wandb:
             wandb.log({
                 "epoch": epoch + 1,
                 "train/loss": epoch_loss,
-                "cumulative_cost_CA": cost_per_epoch * (epoch + 1),
+                "cumulative_images_seen": len(train_dataset) * (epoch + 1),
             })
 
     training_time = time.time() - start_time
-    print(f"⏱️ Entraînement terminé en {training_time/60:.2f} minutes.")
 
-    # --- 5. Phase d'Évaluation sur les 3 Domaines ---
+    # --- Évaluation ---
     model.eval()
+
     def evaluate(loader, name):
         correct = 0
         total = 0
@@ -198,62 +195,124 @@ def run_baseline(mode, epochs=10, batch_size=64, lr=0.001,
                 total += labels.size(0)
                 correct += (predicted == labels).sum().item()
         acc = 100 * correct / total
-        print(f"📊 Précision {name} : {acc:.2f}%")
+        print(f"  [seed {seed}] 📊 {name} : {acc:.2f}%")
         return acc
 
-    print("\n--- RÉSULTATS D'ÉVALUATION ---")
-    acc_hf = evaluate(test_hf_loader, "Test HF (Propre)")
-    acc_bf = evaluate(test_bf_loader, "Test BF (Bruité)")
+    acc_hf = evaluate(test_hf_loader, "Test HF")
+    acc_bf = evaluate(test_bf_loader, "Test BF")
+    # Test Mixte = jeu mixte équilibré (chaque image en HF ET en BF, 2N préd.) :
+    # moyenner les deux accuracies sur les mêmes N images équivaut exactement à
+    # cette accuracy mixte (déterministe).
     acc_mixte = (acc_hf + acc_bf) / 2
-    print(f"📊 Précision Mixte (Moyenne) : {acc_mixte:.2f}%")
 
-    # --- 6. Sauvegarde des résultats ---
-    results = {
-        "mode": mode,
-        "dataset": dataset_name or "unknown",
-        "epochs": epochs,
-        "total_cost_CA": cost_per_epoch * epochs,
-        "training_time_sec": training_time,
-        "accuracy_HF": acc_hf,
-        "accuracy_BF": acc_bf,
-        "accuracy_Mixte": acc_mixte,
-        "loss_history": loss_history
-    }
-
-    json_path = f"{RESULTS_DIR}/results_baseline_{mode}.json"
-    pth_path = f"{RESULTS_DIR}/model_baseline_{mode}.pth"
-
-    # Enregistrer le JSON
-    with open(json_path, "w") as f:
-        json.dump(results, f, indent=4)
-
-    # Enregistrer les poids du modèle
-    torch.save(model.state_dict(), pth_path)
-    print(f"💾 Résultats et Modèle sauvegardés dans {RESULTS_DIR}")
-
-    # --- 7. Logs finaux + upload artefacts W&B ---
     if track_wandb:
         wandb.log({
-            "test/accuracy_HF": acc_hf,
-            "test/accuracy_BF": acc_bf,
+            "test/accuracy_HF": acc_hf, "test/accuracy_BF": acc_bf,
             "test/accuracy_Mixte": acc_mixte,
-            "training_time_sec": training_time,
-            "training_time_min": training_time / 60.0,
+            "training_time_sec": training_time, "training_time_min": training_time / 60.0,
         })
         wandb.summary["final/accuracy_HF"] = acc_hf
         wandb.summary["final/accuracy_BF"] = acc_bf
         wandb.summary["final/accuracy_Mixte"] = acc_mixte
-        wandb.summary["final/total_cost_CA"] = cost_per_epoch * epochs
-        wandb.summary["final/training_time_min"] = training_time / 60.0
-
-        # Upload du modèle final + JSON comme fichiers du run
-        try:
-            wandb.save(pth_path)
-            wandb.save(json_path)
-        except Exception as e:
-            print(f"⚠️ wandb.save a échoué : {e}")
-
+        wandb.summary["final/data_cost_CA"] = data_cost_CA
+        wandb.summary["final/total_cost_CA"] = total_cost_CA
+        wandb.summary["final/compute_images_seen"] = compute_images_seen
         wandb.finish()
+
+    results_single = {
+        "seed": seed,
+        "accuracy_HF": acc_hf,
+        "accuracy_BF": acc_bf,
+        "accuracy_Mixte": acc_mixte,
+        "training_time_sec": training_time,
+        "loss_history": loss_history,
+    }
+    return results_single, model, costs
+
+
+def _agg(values):
+    """Retourne (moyenne, écart-type échantillon, liste des valeurs)."""
+    mean = statistics.mean(values)
+    std = statistics.stdev(values) if len(values) > 1 else 0.0
+    return mean, std, list(values)
+
+
+def run_baseline(mode, epochs=10, batch_size=64, lr=0.001,
+                 dataset_name=None, use_wandb=True,
+                 wandb_project=WANDB_PROJECT_DEFAULT, wandb_run_name=None,
+                 seeds=DEFAULT_SEEDS):
+    """Entraîne/évalue une baseline sur plusieurs seeds et agrège (moyenne ± std).
+
+    Args:
+        mode (str): "HF", "BF" ou "MIXTE".
+        epochs, batch_size, lr: hyperparamètres.
+        dataset_name (str|None): nom du dataset (tags/identification W&B).
+        use_wandb (bool): tracking W&B (un run par seed).
+        wandb_project, wandb_run_name: configuration W&B.
+        seeds (tuple): seeds à exécuter (défaut: 3 seeds).
+
+    Le JSON sauvegardé contient les accuracies MOYENNES (clé accuracy_HF/BF/Mixte,
+    pour compatibilité avec les notebooks de bilan), leur écart-type (_std), les
+    valeurs par seed (_seeds), ainsi que les 3 coûts. Le checkpoint du PREMIER seed
+    est sauvegardé comme modèle canonique.
+    """
+    print(f"\n{'='*50}\n🚀 BASELINE : {mode} | seeds={list(seeds)}\n{'='*50}")
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print(f"🔥 Entraînement sur : {device}")
+
+    track_wandb = bool(use_wandb and _WANDB_AVAILABLE)
+    if use_wandb and not _WANDB_AVAILABLE:
+        print("⚠️ wandb non installé : tracking désactivé.")
+
+    per_seed = []
+    costs = None
+    canonical_model = None
+    for i, seed in enumerate(seeds):
+        res, model, costs = _train_eval_once(
+            mode, epochs, batch_size, lr, seed, device,
+            dataset_name, track_wandb, wandb_project, wandb_run_name)
+        per_seed.append(res)
+        if i == 0:
+            canonical_model = model  # checkpoint canonique = premier seed
+
+    # --- Agrégation moyenne ± écart-type ---
+    hf_m, hf_s, hf_all = _agg([r["accuracy_HF"] for r in per_seed])
+    bf_m, bf_s, bf_all = _agg([r["accuracy_BF"] for r in per_seed])
+    mx_m, mx_s, mx_all = _agg([r["accuracy_Mixte"] for r in per_seed])
+    t_m, t_s, _ = _agg([r["training_time_sec"] for r in per_seed])
+
+    print(f"\n--- RÉSULTATS AGRÉGÉS ({len(seeds)} seeds) ---")
+    print(f"📊 Test HF    : {hf_m:.2f} ± {hf_s:.2f} %")
+    print(f"📊 Test BF    : {bf_m:.2f} ± {bf_s:.2f} %")
+    print(f"📊 Test Mixte : {mx_m:.2f} ± {mx_s:.2f} %")
+    print(f"💰 Coût données : {costs['data_cost_CA']:.0f} CA | 🧮 Calcul : {costs['compute_images_seen']} | 💵 Total : {costs['total_cost_CA']:.0f} CA")
+
+    results = {
+        "mode": mode,
+        "dataset": dataset_name or "unknown",
+        "epochs": epochs,
+        "seeds": list(seeds),
+        "data_cost_CA": costs["data_cost_CA"],
+        "compute_images_seen": costs["compute_images_seen"],
+        "total_cost_CA": costs["total_cost_CA"],
+        "n_hf_pool": costs["n_hf_pool"],
+        "n_bf_pool": costs["n_bf_pool"],
+        "hf_images_seen": costs["hf_images_seen"],
+        "bf_images_seen": costs["bf_images_seen"],
+        "accuracy_HF": hf_m, "accuracy_HF_std": hf_s, "accuracy_HF_seeds": hf_all,
+        "accuracy_BF": bf_m, "accuracy_BF_std": bf_s, "accuracy_BF_seeds": bf_all,
+        "accuracy_Mixte": mx_m, "accuracy_Mixte_std": mx_s, "accuracy_Mixte_seeds": mx_all,
+        "training_time_sec": t_m, "training_time_sec_std": t_s,
+        "per_seed": per_seed,
+    }
+
+    json_path = f"{RESULTS_DIR}/results_baseline_{mode}.json"
+    pth_path = f"{RESULTS_DIR}/model_baseline_{mode}.pth"
+    with open(json_path, "w") as f:
+        json.dump(results, f, indent=4)
+    torch.save(canonical_model.state_dict(), pth_path)
+    print(f"💾 Résultats agrégés + modèle (seed {seeds[0]}) sauvegardés dans {RESULTS_DIR}")
+
 
 # Permet d'importer ce script sans le lancer automatiquement
 if __name__ == "__main__":

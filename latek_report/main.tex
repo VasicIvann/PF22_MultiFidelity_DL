@@ -567,7 +567,9 @@ Le schéma ci-dessous illustre le découpage du jeu Animals-10.
 % ---- 2.2 Pipeline de dégradation ----
 \section{Pipeline de dégradation de la qualité}
 
-La génération des images Basse Fidélité applique deux transformations consécutives \textbf{à la volée} :
+Les images de Basse Fidélité ne sont \textbf{pas} stockées dégradées sur le disque : elles sont conservées propres, et la dégradation est appliquée \textbf{à la volée} au chargement, de façon \textbf{strictement identique à l'entraînement et à l'évaluation}. Une unique fonction de dégradation, centralisée dans le module \texttt{src/degradation.py}, est partagée par toutes les expériences, ce qui élimine tout décalage de domaine parasite entre le train BF et le test BF. La dégradation est en outre \textbf{déterministe par image} (graine dérivée de l'indice), donc reproductible d'une époque et d'un \textit{run} à l'autre.
+
+La dégradation enchaîne \textbf{trois transformations} :
 
 \vspace{0.8em}
 \renewcommand{\arraystretch}{1.5}
@@ -582,33 +584,55 @@ La génération des images Basse Fidélité applique deux transformations consé
   \midrule
   \tablerowodd
   \textbf{1} & Sous-échantillonnage (\textit{Downsampling}) &
-    Réduction à 64$\times$64 px puis redimensionnement à 224$\times$224 px par interpolation bilinéaire &
+    Réduction à 64$\times$64 px puis retour à 224$\times$224 px par interpolation bilinéaire avec anticrénelage (\textit{antialias}) &
     Perte d'information : image floue et pixélisée \\
   \textbf{2} & Bruit Gaussien &
-    Ajout d'un bruit aléatoire (grain) aux tenseurs de l'image &
+    Ajout d'un bruit aléatoire (grain, $\sigma=0{,}15$) aux tenseurs de l'image &
     Simulation du bruit ISO des capteurs électroniques\\
+  \tablerowodd
+  \textbf{3} & Compression JPEG &
+    Ré-encodage JPEG à qualité réduite (\textit{quality}~$=60$) &
+    Artefacts de blocs et quantification d'un stockage bas de gamme \\
   \bottomrule
 \end{tabularx}
+
+\begin{hypothesebox}[Cohérence train/test du domaine BF]
+  Train BF et Test BF passent désormais par \textbf{exactement} le même pipeline (mêmes interpolation, bruit $\sigma$ et qualité JPEG), via un module unique (\texttt{src/degradation.py}). La précision sur Test BF mesure donc la robustesse au domaine appris, sans biais d'implémentation. Les paramètres (résolution intermédiaire, $\sigma$, qualité JPEG) sont exposés afin de permettre l'étude de l'\emph{intensité} de la dégradation.
+\end{hypothesebox}
 
 % ---- 2.3 Métrique de coût ----
 \section{Définition de la métrique de coût}
 
+Trois coûts sont désormais distingués explicitement et reportés séparément :
+
+\begin{itemize}
+  \item le \textbf{coût de la donnée} (\textit{Crédit d'Annotation}, CA) : coût d'\textbf{acquisition} du jeu de données, payé \textbf{une seule fois}, $= \sum (\text{images distinctes} \times \text{coût unitaire})$. Indépendant du nombre d'époques ;
+  \item le \textbf{coût de calcul} : nombre total d'images traitées $= \text{taille du train} \times \text{époques}$ (\emph{non pondéré}), indicateur agnostique au matériel ;
+  \item le \textbf{coût total} : images traitées \textbf{pondérées par leur coût unitaire} $= \sum_{\text{époques}} (\text{images} \times \text{coût unitaire})$. Une image HF y pèse $\times 10$ \emph{à chaque époque} ; c'est la métrique qui valorise le plus le recours aux données BF bon marché par les stratégies multi-fidélité.
+\end{itemize}
+
+Le coût unitaire d'acquisition d'une image dépend de sa \textbf{résolution} (qualité du capteur, soin de la prise de vue, stockage), donc approximativement du nombre de pixels (résolution au carré). Le bruit gaussien et la compression JPEG sont considérés comme un post-traitement sans surcoût d'acquisition. On pose :
+\[
+  C(d) = C_{min} + (C_{HF} - C_{min}) \left(\frac{d}{224}\right)^{2}
+\]
+où $d$ est la résolution effective de l'image. Les paramètres sont \textbf{calibrés} sur deux ancres : une image pleine résolution ($d=224$) coûte $C_{HF}=10$~CA, et l'image Basse Fidélité canonique ($d=64$) coûte $\approx 1$~CA, ce qui fixe $C_{min}\approx 0{,}2$ (coût plancher de toute image). Ce modèle rend le ratio $\approx 10\!:\!1$ \textbf{justifié} (et non plus arbitraire) par la quantité d'information acquise.
+
 \renewcommand{\arraystretch}{1.4}
-\begin{tabularx}{\linewidth}{L{3.5cm} C{3cm} L{9.3cm}}
+\begin{tabularx}{\linewidth}{L{3.8cm} C{2.6cm} L{9.1cm}}
   \arrayrulecolor{midgray}
   \toprule
   \tableheadcolor
-  \textbf{Type d'image} & \textbf{Coût} & \textbf{Justification} \\
+  \textbf{Type d'image} & \textbf{Coût $C$} & \textbf{Justification} \\
   \midrule
-  Haute Fidélité ($C_{HF}$) & \textbf{10 CA} & Expert humain ou équipement onéreux \\
-  Basse Fidélité ($C_{BF}$) & \textbf{1 CA} & Collecte automatisée, pré-étiquetage web \\
+  Haute Fidélité ($d=224$) & \textbf{10 CA} & Expert humain ou équipement onéreux (pleine résolution) \\
+  Basse Fidélité ($d=64$) & \textbf{$\approx$1 CA} & Collecte automatisée, faible résolution, pré-étiquetage web \\
   \bottomrule
 \end{tabularx}
 
 \vspace{0.5em}
 
-\begin{hypothesebox}[Pourquoi pas le temps de calcul ?]
-  Le temps de calcul brut ($Temps_{Epoch} \times Nombre_{Epochs}$) a été écarté en raison de l'instabilité des environnements cloud (fluctuations de charge serveur, allocation dynamique GPU, goulots I/O). Le \textbf{Crédit d'Annotation} offre un référentiel \textbf{invariant, agnostique au matériel}, centré sur la valeur intrinsèque de la donnée.
+\begin{hypothesebox}[Trois coûts complémentaires]
+  Le \textbf{coût donnée} (CA) mesure l'\emph{acquisition}, compté \textbf{une seule fois} : deux méthodes exploitant le même pool HF+BF ont donc le \textbf{même coût donnée}. Elles se distinguent sur le \textbf{coût de calcul} (images vues) et surtout le \textbf{coût total} (images vues pondérées par leur coût unitaire) : c'est là que les stratégies multi-fidélité créent de la valeur, en remplaçant des passages sur des images HF coûteuses par des passages sur des images BF bon marché. Le temps de calcul brut, dépendant du matériel (charge serveur, allocation GPU, I/O), est suivi à titre indicatif mais n'est pas la métrique principale.
 \end{hypothesebox}
 
 % ---- 3.2 Architecture ----
@@ -702,7 +726,7 @@ Un modèle entraîné sur des images floues (domaine BF) peut ne pas généralis
     (tbf) {\textbf{Test BF (Bruité)}\\\footnotesize Pipeline de dégradation appliqué};
 
   \node[testbox, fill=primary!15, draw=primary, right=2cm of tbf]
-    (tmix) {\textbf{Test Mixte}\\\footnotesize Moitié HF moitié BF};
+    (tmix) {\textbf{Test Mixte}\\\footnotesize Chaque image en HF \emph{et} BF};
 
   \node[testbox, fill=lightgray, draw=midgray, above=1.6cm of tbf, text width=4cm]
     (model) {\textbf{Modèle évalué}\\(ResNet-18)};
@@ -712,6 +736,10 @@ Un modèle entraîné sur des images floues (domaine BF) peut ne pas généralis
   \draw[arrow] (model) -- (tmix);
 \end{tikzpicture}
 \end{center}
+
+\begin{hypothesebox}[Définition du Test Mixte]
+  Le \textbf{Test Mixte} agrège les deux domaines : chaque image du jeu de test est évaluée \textbf{une fois en HF et une fois en BF}, et l'on rapporte la précision sur l'ensemble de ces prédictions ($2N$ prédictions pour $N$ images). Les deux passages portant sur les mêmes images, cette valeur est \textbf{exactement} la moyenne des précisions Test HF et Test BF : c'est un estimateur équilibré et déterministe du comportement mixte.
+\end{hypothesebox}
 
 % ---- 3.3 Baselines ----
 \section{Définition des modèles de référence}
