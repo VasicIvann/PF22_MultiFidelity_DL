@@ -21,6 +21,7 @@ if _THIS_DIR not in sys.path:
     sys.path.insert(0, _THIS_DIR)
 from degradation import hf_transform, clean_tensor_transform, DegradedDataset
 from cost import data_cost, unit_cost
+import env_config
 
 try:
     import wandb
@@ -29,13 +30,16 @@ except ImportError:
     _WANDB_AVAILABLE = False
 
 # --- Configuration ---
-BASE_DIR = "/content/processed_multifidelity"
-RESULTS_DIR = "/content/drive/MyDrive/UTBM_PF22/results"
-os.makedirs(RESULTS_DIR, exist_ok=True)
+# Les chemins (données + résultats) sont résolus dynamiquement par env_config,
+# selon le dataset et l'environnement (Colab ou serveur/local).
 
 # Coûts unitaires d'acquisition (modèle de coût résolution², src/cost.py)
 COST_HF = unit_cost(None)   # image HF pleine résolution (= 10 CA)
 COST_BF = unit_cost(64)     # image BF canonique 64px (≈ 1 CA)
+
+# Workers de chargement : adapté au nombre de cœurs (Colab ~2, serveur 16 vCPU).
+# Indispensable pour ne pas affamer le GPU à cause de la dégradation JPEG à la volée.
+NUM_WORKERS = min(8, (os.cpu_count() or 2))
 
 # Seeds par défaut pour le multi-seed (moyenne ± écart-type)
 DEFAULT_SEEDS = (42, 1, 2)
@@ -57,7 +61,7 @@ def _set_seed(seed):
         torch.cuda.manual_seed_all(seed)
 
 
-def _train_eval_once(mode, epochs, batch_size, lr, seed, device,
+def _train_eval_once(mode, epochs, batch_size, lr, seed, device, base_dir,
                      dataset_name, track_wandb, wandb_project, wandb_run_name):
     """Un entraînement + évaluation complet pour UN seed donné.
 
@@ -70,9 +74,9 @@ def _train_eval_once(mode, epochs, batch_size, lr, seed, device,
     transform_hf = hf_transform()
     transform_clean = clean_tensor_transform()
 
-    dataset_hf = datasets.ImageFolder(os.path.join(BASE_DIR, 'train/HF'), transform=transform_hf)
+    dataset_hf = datasets.ImageFolder(os.path.join(base_dir, 'train/HF'), transform=transform_hf)
     dataset_bf = DegradedDataset(
-        datasets.ImageFolder(os.path.join(BASE_DIR, 'train/BF'), transform=transform_clean),
+        datasets.ImageFolder(os.path.join(base_dir, 'train/BF'), transform=transform_clean),
         seeded=True,
     )
 
@@ -98,17 +102,18 @@ def _train_eval_once(mode, epochs, batch_size, lr, seed, device,
     hf_images_seen = n_hf_pool * epochs
     bf_images_seen = n_bf_pool * epochs
 
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=2)
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True,
+                              num_workers=NUM_WORKERS, pin_memory=True)
 
     test_hf_loader = DataLoader(
-        datasets.ImageFolder(os.path.join(BASE_DIR, 'test'), transform=transform_hf),
-        batch_size=batch_size, shuffle=False)
+        datasets.ImageFolder(os.path.join(base_dir, 'test'), transform=transform_hf),
+        batch_size=batch_size, shuffle=False, num_workers=NUM_WORKERS, pin_memory=True)
     test_bf_loader = DataLoader(
         DegradedDataset(
-            datasets.ImageFolder(os.path.join(BASE_DIR, 'test'), transform=transform_clean),
+            datasets.ImageFolder(os.path.join(base_dir, 'test'), transform=transform_clean),
             seeded=True,
         ),
-        batch_size=batch_size, shuffle=False)
+        batch_size=batch_size, shuffle=False, num_workers=NUM_WORKERS, pin_memory=True)
 
     costs = {
         "data_cost_CA": data_cost_CA,
@@ -256,9 +261,14 @@ def run_baseline(mode, epochs=10, batch_size=64, lr=0.001,
     valeurs par seed (_seeds), ainsi que les 3 coûts. Le checkpoint du PREMIER seed
     est sauvegardé comme modèle canonique.
     """
-    print(f"\n{'='*50}\n🚀 BASELINE : {mode} | seeds={list(seeds)}\n{'='*50}")
+    if dataset_name is None:
+        dataset_name = "Animals-10"
+    base_dir = env_config.ensure_dataset_ready(dataset_name)
+    res_dir = env_config.results_dir(dataset_name)
+
+    print(f"\n{'='*50}\n🚀 BASELINE : {mode} | {dataset_name} | seeds={list(seeds)}\n{'='*50}")
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f"🔥 Entraînement sur : {device}")
+    print(f"🔥 Entraînement sur : {device} | données : {base_dir}")
 
     track_wandb = bool(use_wandb and _WANDB_AVAILABLE)
     if use_wandb and not _WANDB_AVAILABLE:
@@ -269,7 +279,7 @@ def run_baseline(mode, epochs=10, batch_size=64, lr=0.001,
     canonical_model = None
     for i, seed in enumerate(seeds):
         res, model, costs = _train_eval_once(
-            mode, epochs, batch_size, lr, seed, device,
+            mode, epochs, batch_size, lr, seed, device, base_dir,
             dataset_name, track_wandb, wandb_project, wandb_run_name)
         per_seed.append(res)
         if i == 0:
@@ -306,12 +316,13 @@ def run_baseline(mode, epochs=10, batch_size=64, lr=0.001,
         "per_seed": per_seed,
     }
 
-    json_path = f"{RESULTS_DIR}/results_baseline_{mode}.json"
-    pth_path = f"{RESULTS_DIR}/model_baseline_{mode}.pth"
+    os.makedirs(res_dir, exist_ok=True)
+    json_path = os.path.join(res_dir, f"results_baseline_{mode}.json")
+    pth_path = os.path.join(res_dir, f"model_baseline_{mode}.pth")
     with open(json_path, "w") as f:
         json.dump(results, f, indent=4)
     torch.save(canonical_model.state_dict(), pth_path)
-    print(f"💾 Résultats agrégés + modèle (seed {seeds[0]}) sauvegardés dans {RESULTS_DIR}")
+    print(f"💾 Résultats agrégés + modèle (seed {seeds[0]}) sauvegardés dans {res_dir}")
 
 
 # Permet d'importer ce script sans le lancer automatiquement
