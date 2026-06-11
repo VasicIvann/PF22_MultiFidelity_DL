@@ -19,12 +19,14 @@ courant (résolus depuis l'emplacement de ce fichier).
 
 import os
 
-DATASETS = ("Animals-10", "Imagewoof")
+DATASETS = ("Animals-10", "Imagewoof", "Intel", "Food101")
 
 # Zips Colab (extraits sur le SSD par ensure_dataset_ready)
 _COLAB_ZIP = {
     "Animals-10": "/content/drive/MyDrive/UTBM_PF22/datasets/Animals-10/dataset_multifidelity.zip",
     "Imagewoof": "/content/drive/MyDrive/UTBM_PF22/datasets/Imagewoof/dataset_multifidelity.zip",
+    "Intel": "/content/drive/MyDrive/UTBM_PF22/datasets/Intel/dataset_multifidelity.zip",
+    "Food101": "/content/drive/MyDrive/UTBM_PF22/datasets/Food101/dataset_multifidelity.zip",
 }
 _COLAB_RESULTS = "/content/drive/MyDrive/UTBM_PF22/results"
 _COLAB_SSD = "/content/processed_multifidelity"
@@ -59,7 +61,9 @@ def data_dir(dataset_name):
 def results_dir(dataset_name):
     """Dossier des résultats (JSON/modèles) du dataset."""
     base = _COLAB_RESULTS if in_colab() else os.path.join(project_home(), "results")
-    return base if dataset_name == "Animals-10" else os.path.join(base, "Imagewoof")
+    if dataset_name == "Animals-10":
+        return base
+    return os.path.join(base, dataset_name)
 
 
 def comparison_dir():

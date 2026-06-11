@@ -125,6 +125,10 @@ def _train_eval_once(mode, epochs, batch_size, lr, seed, device, base_dir,
         "bf_images_seen": bf_images_seen,
     }
 
+    # Auto-détection du nombre de classes depuis train/HF
+    _hf_dir = os.path.join(base_dir, 'train/HF')
+    num_classes = len([d for d in os.listdir(_hf_dir) if os.path.isdir(os.path.join(_hf_dir, d))])
+
     # --- W&B (un run par seed) ---
     if track_wandb:
         base_name = wandb_run_name or f"Baseline_{mode}"
@@ -137,7 +141,7 @@ def _train_eval_once(mode, epochs, batch_size, lr, seed, device, base_dir,
             config={
                 "strategy": "baseline", "mode": mode,
                 "dataset": dataset_name or "unknown", "architecture": "resnet18",
-                "weights_init": "from_scratch", "num_classes": 10,
+                "weights_init": "from_scratch", "num_classes": num_classes,
                 "epochs": epochs, "batch_size": batch_size, "learning_rate": lr,
                 "seed": seed, "optimizer": "Adam", "loss": "CrossEntropyLoss",
                 "amp_fp16": True, "input_size": 224,
@@ -149,7 +153,7 @@ def _train_eval_once(mode, epochs, batch_size, lr, seed, device, base_dir,
 
     # --- Modèle ResNet-18 from scratch ---
     model = models.resnet18(weights=None)
-    model.fc = nn.Linear(model.fc.in_features, 10)
+    model.fc = nn.Linear(model.fc.in_features, num_classes)
     model = model.to(device)
 
     criterion = nn.CrossEntropyLoss()

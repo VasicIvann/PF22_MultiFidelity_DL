@@ -1,5 +1,5 @@
 # Fdb version 4
-["pdflatex"] 1781101067.17303 "c:/VSCode/PF22_MultiFidelity_DL/latek_report/presentation2_PF22.tex" "presentation2_PF22.pdf" "presentation2_PF22" 1781101074.30197 0
+["pdflatex"] 1781101311.41452 "c:/VSCode/PF22_MultiFidelity_DL/latek_report/presentation2_PF22.tex" "presentation2_PF22.pdf" "presentation2_PF22" 1781101317.92112 0
   "C:/Users/ivann/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map" 1779112079 84639 3e25dd2ebddaf50b290cf886e9b155b0 ""
   "C:/Users/ivann/AppData/Local/MiKTeX/miktex/data/le/pdftex/pdflatex.fmt" 1764794073 13333511 9770f3d53d6a4e47ffc9b9f0200686f6 ""
   "C:/Users/ivann/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/base/8r.enc" 1458473887 4993 80dc9bab7f31fb78a000ccfed0e27cab ""
@@ -316,7 +316,7 @@
   "C:/Users/ivann/AppData/Local/Programs/MiKTeX/tex/latex/translator/translator.sty" 1622471510 8765 56d370785f0143111ff9898b5adfe08e ""
   "C:/Users/ivann/AppData/Local/Programs/MiKTeX/tex/latex/url/url.sty" 1388490452 12796 8edb7d69a20b857904dd0ea757c14ec9 ""
   "C:/Users/ivann/AppData/Local/Programs/MiKTeX/tex/latex/xcolor/xcolor.sty" 1729265222 55384 b454dec21c2d9f45ec0b793f0995b992 ""
-  "c:/VSCode/PF22_MultiFidelity_DL/latek_report/presentation2_PF22.tex" 1781101058 27572 9c73d459fafda853e1abc85700c80f6d ""
+  "c:/VSCode/PF22_MultiFidelity_DL/latek_report/presentation2_PF22.tex" 1781101310 27936 829f4973bbcbe716119381ec272c6e90 ""
   "figures/cost_ratio_sensitivity_animals.png" 1781099876 171981 875f7efcc15fd39c333f5ee9ccfa155c ""
   "figures/cost_ratio_sensitivity_imagewoof.png" 1781099876 159047 c7c30c56d9d77584775b6734143b48aa ""
   "figures/fig1_accuracy_grouped.png" 1781099876 159472 54aba0fb868bfa68f8181c51d5246172 ""
@@ -326,10 +326,10 @@
   "figures/fig8_global_ranking.png" 1781099876 61884 105f5961333988398c4ca2fdf7a80eae ""
   "figures/robustness_degradation_animals.png" 1781099876 203895 2d1522e01b9a8f99caeb6b05ace12da3 ""
   "figures/robustness_degradation_imagewoof.png" 1781099876 160430 c097a3aeb58a1df8e368fde9a0f1c364 ""
-  "presentation2_PF22.aux" 1781101073 2944 2c8d4ba9cb8be76f9bb31655025fda80 "pdflatex"
-  "presentation2_PF22.nav" 1781101073 1481 4dff29d63ced408af8d13a7957e2a731 "pdflatex"
-  "presentation2_PF22.out" 1781101069 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
-  "presentation2_PF22.tex" 1781101058 27572 9c73d459fafda853e1abc85700c80f6d ""
+  "presentation2_PF22.aux" 1781101317 2944 2c8d4ba9cb8be76f9bb31655025fda80 "pdflatex"
+  "presentation2_PF22.nav" 1781101317 1481 4dff29d63ced408af8d13a7957e2a731 "pdflatex"
+  "presentation2_PF22.out" 1781101313 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
+  "presentation2_PF22.tex" 1781101310 27936 829f4973bbcbe716119381ec272c6e90 ""
   (generated)
   "presentation2_PF22.aux"
   "presentation2_PF22.log"
