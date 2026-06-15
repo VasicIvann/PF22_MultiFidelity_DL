@@ -1,0 +1,83 @@
+{
+  "strategy": "transfer_learning_sequentiel",
+  "dataset": "Intel",
+  "hyperparams_source": "optuna_optimized",
+  "hyperparams": {
+    "lr_pretrain": 0.0016738085788752138,
+    "lr_finetune": 1.9010245319870364e-05,
+    "epochs_bf": 8,
+    "epochs_hf": 9
+  },
+  "default_hyperparams": {
+    "lr_pretrain": 0.001,
+    "lr_finetune": 0.0003,
+    "epochs_bf": 10,
+    "epochs_hf": 10
+  },
+  "n_optuna_trials": 20,
+  "best_optuna_val_acc": 86.47686832740213,
+  "seeds": [
+    42,
+    1,
+    2
+  ],
+  "n_hf_pool": 1402,
+  "n_bf_pool": 12632,
+  "data_cost_CA": 26652.000000000004,
+  "total_cost_CA": 201946.0,
+  "accuracy_HF": 86.02222222222223,
+  "accuracy_HF_std": 0.3948745698648213,
+  "accuracy_HF_seeds": [
+    85.56666666666666,
+    86.26666666666667,
+    86.23333333333333
+  ],
+  "accuracy_BF": 79.97777777777779,
+  "accuracy_BF_std": 0.3892062197363772,
+  "accuracy_BF_seeds": [
+    80.4,
+    79.9,
+    79.63333333333334
+  ],
+  "accuracy_Mixte": 83.0,
+  "accuracy_Mixte_std": 0.07637626158260075,
+  "accuracy_Mixte_seeds": [
+    82.98333333333333,
+    83.08333333333334,
+    82.93333333333334
+  ],
+  "total_time_min": 1.7777114219135708,
+  "total_time_min_std": 0.011801210023897182,
+  "per_seed": [
+    {
+      "val_acc": 86.47686832740213,
+      "accuracy_HF": 85.56666666666666,
+      "accuracy_BF": 80.4,
+      "accuracy_Mixte": 82.98333333333333,
+      "total_cost_CA": 201946.0,
+      "time_min": 1.765532926718394,
+      "n_hf_train": 1121
+    },
+    {
+      "val_acc": 88.61209964412811,
+      "accuracy_HF": 86.26666666666667,
+      "accuracy_BF": 79.9,
+      "accuracy_Mixte": 83.08333333333334,
+      "total_cost_CA": 201946.0,
+      "time_min": 1.7785061677296956,
+      "n_hf_train": 1121
+    },
+    {
+      "val_acc": 87.90035587188612,
+      "accuracy_HF": 86.23333333333333,
+      "accuracy_BF": 79.63333333333334,
+      "accuracy_Mixte": 82.93333333333334,
+      "total_cost_CA": 201946.0,
+      "time_min": 1.7890951712926229,
+      "n_hf_train": 1121
+    }
+  ],
+  "delta_accuracy_HF": -0.04444444444443718,
+  "delta_accuracy_BF": 0.8777777777777942,
+  "delta_accuracy_Mixte": 0.4166666666666714
+}

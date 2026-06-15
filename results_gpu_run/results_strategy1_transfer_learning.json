@@ -1,0 +1,70 @@
+{
+  "strategy": "transfer_learning_sequentiel",
+  "dataset": "Animals-10",
+  "pipeline": "BF_pretraining_then_HF_finetuning",
+  "pretrain_epochs": 10,
+  "finetune_epochs": 10,
+  "lr_pretrain": 0.001,
+  "lr_finetune": 0.0003,
+  "seeds": [
+    42,
+    1,
+    2
+  ],
+  "data_cost_CA": 44733.0,
+  "compute_images_seen": 230940,
+  "total_cost_CA": 400230.0,
+  "n_hf_pool": 2352,
+  "n_bf_pool": 21213,
+  "hf_images_seen": 18810,
+  "bf_images_seen": 212130,
+  "accuracy_HF": 77.69701606732976,
+  "accuracy_HF_std": 0.5635393979593057,
+  "accuracy_HF_seeds": [
+    78.30910482019893,
+    77.5822494261668,
+    77.19969395562356
+  ],
+  "accuracy_BF": 68.27339964294822,
+  "accuracy_BF_std": 0.5094359692792156,
+  "accuracy_BF_seeds": [
+    67.94185156847743,
+    68.85998469778117,
+    68.01836266258607
+  ],
+  "accuracy_Mixte": 72.985207855139,
+  "accuracy_Mixte_std": 0.32927190343472046,
+  "accuracy_Mixte_seeds": [
+    73.12547819433817,
+    73.22111706197398,
+    72.60902830910481
+  ],
+  "total_time_min": 3.940879220432705,
+  "total_time_min_std": 0.030596438738201028,
+  "per_seed": [
+    {
+      "seed": 42,
+      "accuracy_HF": 78.30910482019893,
+      "accuracy_BF": 67.94185156847743,
+      "accuracy_Mixte": 73.12547819433817,
+      "time_min": 3.9555470466613767,
+      "n_hf_train": 1881
+    },
+    {
+      "seed": 1,
+      "accuracy_HF": 77.5822494261668,
+      "accuracy_BF": 68.85998469778117,
+      "accuracy_Mixte": 73.22111706197398,
+      "time_min": 3.9613802353541057,
+      "n_hf_train": 1881
+    },
+    {
+      "seed": 2,
+      "accuracy_HF": 77.19969395562356,
+      "accuracy_BF": 68.01836266258607,
+      "accuracy_Mixte": 72.60902830910481,
+      "time_min": 3.9057103792826333,
+      "n_hf_train": 1881
+    }
+  ]
+}

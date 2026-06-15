@@ -1,0 +1,85 @@
+{
+  "strategy": "elastic_weight_consolidation",
+  "dataset": "Imagewoof",
+  "hyperparams_source": "optuna_optimized",
+  "hyperparams": {
+    "lr_pretrain": 0.0016409286730647919,
+    "lr_finetune": 2.1930485556643678e-05,
+    "ewc_lambda": 13.492834268013251,
+    "epochs_bf": 15,
+    "epochs_hf": 15
+  },
+  "default_hyperparams": {
+    "lr_pretrain": 0.001,
+    "lr_finetune": 0.0003,
+    "ewc_lambda": 400.0,
+    "epochs_bf": 10,
+    "epochs_hf": 10
+  },
+  "n_optuna_trials": 20,
+  "best_optuna_val_acc": 53.888888888888886,
+  "seeds": [
+    42,
+    1,
+    2
+  ],
+  "n_hf_pool": 899,
+  "n_bf_pool": 8126,
+  "data_cost_CA": 17116.0,
+  "total_cost_CA": 229740.0,
+  "accuracy_HF": 53.44871468567065,
+  "accuracy_HF_std": 1.5296491933129777,
+  "accuracy_HF_seeds": [
+    51.71799440061084,
+    54.61949605497582,
+    54.0086536014253
+  ],
+  "accuracy_BF": 46.81428692627471,
+  "accuracy_BF_std": 0.4381352789912715,
+  "accuracy_BF_seeds": [
+    47.162127767879866,
+    46.3222193942479,
+    46.95851361669636
+  ],
+  "accuracy_Mixte": 50.131500805972685,
+  "accuracy_Mixte_std": 0.5988381698092756,
+  "accuracy_Mixte_seeds": [
+    49.44006108424536,
+    50.47085772461186,
+    50.48358360906083
+  ],
+  "total_time_min": 3.151897327105204,
+  "total_time_min_std": 0.00960073029549635,
+  "per_seed": [
+    {
+      "val_acc": 53.888888888888886,
+      "accuracy_HF": 51.71799440061084,
+      "accuracy_BF": 47.162127767879866,
+      "accuracy_Mixte": 49.44006108424536,
+      "total_cost_CA": 229740.0,
+      "time_min": 3.1493868152300517,
+      "n_hf_train": 719
+    },
+    {
+      "val_acc": 50.0,
+      "accuracy_HF": 54.61949605497582,
+      "accuracy_BF": 46.3222193942479,
+      "accuracy_Mixte": 50.47085772461186,
+      "total_cost_CA": 229740.0,
+      "time_min": 3.143801271915436,
+      "n_hf_train": 719
+    },
+    {
+      "val_acc": 54.44444444444444,
+      "accuracy_HF": 54.0086536014253,
+      "accuracy_BF": 46.95851361669636,
+      "accuracy_Mixte": 50.48358360906083,
+      "total_cost_CA": 229740.0,
+      "time_min": 3.162503894170125,
+      "n_hf_train": 719
+    }
+  ],
+  "delta_accuracy_HF": 0.16967845931958436,
+  "delta_accuracy_BF": 0.05090353779587531,
+  "delta_accuracy_Mixte": 0.11029099855773694
+}

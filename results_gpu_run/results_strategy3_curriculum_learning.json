@@ -1,0 +1,90 @@
+{
+  "strategy": "curriculum_learning_progressif",
+  "dataset": "Animals-10",
+  "curriculum_schedule": [
+    [
+      5,
+      0.0,
+      "BF_pur"
+    ],
+    [
+      10,
+      0.25,
+      "Mixte_25pct"
+    ],
+    [
+      15,
+      0.6,
+      "Mixte_60pct"
+    ],
+    [
+      20,
+      1.0,
+      "HF_pur"
+    ]
+  ],
+  "total_epochs": 20,
+  "lr": 0.001,
+  "batch_size": 64,
+  "seeds": [
+    42,
+    1,
+    2
+  ],
+  "n_hf_pool": 2352,
+  "n_bf_pool": 21213,
+  "data_cost_CA": 44733.0,
+  "total_cost_CA": 421265.0,
+  "accuracy_HF": 76.49834225962765,
+  "accuracy_HF_std": 0.2175302487787834,
+  "accuracy_HF_seeds": [
+    76.31981637337414,
+    76.43458301453711,
+    76.7406273909717
+  ],
+  "accuracy_BF": 73.11910226982913,
+  "accuracy_BF_std": 0.07963527159396173,
+  "accuracy_BF_seeds": [
+    73.02983932670237,
+    73.18286151491967,
+    73.14460596786535
+  ],
+  "accuracy_Mixte": 74.80872226472839,
+  "accuracy_Mixte_std": 0.13389441469013263,
+  "accuracy_Mixte_seeds": [
+    74.67482785003826,
+    74.80872226472839,
+    74.94261667941852
+  ],
+  "total_time_min": 2.861668712562985,
+  "total_time_min_std": 0.01364894079538965,
+  "per_seed": [
+    {
+      "seed": 42,
+      "accuracy_HF": 76.31981637337414,
+      "accuracy_BF": 73.02983932670237,
+      "accuracy_Mixte": 74.67482785003826,
+      "total_cost_CA": 421265.0,
+      "time_min": 2.873084104061127,
+      "n_hf_train": 1881
+    },
+    {
+      "seed": 1,
+      "accuracy_HF": 76.43458301453711,
+      "accuracy_BF": 73.18286151491967,
+      "accuracy_Mixte": 74.80872226472839,
+      "total_cost_CA": 421265.0,
+      "time_min": 2.8465503732363384,
+      "n_hf_train": 1881
+    },
+    {
+      "seed": 2,
+      "accuracy_HF": 76.7406273909717,
+      "accuracy_BF": 73.14460596786535,
+      "accuracy_Mixte": 74.94261667941852,
+      "total_cost_CA": 421265.0,
+      "time_min": 2.8653716603914896,
+      "n_hf_train": 1881
+    }
+  ]
+}

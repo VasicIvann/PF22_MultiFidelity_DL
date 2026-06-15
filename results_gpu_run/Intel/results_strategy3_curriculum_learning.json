@@ -1,0 +1,90 @@
+{
+  "strategy": "curriculum_learning_progressif",
+  "dataset": "Intel",
+  "curriculum_schedule": [
+    [
+      5,
+      0.0,
+      "BF_pur"
+    ],
+    [
+      10,
+      0.25,
+      "Mixte_25pct"
+    ],
+    [
+      15,
+      0.6,
+      "Mixte_60pct"
+    ],
+    [
+      20,
+      1.0,
+      "HF_pur"
+    ]
+  ],
+  "total_epochs": 20,
+  "lr": 0.001,
+  "batch_size": 64,
+  "seeds": [
+    42,
+    1,
+    2
+  ],
+  "n_hf_pool": 1402,
+  "n_bf_pool": 12632,
+  "data_cost_CA": 26652.000000000004,
+  "total_cost_CA": 250880.0,
+  "accuracy_HF": 84.55555555555556,
+  "accuracy_HF_std": 0.9529680729951778,
+  "accuracy_HF_seeds": [
+    84.33333333333333,
+    83.73333333333333,
+    85.6
+  ],
+  "accuracy_BF": 82.61111111111111,
+  "accuracy_BF_std": 1.4538582130674615,
+  "accuracy_BF_seeds": [
+    82.73333333333333,
+    81.1,
+    84.0
+  ],
+  "accuracy_Mixte": 83.58333333333333,
+  "accuracy_Mixte_std": 1.1924531204388926,
+  "accuracy_Mixte_seeds": [
+    83.53333333333333,
+    82.41666666666666,
+    84.8
+  ],
+  "total_time_min": 1.6337634603182474,
+  "total_time_min_std": 0.012270614156192374,
+  "per_seed": [
+    {
+      "seed": 42,
+      "accuracy_HF": 84.33333333333333,
+      "accuracy_BF": 82.73333333333333,
+      "accuracy_Mixte": 83.53333333333333,
+      "total_cost_CA": 250880.0,
+      "time_min": 1.64179523785909,
+      "n_hf_train": 1121
+    },
+    {
+      "seed": 1,
+      "accuracy_HF": 83.73333333333333,
+      "accuracy_BF": 81.1,
+      "accuracy_Mixte": 82.41666666666666,
+      "total_cost_CA": 250880.0,
+      "time_min": 1.6196388681729634,
+      "n_hf_train": 1121
+    },
+    {
+      "seed": 2,
+      "accuracy_HF": 85.6,
+      "accuracy_BF": 84.0,
+      "accuracy_Mixte": 84.8,
+      "total_cost_CA": 250880.0,
+      "time_min": 1.6398562749226888,
+      "n_hf_train": 1121
+    }
+  ]
+}

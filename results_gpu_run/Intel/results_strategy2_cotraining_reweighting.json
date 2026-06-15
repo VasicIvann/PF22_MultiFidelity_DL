@@ -1,0 +1,81 @@
+{
+  "strategy": "cotraining_batch_reweighting",
+  "dataset": "Intel",
+  "pipeline": "mixed_batches_with_domain_weighted_loss",
+  "epochs": 20,
+  "lr": 0.001,
+  "batch_size": 64,
+  "hf_batch_ratio": 0.25,
+  "hf_loss_weight": 2.0,
+  "bf_loss_weight": 0.7,
+  "seeds": [
+    42,
+    1,
+    2
+  ],
+  "num_classes": 6,
+  "hf_seen_total_samples": 22400,
+  "bf_seen_total_samples": 67200,
+  "data_cost_CA": 26652.000000000004,
+  "compute_images_seen": 89600,
+  "total_cost_CA": 291200.0,
+  "n_hf_pool": 1402,
+  "n_bf_pool": 12632,
+  "hf_images_seen": 22400,
+  "bf_images_seen": 67200,
+  "accuracy_HF": 81.98888888888888,
+  "accuracy_HF_std": 1.0035123502164989,
+  "accuracy_HF_seeds": [
+    80.86666666666666,
+    82.3,
+    82.8
+  ],
+  "accuracy_BF": 79.76666666666667,
+  "accuracy_BF_std": 0.8838049055708564,
+  "accuracy_BF_seeds": [
+    78.9,
+    79.73333333333333,
+    80.66666666666667
+  ],
+  "accuracy_Mixte": 80.87777777777778,
+  "accuracy_Mixte_std": 0.9327875388278946,
+  "accuracy_Mixte_seeds": [
+    79.88333333333333,
+    81.01666666666667,
+    81.73333333333333
+  ],
+  "training_time_min": 1.3994534399774339,
+  "training_time_min_std": 0.010946368583029354,
+  "per_seed": [
+    {
+      "seed": 42,
+      "accuracy_HF": 80.86666666666666,
+      "accuracy_BF": 78.9,
+      "accuracy_Mixte": 79.88333333333333,
+      "time_min": 1.4120121041933695,
+      "hf_per_batch": 16,
+      "bf_per_batch": 48,
+      "n_batches": 70
+    },
+    {
+      "seed": 1,
+      "accuracy_HF": 82.3,
+      "accuracy_BF": 79.73333333333333,
+      "accuracy_Mixte": 81.01666666666667,
+      "time_min": 1.3919359842936199,
+      "hf_per_batch": 16,
+      "bf_per_batch": 48,
+      "n_batches": 70
+    },
+    {
+      "seed": 2,
+      "accuracy_HF": 82.8,
+      "accuracy_BF": 80.66666666666667,
+      "accuracy_Mixte": 81.73333333333333,
+      "time_min": 1.3944122314453125,
+      "hf_per_batch": 16,
+      "bf_per_batch": 48,
+      "n_batches": 70
+    }
+  ]
+}

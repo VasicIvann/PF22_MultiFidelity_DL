@@ -1,0 +1,90 @@
+{
+  "strategy": "curriculum_learning_progressif",
+  "dataset": "Imagewoof",
+  "curriculum_schedule": [
+    [
+      5,
+      0.0,
+      "BF_pur"
+    ],
+    [
+      10,
+      0.25,
+      "Mixte_25pct"
+    ],
+    [
+      15,
+      0.6,
+      "Mixte_60pct"
+    ],
+    [
+      20,
+      1.0,
+      "HF_pur"
+    ]
+  ],
+  "total_epochs": 20,
+  "lr": 0.001,
+  "batch_size": 64,
+  "seeds": [
+    42,
+    1,
+    2
+  ],
+  "n_hf_pool": 899,
+  "n_bf_pool": 8126,
+  "data_cost_CA": 17116.0,
+  "total_cost_CA": 158880.0,
+  "accuracy_HF": 47.49300076355307,
+  "accuracy_HF_std": 1.4259806391276582,
+  "accuracy_HF_seeds": [
+    49.07101043522525,
+    47.11122423008399,
+    46.296767625349965
+  ],
+  "accuracy_BF": 46.0761856282345,
+  "accuracy_BF_std": 1.073911845594095,
+  "accuracy_BF_seeds": [
+    47.3148383812675,
+    45.40595571392212,
+    45.50776278951387
+  ],
+  "accuracy_Mixte": 46.78459319589378,
+  "accuracy_Mixte_std": 1.2325945956503932,
+  "accuracy_Mixte_seeds": [
+    48.19292440824637,
+    46.25858997200305,
+    45.90226520743192
+  ],
+  "total_time_min": 1.534938821527693,
+  "total_time_min_std": 0.017837500498717317,
+  "per_seed": [
+    {
+      "seed": 42,
+      "accuracy_HF": 49.07101043522525,
+      "accuracy_BF": 47.3148383812675,
+      "accuracy_Mixte": 48.19292440824637,
+      "total_cost_CA": 158880.0,
+      "time_min": 1.55216943025589,
+      "n_hf_train": 719
+    },
+    {
+      "seed": 1,
+      "accuracy_HF": 47.11122423008399,
+      "accuracy_BF": 45.40595571392212,
+      "accuracy_Mixte": 46.25858997200305,
+      "total_cost_CA": 158880.0,
+      "time_min": 1.5360962351163228,
+      "n_hf_train": 719
+    },
+    {
+      "seed": 2,
+      "accuracy_HF": 46.296767625349965,
+      "accuracy_BF": 45.50776278951387,
+      "accuracy_Mixte": 45.90226520743192,
+      "total_cost_CA": 158880.0,
+      "time_min": 1.5165507992108662,
+      "n_hf_train": 719
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "strategy": "transfer_learning_sequentiel",
+  "dataset": "Intel",
+  "pipeline": "BF_pretraining_then_HF_finetuning",
+  "pretrain_epochs": 10,
+  "finetune_epochs": 10,
+  "lr_pretrain": 0.001,
+  "lr_finetune": 0.0003,
+  "seeds": [
+    42,
+    1,
+    2
+  ],
+  "num_classes": 6,
+  "data_cost_CA": 26652.000000000004,
+  "compute_images_seen": 137530,
+  "total_cost_CA": 238420.0,
+  "n_hf_pool": 1402,
+  "n_bf_pool": 12632,
+  "hf_images_seen": 11210,
+  "bf_images_seen": 126320,
+  "accuracy_HF": 86.06666666666666,
+  "accuracy_HF_std": 0.378593889720013,
+  "accuracy_HF_seeds": [
+    86.33333333333333,
+    86.23333333333333,
+    85.63333333333334
+  ],
+  "accuracy_BF": 79.1,
+  "accuracy_BF_std": 1.3775985546514482,
+  "accuracy_BF_seeds": [
+    77.63333333333334,
+    80.36666666666666,
+    79.3
+  ],
+  "accuracy_Mixte": 82.58333333333333,
+  "accuracy_Mixte_std": 0.666041373422934,
+  "accuracy_Mixte_seeds": [
+    81.98333333333333,
+    83.3,
+    82.46666666666667
+  ],
+  "total_time_min": 2.17455518245697,
+  "total_time_min_std": 0.014036996969744572,
+  "per_seed": [
+    {
+      "seed": 42,
+      "accuracy_HF": 86.33333333333333,
+      "accuracy_BF": 77.63333333333334,
+      "accuracy_Mixte": 81.98333333333333,
+      "time_min": 2.168933832645416,
+      "n_hf_train": 1121
+    },
+    {
+      "seed": 1,
+      "accuracy_HF": 86.23333333333333,
+      "accuracy_BF": 80.36666666666666,
+      "accuracy_Mixte": 83.3,
+      "time_min": 2.1642000834147135,
+      "n_hf_train": 1121
+    },
+    {
+      "seed": 2,
+      "accuracy_HF": 85.63333333333334,
+      "accuracy_BF": 79.3,
+      "accuracy_Mixte": 82.46666666666667,
+      "time_min": 2.190531631310781,
+      "n_hf_train": 1121
+    }
+  ]
+}

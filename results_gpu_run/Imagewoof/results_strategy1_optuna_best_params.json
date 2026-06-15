@@ -1,0 +1,243 @@
+{
+  "strategy": "transfer_learning_sequentiel",
+  "dataset": "Imagewoof",
+  "n_trials": 20,
+  "optimization_seed": 42,
+  "best_trial_number": 9,
+  "best_val_acc_hf_pct": 52.77777777777778,
+  "default_hyperparams": {
+    "lr_pretrain": 0.001,
+    "lr_finetune": 0.0003,
+    "epochs_bf": 10,
+    "epochs_hf": 10
+  },
+  "best_params": {
+    "lr_pretrain": 0.0004066563313514797,
+    "lr_finetune": 1.5679933916722995e-05,
+    "epochs_bf": 12,
+    "epochs_hf": 9
+  },
+  "optuna_time_min": 46.643297914663954,
+  "all_trials": [
+    {
+      "number": 0,
+      "value": 50.55555555555556,
+      "params": {
+        "lr_pretrain": 0.0005611516415334506,
+        "lr_finetune": 0.0007969454818643932,
+        "epochs_bf": 13,
+        "epochs_hf": 11
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "number": 1,
+      "value": 38.333333333333336,
+      "params": {
+        "lr_pretrain": 0.0002051338263087451,
+        "lr_finetune": 2.0511104188433963e-05,
+        "epochs_bf": 5,
+        "epochs_hf": 14
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "number": 2,
+      "value": 42.22222222222222,
+      "params": {
+        "lr_pretrain": 0.0015930522616241021,
+        "lr_finetune": 0.0002607024758370766,
+        "epochs_bf": 5,
+        "epochs_hf": 15
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "number": 3,
+      "value": 34.44444444444444,
+      "params": {
+        "lr_pretrain": 0.004622589001020831,
+        "lr_finetune": 2.6587543983272695e-05,
+        "epochs_bf": 7,
+        "epochs_hf": 7
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "number": 4,
+      "value": 49.44444444444444,
+      "params": {
+        "lr_pretrain": 0.0004059611610484307,
+        "lr_finetune": 0.00011207606211860574,
+        "epochs_bf": 9,
+        "epochs_hf": 8
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "number": 5,
+      "value": 46.666666666666664,
+      "params": {
+        "lr_pretrain": 0.0016738085788752138,
+        "lr_finetune": 1.9010245319870364e-05,
+        "epochs_bf": 8,
+        "epochs_hf": 9
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "number": 6,
+      "value": 50.55555555555556,
+      "params": {
+        "lr_pretrain": 0.000816845589476017,
+        "lr_finetune": 0.00037183641805732076,
+        "epochs_bf": 7,
+        "epochs_hf": 10
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "number": 7,
+      "value": 46.666666666666664,
+      "params": {
+        "lr_pretrain": 0.0015304852121831463,
+        "lr_finetune": 1.2385137298860926e-05,
+        "epochs_bf": 11,
+        "epochs_hf": 6
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "number": 8,
+      "value": 20.555555555555557,
+      "params": {
+        "lr_pretrain": 0.00013492834268013249,
+        "lr_finetune": 0.000790261954970823,
+        "epochs_bf": 15,
+        "epochs_hf": 13
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "number": 9,
+      "value": 52.77777777777778,
+      "params": {
+        "lr_pretrain": 0.0004066563313514797,
+        "lr_finetune": 1.5679933916722995e-05,
+        "epochs_bf": 12,
+        "epochs_hf": 9
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "number": 10,
+      "value": 43.888888888888886,
+      "params": {
+        "lr_pretrain": 0.007989808994341123,
+        "lr_finetune": 5.3389437745561126e-05,
+        "epochs_bf": 15,
+        "epochs_hf": 5
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "number": 11,
+      "value": 47.22222222222222,
+      "params": {
+        "lr_pretrain": 0.00046050571989597746,
+        "lr_finetune": 8.997637623067925e-05,
+        "epochs_bf": 12,
+        "epochs_hf": 11
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "number": 12,
+      "value": 35.0,
+      "params": {
+        "lr_pretrain": 0.0003748224111698842,
+        "lr_finetune": 0.0009529124834159262,
+        "epochs_bf": 13,
+        "epochs_hf": 12
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "number": 13,
+      "value": 48.333333333333336,
+      "params": {
+        "lr_pretrain": 0.0008407931655574886,
+        "lr_finetune": 0.00025209687955768113,
+        "epochs_bf": 13,
+        "epochs_hf": 10
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "number": 14,
+      "value": 40.55555555555556,
+      "params": {
+        "lr_pretrain": 0.00020898142970091264,
+        "lr_finetune": 5.831683136812197e-05,
+        "epochs_bf": 10,
+        "epochs_hf": 12
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "number": 15,
+      "value": 47.22222222222222,
+      "params": {
+        "lr_pretrain": 0.0006860161643864182,
+        "lr_finetune": 0.0005322560593458855,
+        "epochs_bf": 13,
+        "epochs_hf": 8
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "number": 16,
+      "value": 46.111111111111114,
+      "params": {
+        "lr_pretrain": 0.0030908097853461205,
+        "lr_finetune": 0.00014674675168003886,
+        "epochs_bf": 11,
+        "epochs_hf": 10
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "number": 17,
+      "value": 32.22222222222222,
+      "params": {
+        "lr_pretrain": 0.0002388245730274622,
+        "lr_finetune": 1.035799280266008e-05,
+        "epochs_bf": 14,
+        "epochs_hf": 12
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "number": 18,
+      "value": 37.77777777777778,
+      "params": {
+        "lr_pretrain": 0.00011248613366724794,
+        "lr_finetune": 4.58310002769208e-05,
+        "epochs_bf": 11,
+        "epochs_hf": 8
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "number": 19,
+      "value": 49.44444444444444,
+      "params": {
+        "lr_pretrain": 0.0005746038691935158,
+        "lr_finetune": 3.222495515006485e-05,
+        "epochs_bf": 14,
+        "epochs_hf": 9
+      },
+      "state": "TrialState.COMPLETE"
+    }
+  ]
+}

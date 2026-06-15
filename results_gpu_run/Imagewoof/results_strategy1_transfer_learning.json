@@ -1,0 +1,70 @@
+{
+  "strategy": "transfer_learning_sequentiel",
+  "dataset": "Imagewoof",
+  "pipeline": "BF_pretraining_then_HF_finetuning",
+  "pretrain_epochs": 10,
+  "finetune_epochs": 10,
+  "lr_pretrain": 0.001,
+  "lr_finetune": 0.0003,
+  "seeds": [
+    42,
+    1,
+    2
+  ],
+  "data_cost_CA": 17116.0,
+  "compute_images_seen": 88450,
+  "total_cost_CA": 153160.0,
+  "n_hf_pool": 899,
+  "n_bf_pool": 8126,
+  "hf_images_seen": 7190,
+  "bf_images_seen": 81260,
+  "accuracy_HF": 50.97140917960465,
+  "accuracy_HF_std": 1.6166047869977684,
+  "accuracy_HF_seeds": [
+    50.063629422244844,
+    52.837872232120134,
+    50.01272588444897
+  ],
+  "accuracy_BF": 44.73572579960974,
+  "accuracy_BF_std": 1.3083133499344393,
+  "accuracy_BF_seeds": [
+    43.75159073555612,
+    46.220412318656145,
+    44.23517434461695
+  ],
+  "accuracy_Mixte": 47.853567489607194,
+  "accuracy_Mixte_std": 1.4551164557563807,
+  "accuracy_Mixte_seeds": [
+    46.90761007890048,
+    49.52914227538814,
+    47.12395011453296
+  ],
+  "total_time_min": 2.0288084864616396,
+  "total_time_min_std": 0.0036816020578950785,
+  "per_seed": [
+    {
+      "seed": 42,
+      "accuracy_HF": 50.063629422244844,
+      "accuracy_BF": 43.75159073555612,
+      "accuracy_Mixte": 46.90761007890048,
+      "time_min": 2.0310946981112163,
+      "n_hf_train": 719
+    },
+    {
+      "seed": 1,
+      "accuracy_HF": 52.837872232120134,
+      "accuracy_BF": 46.220412318656145,
+      "accuracy_Mixte": 49.52914227538814,
+      "time_min": 2.0307692686716714,
+      "n_hf_train": 719
+    },
+    {
+      "seed": 2,
+      "accuracy_HF": 50.01272588444897,
+      "accuracy_BF": 44.23517434461695,
+      "accuracy_Mixte": 47.12395011453296,
+      "time_min": 2.0245614926020306,
+      "n_hf_train": 719
+    }
+  ]
+}

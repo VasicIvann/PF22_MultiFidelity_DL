@@ -1,0 +1,80 @@
+{
+  "strategy": "cotraining_batch_reweighting",
+  "dataset": "Imagewoof",
+  "pipeline": "mixed_batches_with_domain_weighted_loss",
+  "epochs": 20,
+  "lr": 0.001,
+  "batch_size": 64,
+  "hf_batch_ratio": 0.25,
+  "hf_loss_weight": 2.0,
+  "bf_loss_weight": 0.7,
+  "seeds": [
+    42,
+    1,
+    2
+  ],
+  "hf_seen_total_samples": 14080,
+  "bf_seen_total_samples": 42240,
+  "data_cost_CA": 17116.0,
+  "compute_images_seen": 56320,
+  "total_cost_CA": 183040.0,
+  "n_hf_pool": 899,
+  "n_bf_pool": 8126,
+  "hf_images_seen": 14080,
+  "bf_images_seen": 42240,
+  "accuracy_HF": 37.54135912445915,
+  "accuracy_HF_std": 0.7703103054426854,
+  "accuracy_HF_seeds": [
+    38.40671926698906,
+    37.286841435479765,
+    36.93051667090863
+  ],
+  "accuracy_BF": 37.42258420293543,
+  "accuracy_BF_std": 0.29389171249153717,
+  "accuracy_BF_seeds": [
+    37.08322728429626,
+    37.592262662255024,
+    37.592262662255024
+  ],
+  "accuracy_Mixte": 37.481971663697294,
+  "accuracy_Mixte_std": 0.24456664639687048,
+  "accuracy_Mixte_seeds": [
+    37.74497327564266,
+    37.4395520488674,
+    37.26138966658183
+  ],
+  "training_time_min": 1.3687475548850165,
+  "training_time_min_std": 0.007231715938949229,
+  "per_seed": [
+    {
+      "seed": 42,
+      "accuracy_HF": 38.40671926698906,
+      "accuracy_BF": 37.08322728429626,
+      "accuracy_Mixte": 37.74497327564266,
+      "time_min": 1.376085058848063,
+      "hf_per_batch": 16,
+      "bf_per_batch": 48,
+      "n_batches": 44
+    },
+    {
+      "seed": 1,
+      "accuracy_HF": 37.286841435479765,
+      "accuracy_BF": 37.592262662255024,
+      "accuracy_Mixte": 37.4395520488674,
+      "time_min": 1.3616264859835308,
+      "hf_per_batch": 16,
+      "bf_per_batch": 48,
+      "n_batches": 44
+    },
+    {
+      "seed": 2,
+      "accuracy_HF": 36.93051667090863,
+      "accuracy_BF": 37.592262662255024,
+      "accuracy_Mixte": 37.26138966658183,
+      "time_min": 1.3685311198234558,
+      "hf_per_batch": 16,
+      "bf_per_batch": 48,
+      "n_batches": 44
+    }
+  ]
+}

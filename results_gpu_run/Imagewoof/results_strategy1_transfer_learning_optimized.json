@@ -1,0 +1,83 @@
+{
+  "strategy": "transfer_learning_sequentiel",
+  "dataset": "Imagewoof",
+  "hyperparams_source": "optuna_optimized",
+  "hyperparams": {
+    "lr_pretrain": 0.0004066563313514797,
+    "lr_finetune": 1.5679933916722995e-05,
+    "epochs_bf": 12,
+    "epochs_hf": 9
+  },
+  "default_hyperparams": {
+    "lr_pretrain": 0.001,
+    "lr_finetune": 0.0003,
+    "epochs_bf": 10,
+    "epochs_hf": 10
+  },
+  "n_optuna_trials": 20,
+  "best_optuna_val_acc": 52.77777777777778,
+  "seeds": [
+    42,
+    1,
+    2
+  ],
+  "n_hf_pool": 899,
+  "n_bf_pool": 8126,
+  "data_cost_CA": 17116.0,
+  "total_cost_CA": 162222.0,
+  "accuracy_HF": 49.82607957919742,
+  "accuracy_HF_std": 1.1326275469518343,
+  "accuracy_HF_seeds": [
+    49.12191397302112,
+    49.22372104861288,
+    51.13260371595826
+  ],
+  "accuracy_BF": 45.36353609909222,
+  "accuracy_BF_std": 1.5135423193314215,
+  "accuracy_BF_seeds": [
+    44.03156019343344,
+    45.04963094935098,
+    47.00941715449224
+  ],
+  "accuracy_Mixte": 47.59480783914482,
+  "accuracy_Mixte_std": 1.3087258979060759,
+  "accuracy_Mixte_seeds": [
+    46.576737083227286,
+    47.13667599898193,
+    49.07101043522525
+  ],
+  "total_time_min": 2.3374305420451695,
+  "total_time_min_std": 0.014333185707700428,
+  "per_seed": [
+    {
+      "val_acc": 52.77777777777778,
+      "accuracy_HF": 49.12191397302112,
+      "accuracy_BF": 44.03156019343344,
+      "accuracy_Mixte": 46.576737083227286,
+      "total_cost_CA": 162222.0,
+      "time_min": 2.353723633289337,
+      "n_hf_train": 719
+    },
+    {
+      "val_acc": 47.77777777777778,
+      "accuracy_HF": 49.22372104861288,
+      "accuracy_BF": 45.04963094935098,
+      "accuracy_Mixte": 47.13667599898193,
+      "total_cost_CA": 162222.0,
+      "time_min": 2.3267657438913982,
+      "n_hf_train": 719
+    },
+    {
+      "val_acc": 51.111111111111114,
+      "accuracy_HF": 51.13260371595826,
+      "accuracy_BF": 47.00941715449224,
+      "accuracy_Mixte": 49.07101043522525,
+      "total_cost_CA": 162222.0,
+      "time_min": 2.331802248954773,
+      "n_hf_train": 719
+    }
+  ],
+  "delta_accuracy_HF": -1.14532960040723,
+  "delta_accuracy_BF": 0.6278102994824835,
+  "delta_accuracy_Mixte": -0.25875965046237326
+}

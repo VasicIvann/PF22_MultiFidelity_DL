@@ -1,0 +1,169 @@
+{
+  "strategy": "curriculum_learning_progressif",
+  "dataset": "Intel",
+  "hyperparams_source": "optuna_optimized",
+  "hyperparams": {
+    "lr": 0.000816845589476017,
+    "ep_per_phase": 7,
+    "ratio_mid1": 0.15990213464750794,
+    "ratio_mid2": 0.6556937753654446
+  },
+  "default_hyperparams": {
+    "lr": 0.001,
+    "ep_per_phase": 5,
+    "ratio_mid1": 0.25,
+    "ratio_mid2": 0.6
+  },
+  "n_optuna_trials": 20,
+  "best_optuna_val_acc": 88.61209964412811,
+  "best_schedule": [
+    [
+      7,
+      0.0,
+      "BF_pur"
+    ],
+    [
+      14,
+      0.15990213464750794,
+      "Mixte_A"
+    ],
+    [
+      21,
+      0.6556937753654446,
+      "Mixte_B"
+    ],
+    [
+      28,
+      1.0,
+      "HF_pur"
+    ]
+  ],
+  "total_epochs": 28,
+  "seeds": [
+    42,
+    1,
+    2
+  ],
+  "n_hf_pool": 1402,
+  "n_bf_pool": 12632,
+  "data_cost_CA": 26652.000000000004,
+  "total_cost_CA": 368074.0,
+  "accuracy_HF": 85.97777777777779,
+  "accuracy_HF_std": 0.7784124394727544,
+  "accuracy_HF_seeds": [
+    86.66666666666667,
+    86.13333333333334,
+    85.13333333333334
+  ],
+  "accuracy_BF": 84.36666666666666,
+  "accuracy_BF_std": 0.30000000000000426,
+  "accuracy_BF_seeds": [
+    84.66666666666667,
+    84.36666666666666,
+    84.06666666666666
+  ],
+  "accuracy_Mixte": 85.17222222222222,
+  "accuracy_Mixte_std": 0.5375699782181731,
+  "accuracy_Mixte_seeds": [
+    85.66666666666667,
+    85.25,
+    84.6
+  ],
+  "total_time_min": 2.523086562421587,
+  "total_time_min_std": 0.007198720908529639,
+  "per_seed": [
+    {
+      "val_acc": 88.61209964412811,
+      "accuracy_HF": 86.66666666666667,
+      "accuracy_BF": 84.66666666666667,
+      "accuracy_Mixte": 85.66666666666667,
+      "total_cost_CA": 368074.0,
+      "time_min": 2.529200255870819,
+      "schedule": [
+        [
+          7,
+          0.0,
+          "BF_pur"
+        ],
+        [
+          14,
+          0.15990213464750794,
+          "Mixte_A"
+        ],
+        [
+          21,
+          0.6556937753654446,
+          "Mixte_B"
+        ],
+        [
+          28,
+          1.0,
+          "HF_pur"
+        ]
+      ]
+    },
+    {
+      "val_acc": 88.96797153024912,
+      "accuracy_HF": 86.13333333333334,
+      "accuracy_BF": 84.36666666666666,
+      "accuracy_Mixte": 85.25,
+      "total_cost_CA": 368074.0,
+      "time_min": 2.524907076358795,
+      "schedule": [
+        [
+          7,
+          0.0,
+          "BF_pur"
+        ],
+        [
+          14,
+          0.15990213464750794,
+          "Mixte_A"
+        ],
+        [
+          21,
+          0.6556937753654446,
+          "Mixte_B"
+        ],
+        [
+          28,
+          1.0,
+          "HF_pur"
+        ]
+      ]
+    },
+    {
+      "val_acc": 85.76512455516014,
+      "accuracy_HF": 85.13333333333334,
+      "accuracy_BF": 84.06666666666666,
+      "accuracy_Mixte": 84.6,
+      "total_cost_CA": 368074.0,
+      "time_min": 2.5151523550351462,
+      "schedule": [
+        [
+          7,
+          0.0,
+          "BF_pur"
+        ],
+        [
+          14,
+          0.15990213464750794,
+          "Mixte_A"
+        ],
+        [
+          21,
+          0.6556937753654446,
+          "Mixte_B"
+        ],
+        [
+          28,
+          1.0,
+          "HF_pur"
+        ]
+      ]
+    }
+  ],
+  "delta_accuracy_HF": 1.4222222222222314,
+  "delta_accuracy_BF": 1.7555555555555458,
+  "delta_accuracy_Mixte": 1.5888888888888886
+}

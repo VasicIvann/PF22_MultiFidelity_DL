@@ -1,0 +1,81 @@
+{
+  "strategy": "cotraining_batch_reweighting",
+  "dataset": "Imagewoof",
+  "hyperparams_source": "optuna_optimized",
+  "hyperparams": {
+    "lr": 0.003168153885583307,
+    "hf_ratio": 0.10344854658304681,
+    "alpha_hf": 2.7071256459931443,
+    "alpha_bf": 0.8778951081029122
+  },
+  "default_hyperparams": {
+    "lr": 0.001,
+    "hf_ratio": 0.25,
+    "alpha_hf": 2.0,
+    "alpha_bf": 0.7,
+    "epochs": 20
+  },
+  "n_optuna_trials": 20,
+  "best_optuna_val_acc": 45.55555555555556,
+  "seeds": [
+    42,
+    1,
+    2
+  ],
+  "n_hf_pool": 899,
+  "n_bf_pool": 8126,
+  "data_cost_CA": 17116.0,
+  "total_cost_CA": 259080.0,
+  "accuracy_HF": 42.182064986849916,
+  "accuracy_HF_std": 0.4526791065395483,
+  "accuracy_HF_seeds": [
+    42.275388139475695,
+    42.58080936625095,
+    41.68999745482311
+  ],
+  "accuracy_BF": 41.58819037923136,
+  "accuracy_BF_std": 0.2868268686583007,
+  "accuracy_BF_seeds": [
+    41.76635276151693,
+    41.74090099261899,
+    41.25731738355816
+  ],
+  "accuracy_Mixte": 41.885127683040636,
+  "accuracy_Mixte_std": 0.36315253628276456,
+  "accuracy_Mixte_seeds": [
+    42.02087045049631,
+    42.160855179434975,
+    41.47365741919063
+  ],
+  "total_time_min": 2.7630895800060697,
+  "total_time_min_std": 0.027026555892000523,
+  "per_seed": [
+    {
+      "val_acc": 45.55555555555556,
+      "accuracy_HF": 42.275388139475695,
+      "accuracy_BF": 41.76635276151693,
+      "accuracy_Mixte": 42.02087045049631,
+      "total_cost_CA": 259080.0,
+      "time_min": 2.735008744398753
+    },
+    {
+      "val_acc": 41.111111111111114,
+      "accuracy_HF": 42.58080936625095,
+      "accuracy_BF": 41.74090099261899,
+      "accuracy_Mixte": 42.160855179434975,
+      "total_cost_CA": 259080.0,
+      "time_min": 2.7653386990229287
+    },
+    {
+      "val_acc": 40.0,
+      "accuracy_HF": 41.68999745482311,
+      "accuracy_BF": 41.25731738355816,
+      "accuracy_Mixte": 41.47365741919063,
+      "total_cost_CA": 259080.0,
+      "time_min": 2.788921296596527
+    }
+  ],
+  "delta_accuracy_HF": 4.640705862390767,
+  "delta_accuracy_BF": 4.165606176295924,
+  "delta_accuracy_Mixte": 4.403156019343342
+}
