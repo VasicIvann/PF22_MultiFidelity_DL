@@ -1,0 +1,32 @@
+{
+  "Animals-10": {
+    "best_per_ratio": {
+      "2": "BL1 (HF)",
+      "5": "BL1 (HF)",
+      "10": "BL2 (BF)",
+      "20": "BL2 (BF)",
+      "50": "BL2 (BF)"
+    },
+    "robust": false
+  },
+  "Imagewoof": {
+    "best_per_ratio": {
+      "2": "BL1 (HF)",
+      "5": "BL1 (HF)",
+      "10": "BL2 (BF)",
+      "20": "BL2 (BF)",
+      "50": "BL2 (BF)"
+    },
+    "robust": false
+  },
+  "Intel": {
+    "best_per_ratio": {
+      "2": "BL1 (HF)",
+      "5": "BL1 (HF)",
+      "10": "BL2 (BF)",
+      "20": "BL2 (BF)",
+      "50": "BL2 (BF)"
+    },
+    "robust": false
+  }
+}
