@@ -216,7 +216,11 @@ d'images \textbf{Haute Fidélité} avec une grande majorité d'images
 
 L'entraînement de modèles d'apprentissage profond performants nécessite traditionnellement de vastes ensembles de données de haute qualité, dont l'acquisition et l'annotation s'avèrent souvent coûteuses en temps et en ressources. Ce projet explore une approche alternative : \textbf{l'apprentissage multi-fidélité}.
 
-L'objectif est de démontrer qu'il est possible de réduire drastiquement les coûts de constitution d'un jeu de données en combinant une faible proportion d'images de \textbf{Haute Fidélité (HF)} avec une grande majorité d'images dégradées acquises à moindre coût (\textbf{Basse Fidélité - BF}).
+L'objectif est de démontrer qu'il est possible de réduire drastiquement les coûts de constitution d'un jeu de données en combinant une faible proportion d'images de \textbf{Haute Fidélité (HF)} avec une grande majorité d'images dégradées acquises à moindre coût (\textbf{Basse Fidélité - BF}), tout en maximisant la performance sur le domaine HF.
+
+Sur la base d'un pipeline de dégradation contrôlé, d'un modèle de coût à trois métriques et de trois modèles de référence, \textbf{quatre stratégies multi-fidélité} ont été conçues et comparées : Transfer Learning séquentiel, Co-training pondéré, Curriculum Learning progressif et Elastic Weight Consolidation (EWC). Chacune a été \textbf{optimisée par Optuna} et évaluée selon un protocole rigoureux — \textbf{trois jeux de données} (Animals-10, Imagewoof, Intel) et \textbf{trois graines aléatoires} (résultats en moyenne $\pm$ écart-type) — complété par des analyses de robustesse à la dégradation et de sensibilité au ratio de coût.
+
+Les résultats montrent que les stratégies séquentielles guidées (Transfer Learning et surtout \textbf{EWC}) atteignent la meilleure précision HF, \textbf{dépassant le mélange naïf coûteux tout en divisant le coût total par environ deux}, et ce de façon cohérente sur les trois datasets. L'objectif est donc atteint : des données bon marché et imparfaites, bien exploitées, deviennent un véritable levier de performance plutôt qu'un compromis dégradé.
 
 \vspace{1.5em}
 \begin{tcolorbox}[
@@ -246,7 +250,60 @@ Animals-10 $\cdot$ Imagewoof $\cdot$ Intel
 \newpage
 
 % ============================================================
-%  CHAPITRE 0 — NOTIONS PRÉLIMINAIRES
+%  TABLE DES FIGURES
+% ============================================================
+\addcontentsline{toc}{chapter}{Table des figures}
+\listoffigures
+
+\newpage
+
+% ============================================================
+%  LISTE DES ACRONYMES
+% ============================================================
+\thispagestyle{empty}
+\addcontentsline{toc}{chapter}{Liste des acronymes}
+{\color{primary}\LARGE\bfseries Liste des acronymes}\\[0.5em]
+{\color{accent}\rule{\linewidth}{1.5pt}}\\[0.3em]
+{\color{midgray}\rule{\linewidth}{0.4pt}}
+\vspace{1em}
+
+\renewcommand{\arraystretch}{1.35}
+\begin{tabularx}{\linewidth}{L{2.6cm} X}
+  \arrayrulecolor{midgray}
+  \toprule
+  \tableheadcolor
+  \textbf{Sigle} & \textbf{Signification} \\
+  \midrule
+  \tablerowodd
+  HF & Haute Fidélité (images propres, haute résolution, coûteuses) \\
+  BF & Basse Fidélité (images dégradées, bon marché) \\
+  \tablerowodd
+  CA & Unité de coût d'acquisition (coût normalisé des données) \\
+  BL & \textit{Baseline} (modèle de référence : BL 1 Premium, BL 2 Low-Cost, BL 3 Mixte) \\
+  \tablerowodd
+  S1--S4 & Stratégies multi-fidélité 1 à 4 (Transfer, Co-training, Curriculum, EWC) \\
+  CNN & \textit{Convolutional Neural Network} (réseau de neurones convolutif) \\
+  \tablerowodd
+  ResNet & \textit{Residual Network} (architecture à connexions résiduelles) \\
+  EWC & \textit{Elastic Weight Consolidation} (consolidation des poids par pénalité de Fisher) \\
+  \tablerowodd
+  HPO & \textit{Hyperparameter Optimization} (optimisation d'hyperparamètres) \\
+  TPE & \textit{Tree-structured Parzen Estimator} (échantillonneur bayésien d'Optuna) \\
+  \tablerowodd
+  LR & \textit{Learning Rate} (taux d'apprentissage) \\
+  AMP & \textit{Automatic Mixed Precision} (précision mixte automatique, FP16/FP32) \\
+  \tablerowodd
+  GPU & \textit{Graphics Processing Unit} (processeur graphique de calcul) \\
+  JPEG & Format de compression d'image avec pertes (qualité $q$) \\
+  \tablerowodd
+  $\sigma$ & Écart-type du bruit gaussien appliqué dans la dégradation \\
+  \bottomrule
+\end{tabularx}
+
+\newpage
+
+% ============================================================
+%  INTRODUCTION
 % ============================================================
 \chapter{Introduction}
 
@@ -254,7 +311,7 @@ Animals-10 $\cdot$ Imagewoof $\cdot$ Intel
 
 L'apprentissage profond a transformé la vision par ordinateur, mais sa performance reste fortement conditionnée par la \textbf{quantité et la qualité des données annotées}. Or, dans la plupart des contextes industriels et scientifiques, l'acquisition de données de \textbf{haute fidélité} (images haute résolution, capteurs coûteux, annotation par des experts) est lente et onéreuse. À l'inverse, il est souvent possible d'obtenir en abondance des données de \textbf{basse fidélité} : images dégradées, faible résolution, capteurs bon marché, étiquetage automatique ou collecté sur le web.
 
-Ce déséquilibre est précisément le cadre de l'\textbf{apprentissage multi-fidélité} : combiner un petit volume de données précises et coûteuses (HF) avec un grand volume de données approximatives et bon marché (BF), afin d'atteindre la meilleure performance possible \emph{au meilleur coût}. La question centrale n'est plus seulement « quelle précision peut-on atteindre ? », mais « \textbf{quelle précision peut-on atteindre pour un budget d'acquisition donné ?} ».
+Ce déséquilibre est précisément le cadre de l'\textbf{apprentissage multi-fidélité}~\cite{kennedy2000,multifidelity} : combiner un petit volume de données précises et coûteuses (HF) avec un grand volume de données approximatives et bon marché (BF), afin d'atteindre la meilleure performance possible \emph{au meilleur coût}. La question centrale n'est plus seulement « quelle précision peut-on atteindre ? », mais « \textbf{quelle précision peut-on atteindre pour un budget d'acquisition donné ?} ».
 
 \section{Problématique}
 
@@ -288,6 +345,9 @@ L'ensemble a été développé sous une architecture hybride VS~Code/Colab pour 
 Le rapport débute par les \textbf{notions préliminaires} d'apprentissage profond nécessaires à la lecture. Il décrit ensuite la \textbf{fondation expérimentale} (environnement, jeux de données, pipeline de dégradation, modèle de coût), puis les \textbf{modèles de référence}. Le cœur du travail présente les \textbf{quatre stratégies multi-fidélité}, suivies de leur \textbf{optimisation par Optuna}. Deux chapitres d'\textbf{analyses transversales} (robustesse face à la dégradation, sensibilité au ratio de coût) précèdent une \textbf{synthèse globale} comparant toutes les approches, puis la \textbf{conclusion et les perspectives}. Les leviers d'amélioration identifiés pour chaque stratégie sont regroupés en \textbf{annexe}.
 
 
+% ============================================================
+%  CHAPITRE — NOTIONS PRÉLIMINAIRES
+% ============================================================
 \chapter{Notions Préliminaires}
 
 Ce chapitre présente les concepts fondamentaux nécessaires à la compréhension du projet. Le lecteur familier avec l'apprentissage profond peut passer directement au Chapitre~2.
@@ -403,7 +463,7 @@ Une \textbf{époque} (\textit{epoch}) correspond au passage complet de l'intégr
 
 \subsection{La fonction de perte}
 
-La \textbf{fonction de perte} (\textit{loss function}) quantifie l'écart entre la prédiction du réseau et la vérité terrain. Plus la perte est faible, plus le modèle est précis. Pour la classification multi-classes, la \textbf{Entropie Croisée} (\textit{Cross-Entropy Loss}) est le standard :
+La \textbf{fonction de perte} (\textit{loss function}) quantifie l'écart entre la prédiction du réseau et la vérité terrain. Plus la perte est faible, plus le modèle est précis. Pour la classification multi-classes, la \textbf{Entropie Croisée} (\textit{Cross-Entropy Loss})~\cite{crossentropy} est le standard :
 
 \[
 \mathcal{L} = -\sum_{c=1}^{C} y_c \cdot \log(\hat{p}_c)
@@ -759,7 +819,7 @@ Pour que la comparaison entre nos différents jeux de données (HF, BF, Mixte) s
 \subsection{Mécanique interne de ResNet-18}
 L'architecture \textit{Residual Network} (ResNet) a révolutionné l'apprentissage profond en introduisant les \textbf{connexions résiduelles} (\textit{skip connections}). Dans un réseau convolutionnel classique profond, le signal du gradient a tendance à s'estomper lors de la phase de rétropropagation (le problème de la disparition du gradient). ResNet contourne ce problème en ajoutant l'entrée d'une couche directement à sa sortie mathématique ($F(x) + x$). 
 
-Dans le contexte de données Basse Fidélité (flou et bruit gaussien), cette architecture est cruciale : si une couche convolutionnelle n'arrive pas à extraire d'information pertinente à cause du bruit, la connexion résiduelle permet à l'information globale de l'image de continuer à circuler librement à travers le réseau sans être détruite. La version à 18 couches (ResNet-18) offre le compromis parfait entre expressivité et prévention du sur-apprentissage (\textit{overfitting}) sur notre corpus de $\approx$25 000 images.
+Dans le contexte de données Basse Fidélité (flou et bruit gaussien), cette architecture est cruciale : si une couche convolutionnelle n'arrive pas à extraire d'information pertinente à cause du bruit, la connexion résiduelle permet à l'information globale de l'image de continuer à circuler librement à travers le réseau sans être détruite. La version à 18 couches (ResNet-18)~\cite{resnet} offre le compromis parfait entre expressivité et prévention du sur-apprentissage (\textit{overfitting}) sur notre corpus de $\approx$25 000 images.
 
 \subsection{Justification des hyperparamètres et de la fonction de coût}
 
@@ -767,7 +827,7 @@ Pour garantir la reproductibilité et la comparabilité des \textit{Baselines}, 
 
 \begin{itemize}
     \item \textbf{Fonction de perte (Loss) -- \texttt{CrossEntropyLoss}} : Il s'agit du standard mathématique pour les problèmes de classification multi-classes. Cette fonction combine une activation Softmax (pour transformer les sorties brutes du modèle en probabilités de 0 à 1) et une perte log-vraisemblance négative (NLL). Elle pénalise fortement le modèle s'il est très confiant sur une mauvaise prédiction, ce qui est idéal pour forcer le réseau à douter sur des images floues.
-    \item \textbf{Optimiseur -- \texttt{Adam}} : Contrairement à une descente de gradient stochastique classique (SGD), Adam adapte dynamiquement le taux d'apprentissage pour chaque paramètre individuel en utilisant les moments du premier et second ordre des gradients. Cela permet une convergence beaucoup plus rapide et stable, particulièrement utile lors d'un entraînement \textit{from scratch}.
+    \item \textbf{Optimiseur -- \texttt{Adam}}~\cite{adam} : Contrairement à une descente de gradient stochastique classique (SGD), Adam adapte dynamiquement le taux d'apprentissage pour chaque paramètre individuel en utilisant les moments du premier et second ordre des gradients. Cela permet une convergence beaucoup plus rapide et stable, particulièrement utile lors d'un entraînement \textit{from scratch}.
     \item \textbf{Taux d'apprentissage (\textit{Learning Rate})} : Fixé à $lr = 0.001$. C'est la valeur par défaut recommandée pour l'optimiseur Adam, offrant un pas de descente suffisamment grand pour échapper aux minima locaux lors des premières époques, tout en évitant la divergence.
     \item \textbf{Taille de lot (\textit{Batch Size})} : Fixée à $64$. Cette valeur permet d'optimiser l'utilisation de la mémoire vidéo (VRAM) du GPU, tout en garantissant un gradient stochastique suffisamment lissé pour ne pas rendre l'apprentissage chaotique face au bruit des images BF.
     \item \textbf{Nombre d'époques} : Fixé à $20$. Des tests préliminaires ont montré qu'au-delà de 20 époques, la courbe d'apprentissage sur le jeu d'entraînement atteint un plateau asymptotique, et le risque de mémorisation du bruit (\textit{overfitting}) augmente considérablement.
@@ -778,7 +838,7 @@ Pour garantir la reproductibilité et la comparabilité des \textit{Baselines}, 
 Afin d'exploiter pleinement le matériel GPU (architecture hybride Colab en prototypage, puis serveur V100S en production), deux optimisations logicielles majeures ont été intégrées à l'implémentation :
 
 \begin{enumerate}
-    \item \textbf{Normalisation des tenseurs} : Avant d'entrer dans le réseau, toutes les images (redimensionnées en $224 \times 224$ pixels) subissent une normalisation spatiale basée sur les statistiques du jeu de données ImageNet (Moyennes : \texttt{[0.485, 0.456, 0.406]}, Écarts-types : \texttt{[0.229, 0.224, 0.225]}). Cette opération centre les données autour de zéro, accélérant la convergence de la descente de gradient.
+    \item \textbf{Normalisation des tenseurs} : Avant d'entrer dans le réseau, toutes les images (redimensionnées en $224 \times 224$ pixels) subissent une normalisation spatiale basée sur les statistiques du jeu de données ImageNet~\cite{imagenet} (Moyennes : \texttt{[0.485, 0.456, 0.406]}, Écarts-types : \texttt{[0.229, 0.224, 0.225]}). Cette opération centre les données autour de zéro, accélérant la convergence de la descente de gradient.
     \item \textbf{Précision Mixte Automatique (AMP)} : L'entraînement utilise les modules \texttt{torch.amp.autocast} et \texttt{GradScaler}. Cette technique exécute certaines opérations mathématiques en virgule flottante 16 bits (FP16) au lieu de 32 bits (FP32). Cela a permis de réduire drastiquement la consommation mémoire et d'accélérer le temps de calcul sur les Tensor Cores du GPU (NVIDIA T4 puis V100S), réduisant fortement la durée d'une époque, sans aucune perte de précision prédictive.
 \end{enumerate}
 
@@ -1002,7 +1062,7 @@ Configuration expérimentale utilisée :
 % ---- 4.1.2 Résultats ----
 \subsection{Résultats quantitatifs obtenus}
 
-Les résultats finaux de l'Étape 1 sont résumés ci-dessous pour les trois datasets (moyenne $\pm$ écart-type sur 3 graines).
+Les résultats finaux de la Stratégie 1 sont résumés ci-dessous pour les trois datasets (moyenne $\pm$ écart-type sur 3 graines).
 Dans cette étude, le critère prioritaire est la performance sur \textbf{Test HF}.
 
 \vspace{0.6em}
@@ -1044,7 +1104,7 @@ Dans cette étude, le critère prioritaire est la performance sur \textbf{Test H
 \end{figure}
 
 % ---- 4.1.3 Comparaison ----
-\subsection{Comparaison avec les baselines du Chapitre 3}
+\subsection{Comparaison avec les baselines}
 
 Les valeurs chiffrées détaillées figurent dans le \textbf{tableau de synthèse global} (§4.4.3), qui rassemble toutes les approches sur les trois datasets. La comparaison se concentre ici sur l'écart à la borne supérieure, la \textbf{baseline Mixte (BL 3)}.
 
@@ -1052,7 +1112,7 @@ Les valeurs chiffrées détaillées figurent dans le \textbf{tableau de synthès
 Comparaisons clés (Animals-10) :
 
 \begin{itemize}
-  \item \textbf{Objectif principal HF atteint} : la stratégie 1 obtient \textbf{77,7\,\% sur Test HF}, supérieure à \textbf{toutes les baselines} (BL 3 = 74,0\,\%, BL 2 = 61,3\,\%, BL 1 = 54,3\,\%), et avec le plus faible écart-type (0,6), donc la plus stable.
+  \item \textbf{Objectif principal HF atteint} : la Stratégie 1 obtient \textbf{77,7\,\% sur Test HF}, supérieure à \textbf{toutes les baselines} (BL 3 = 74,0\,\%, BL 2 = 61,3\,\%, BL 1 = 54,3\,\%), et avec le plus faible écart-type (0,6), donc la plus stable.
   \item \textbf{Vs BL 3 (Mixte)} : à \textbf{coût donnée identique} (44 733 CA, même pool HF+BF), elle dépasse BL 3 sur HF ($+3,7$ points) tout en réduisant le \textbf{coût total} de $\approx$\,55\,\% (894 660 $\rightarrow$ 400 230 CA), car le HF coûteux n'est vu qu'en phase de fine-tuning.
   \item \textbf{Compromis BF modéré} : la précision BF (68,3\,\%) reste légèrement inférieure à BL 2 (71,0\,\%) et BL 3 (72,9\,\%), compromis cohérent avec la priorité explicitement fixée sur la qualité HF.
 \end{itemize}
@@ -1070,14 +1130,14 @@ Comparaisons clés (Animals-10) :
 \subsection{Analyse : ce qui a marché, ce qui a moins marché, et enseignements}
 
 \begin{itemize}
-  \item \textbf{Ce qui a bien marché (HF)} : la phase BF fournit une initialisation robuste, puis le fine-tuning HF spécialise efficacement le modèle ; le gain final en Test HF est net et place la stratégie 1 en tête.
+  \item \textbf{Ce qui a bien marché (HF)} : la phase BF fournit une initialisation robuste, puis le fine-tuning HF spécialise efficacement le modèle ; le gain final en Test HF est net et place la Stratégie 1 en tête.
   \item \textbf{Limite observée} : la spécialisation HF entraîne une perte partielle de robustesse BF (\textit{domain forgetting}), ce qui était attendu dans une optimisation orientée domaine propre.
   \item \textbf{Signal de sur-apprentissage léger} : en fin de fine-tuning, la \textit{train loss} continue de baisser tandis que la \textit{val loss} HF se dégrade légèrement ; un \textit{early stopping} piloté par Test/Val HF améliorerait encore la stabilité.
   \item \textbf{Leçon principale} : pour un objectif centré sur la performance HF, le transfer learning séquentiel offre le meilleur compromis observé entre précision cible et coût d'annotation.
 \end{itemize}
 
 \begin{decisionbox}
-  \textbf{Conclusion Étape 1 (objectif HF prioritaire) :} la stratégie BF $\rightarrow$ HF est validée comme meilleure option actuelle pour maximiser la performance sur données propres. L'Étape 2 (co-training pondéré) visera désormais à conserver ce niveau HF tout en regagnant de la robustesse sur BF.
+  \textbf{Conclusion (Stratégie 1, objectif HF prioritaire) :} la stratégie BF $\rightarrow$ HF est validée comme meilleure option actuelle pour maximiser la performance sur données propres. La Stratégie 2 (co-training pondéré) visera désormais à conserver ce niveau HF tout en regagnant de la robustesse sur BF.
 \end{decisionbox}
 
 \section{Stratégie 2 -- Co-training par Batch avec Pondération (Reweighting)}
@@ -1091,7 +1151,7 @@ Deux mécanismes sont appliqués conjointement :
 
 \begin{enumerate}
   \item \textbf{Co-training à ratio fixe par batch} : chaque lot contient exactement 16 images HF et 48 images BF (batch size = 64), soit un ratio HF de 25\%.
-  \item \textbf{Loss pondérée par domaine} : la perte individuelle est multipliée par un poids plus fort sur HF ($w_{HF}=2.0$) et plus faible sur BF ($w_{BF}=0.7$), avant agrégation.
+  \item \textbf{Loss pondérée par domaine}~\cite{ren2018reweight,han2018coteaching} : la perte individuelle est multipliée par un poids plus fort sur HF ($w_{HF}=2.0$) et plus faible sur BF ($w_{BF}=0.7$), avant agrégation.
 \end{enumerate}
 
 Configuration expérimentale utilisée :
@@ -1117,7 +1177,7 @@ Configuration expérimentale utilisée :
 % ---- 4.2.2 Résultats ----
 \subsection{Résultats quantitatifs obtenus}
 
-Les résultats finaux de l'Étape 2 sont résumés ci-dessous pour les trois datasets (moyenne $\pm$ écart-type sur 3 graines).
+Les résultats finaux de la Stratégie 2 sont résumés ci-dessous pour les trois datasets (moyenne $\pm$ écart-type sur 3 graines).
 Le critère prioritaire reste la précision sur \textbf{Test HF}.
 
 \vspace{0.6em}
@@ -1167,10 +1227,10 @@ Les valeurs chiffrées détaillées figurent dans le \textbf{tableau de synthès
 Comparaisons clés (Animals-10) :
 
 \begin{itemize}
-  \item \textbf{Gain HF modéré vs baselines} : la stratégie 2 atteint 63,8\,\% sur Test HF, devant BL 1 (54,3\,\%) et BL 2 (61,3\,\%), mais l'avantage sur BL 2 est faible ($+2,5$ points).
-  \item \textbf{Dominée par la stratégie 1} : contre-intuitivement, la stratégie 2 est ici inférieure à la stratégie séquentielle \textbf{à la fois sur HF} ($-13,9$ points : 63,8\,\% vs 77,7\,\%) \textbf{et sur BF} ($-7,3$ points : 61,0\,\% vs 68,3\,\%). Voir les deux domaines en même temps ne suffit pas à égaler une spécialisation HF finale explicite.
+  \item \textbf{Gain HF modéré vs baselines} : la Stratégie 2 atteint 63,8\,\% sur Test HF, devant BL 1 (54,3\,\%) et BL 2 (61,3\,\%), mais l'avantage sur BL 2 est faible ($+2,5$ points).
+  \item \textbf{Dominée par la Stratégie 1} : contre-intuitivement, la Stratégie 2 est ici inférieure à la stratégie séquentielle \textbf{à la fois sur HF} ($-13,9$ points : 63,8\,\% vs 77,7\,\%) \textbf{et sur BF} ($-7,3$ points : 61,0\,\% vs 68,3\,\%). Voir les deux domaines en même temps ne suffit pas à égaler une spécialisation HF finale explicite.
   \item \textbf{Instabilité marquée} : avec des écarts-types de 4 à 5 points, le co-training pondéré est nettement \textbf{moins stable} que les autres stratégies (S1 $<$~1 point), ce qui complique la sélection de modèle.
-  \item \textbf{Coût intermédiaire} : son coût total (486 720 CA) est inférieur à BL 3 (894 660 CA) mais supérieur à la stratégie 1 (400 230 CA), pour une performance moindre.
+  \item \textbf{Coût intermédiaire} : son coût total (486 720 CA) est inférieur à BL 3 (894 660 CA) mais supérieur à la Stratégie 1 (400 230 CA), pour une performance moindre.
 \end{itemize}
 
 \begin{hypothesebox}[Vérification sur Imagewoof et Intel]
@@ -1188,12 +1248,12 @@ Comparaisons clés (Animals-10) :
 \begin{itemize}
   \item \textbf{Équilibrage HF/BF réel} : le mélange systématique HF/BF dans chaque batch produit l'écart HF$-$BF le plus resserré du panel (notamment sur Imagewoof), conforme à l'esprit de la méthode.
   \item \textbf{Effet du reweighting confirmé} : la décroissance plus rapide de la loss HF non pondérée montre que le modèle a effectivement priorisé les erreurs HF pendant l'optimisation.
-  \item \textbf{Limite principale (objectif HF prioritaire)} : la stratégie 2 ne retrouve pas le niveau HF de la stratégie 1 — elle est même \textbf{dominée par S1 sur HF \emph{et} BF} sur Animals-10 — ce qui confirme qu'une spécialisation finale explicite sur HF reste plus efficace pour viser la performance maximale sur domaine propre.
+  \item \textbf{Limite principale (objectif HF prioritaire)} : la Stratégie 2 ne retrouve pas le niveau HF de la Stratégie 1 — elle est même \textbf{dominée par S1 sur HF \emph{et} BF} sur Animals-10 — ce qui confirme qu'une spécialisation finale explicite sur HF reste plus efficace pour viser la performance maximale sur domaine propre.
   \item \textbf{Instabilité et sensibilité au dataset} : forte variance inter-graines (jusqu'à $\pm$5 points) et décrochage sur Imagewoof (faible volume HF) ; la méthode est peu robuste sans réglage fin du ratio et des poids.
 \end{itemize}
 
 \begin{decisionbox}
-  \textbf{Conclusion Étape 2 (objectif HF prioritaire) :} le co-training pondéré tient sa promesse d'équilibrage HF/BF, mais il est \textbf{dominé par la stratégie 1} sur la métrique cible (Test HF) et souffre d'instabilité. Les stratégies suivantes (Curriculum, EWC) chercheront à retrouver — voire dépasser — le niveau HF de la stratégie 1 tout en améliorant la rétention BF et la stabilité.
+  \textbf{Conclusion (Stratégie 2, objectif HF prioritaire) :} le co-training pondéré tient sa promesse d'équilibrage HF/BF, mais il est \textbf{dominé par la Stratégie 1} sur la métrique cible (Test HF) et souffre d'instabilité. Les stratégies suivantes (Curriculum, EWC) chercheront à retrouver — voire dépasser — le niveau HF de la Stratégie 1 tout en améliorant la rétention BF et la stabilité.
 \end{decisionbox}
 
 \section{Stratégie 3 -- Curriculum Learning progressif}
@@ -1201,7 +1261,7 @@ Comparaisons clés (Animals-10) :
 % ---- 4.3.1 Protocole ----
 \subsection{Protocole}
 
-Le \textit{curriculum learning} (Bengio et al., 2009) consiste à présenter les exemples du plus simple au plus complexe, à l'image d'un apprentissage humain. Nous l'adaptons au cadre multi-fidélité en faisant croître \textbf{progressivement la proportion d'images HF} au fil d'un \textbf{entraînement unique et continu} : le réseau démarre sur le volume BF abondant et bon marché (structures grossières, faciles), puis la part de HF augmente par paliers jusqu'à un fine-tuning final entièrement HF. Contrairement à la Stratégie 1, il n'y a pas de rupture nette BF~$\rightarrow$~HF mais une transition douce, ce qui vise à limiter l'oubli du domaine BF.
+Le \textit{curriculum learning}~\cite{bengio2009curriculum} consiste à présenter les exemples du plus simple au plus complexe, à l'image d'un apprentissage humain. Nous l'adaptons au cadre multi-fidélité en faisant croître \textbf{progressivement la proportion d'images HF} au fil d'un \textbf{entraînement unique et continu} : le réseau démarre sur le volume BF abondant et bon marché (structures grossières, faciles), puis la part de HF augmente par paliers jusqu'à un fine-tuning final entièrement HF. Contrairement à la Stratégie 1, il n'y a pas de rupture nette BF~$\rightarrow$~HF mais une transition douce, ce qui vise à limiter l'oubli du domaine BF.
 
 Le planning utilisé découpe les 20 époques en \textbf{quatre paliers} de 5 époques, à proportion d'images HF croissante :
 
@@ -1253,6 +1313,13 @@ Résultats sur les trois datasets (moyenne $\pm$ écart-type sur 3 graines) ; cr
   Le curriculum progressif se distingue par deux traits remarquables : la \textbf{meilleure rétention BF de toutes les stratégies} (sur Animals-10, 73,1\,\% en BF, soit même \emph{au-dessus} de la baseline Mixte) et la \textbf{plus grande stabilité} inter-graines (écarts-types de l'ordre de 0,1--0,2 point sur Animals-10). La transition douce BF~$\rightarrow$~HF évite l'oubli brutal du domaine dégradé.
 \end{hypothesebox}
 
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\linewidth]{figures/strategy3_curriculum_curves.png}
+  \caption{Évolution de la loss et de la précision validation HF pour la Stratégie 3 (curriculum progressif) sur \textbf{Animals-10}. La montée par paliers de la proportion HF (0~\% $\rightarrow$ 25~\% $\rightarrow$ 60~\% $\rightarrow$ 100~\%) se lit dans les inflexions de la courbe.}
+  \label{fig:strategy3_curriculum_curves}
+\end{figure}
+
 % ---- 4.3.3 Comparaison ----
 \subsection{Comparaison avec les baselines et les stratégies précédentes}
 
@@ -1273,7 +1340,7 @@ Résultats sur les trois datasets (moyenne $\pm$ écart-type sur 3 graines) ; cr
 \end{itemize}
 
 \begin{decisionbox}
-  \textbf{Conclusion Étape 3 :} le curriculum learning progressif offre le \textbf{meilleur équilibre HF/BF} et la \textbf{meilleure stabilité} du panel, à coût donnée identique aux autres stratégies multi-fidélité. Il valide l'intérêt d'une transition douce entre domaines. L'Étape 4 (EWC) cherchera à pousser encore la performance HF tout en protégeant explicitement les acquis BF.
+  \textbf{Conclusion (Stratégie 3) :} le curriculum learning progressif offre le \textbf{meilleur équilibre HF/BF} et la \textbf{meilleure stabilité} du panel, à coût donnée identique aux autres stratégies multi-fidélité. Il valide l'intérêt d'une transition douce entre domaines. La Stratégie 4 (EWC) cherchera à pousser encore la performance HF tout en protégeant explicitement les acquis BF.
 \end{decisionbox}
 
 \section{Stratégie 4 -- Elastic Weight Consolidation (EWC)}
@@ -1281,7 +1348,7 @@ Résultats sur les trois datasets (moyenne $\pm$ écart-type sur 3 graines) ; cr
 % ---- 4.4.1 Protocole ----
 \subsection{Protocole}
 
-L'\textit{Elastic Weight Consolidation} (Kirkpatrick et al., 2017) a été conçu pour lutter contre l'\textbf{oubli catastrophique} en apprentissage continu. Nous l'appliquons ici comme une amélioration directe de la Stratégie 1 : le schéma reste \textbf{séquentiel BF~$\rightarrow$~HF}, mais pendant le fine-tuning HF, une pénalité empêche le modèle de trop s'éloigner des poids appris sur BF, donc de \textbf{conserver sa robustesse BF} tout en se spécialisant sur HF.
+L'\textit{Elastic Weight Consolidation}~\cite{kirkpatrick2017ewc} a été conçu pour lutter contre l'\textbf{oubli catastrophique} en apprentissage continu. Nous l'appliquons ici comme une amélioration directe de la Stratégie 1 : le schéma reste \textbf{séquentiel BF~$\rightarrow$~HF}, mais pendant le fine-tuning HF, une pénalité empêche le modèle de trop s'éloigner des poids appris sur BF, donc de \textbf{conserver sa robustesse BF} tout en se spécialisant sur HF.
 
 Concrètement, après le pré-entraînement BF (poids de référence $\theta^{*}$), on estime l'\textbf{importance} de chaque poids pour la tâche BF via la diagonale de la \textbf{matrice d'information de Fisher} $F$ (calculée sur 1\,000 échantillons BF). Le fine-tuning HF minimise alors :
 \[
@@ -1333,6 +1400,13 @@ Résultats sur les trois datasets (moyenne $\pm$ écart-type sur 3 graines) ; cr
 \begin{hypothesebox}[Effet de la pénalité de Fisher]
   Par rapport à la Stratégie 1 (même pipeline séquentiel, même coût), EWC améliore \textbf{à la fois} le Test HF \textbf{et} la rétention BF : sur Animals-10, $+0,3$ point HF (78,0 vs 77,7) et $+0,5$ point BF (68,8 vs 68,3) ; sur Imagewoof, $+2,3$ points HF (53,3 vs 51,0) et $+2,1$ points BF (46,8 vs 44,7). La pénalité de Fisher remplit donc son rôle : se spécialiser sur HF \emph{sans} sacrifier BF.
 \end{hypothesebox}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\linewidth]{figures/strategy5_ewc_curves.png}
+  \caption{Évolution de la loss et de la précision validation HF pour la Stratégie 4 (EWC) sur \textbf{Animals-10} : pré-entraînement BF puis fine-tuning HF sous pénalité de Fisher.}
+  \label{fig:strategy4_ewc_curves}
+\end{figure}
 
 % ---- 4.4.3 Comparaison globale ----
 \subsection{Comparaison globale des stratégies}
@@ -1411,7 +1485,7 @@ Lectures clés du tableau de synthèse :
 \end{itemize}
 
 \begin{decisionbox}
-  \textbf{Conclusion Étape 4 — bilan des stratégies :} pour l'objectif HF prioritaire à coût réduit, le classement qui se dégage est \textbf{EWC $\gtrsim$ Stratégie 1 $>$ Curriculum $>$ Co-training}, toutes nettement meilleures que les baselines à coût total équivalent ou inférieur. \textbf{EWC} est recommandé lorsque la performance HF prime ; le \textbf{Curriculum} lorsqu'un équilibre HF/BF robuste est recherché. La phase suivante (optimisation Optuna) cherchera à raffiner les hyperparamètres de chacune de ces stratégies.
+  \textbf{Conclusion (Stratégie 4) — bilan des stratégies :} pour l'objectif HF prioritaire à coût réduit, le classement qui se dégage est \textbf{EWC $\gtrsim$ Stratégie 1 $>$ Curriculum $>$ Co-training}, toutes nettement meilleures que les baselines à coût total équivalent ou inférieur. \textbf{EWC} est recommandé lorsque la performance HF prime ; le \textbf{Curriculum} lorsqu'un équilibre HF/BF robuste est recherché. La phase suivante (optimisation Optuna) cherchera à raffiner les hyperparamètres de chacune de ces stratégies.
 \end{decisionbox}
 
 % ============================================================
@@ -1419,7 +1493,7 @@ Lectures clés du tableau de synthèse :
 % ============================================================
 \chapter{Optimisation des hyperparamètres (Optuna)}
 
-Les stratégies du chapitre précédent ont été évaluées avec des hyperparamètres choisis par l'intuition et l'expérience (taux d'apprentissage, nombre d'époques, poids de perte, etc.). Cette configuration « de base » n'est pas nécessairement optimale. Ce chapitre cherche, pour chaque stratégie et chaque dataset, une configuration améliorée à l'aide de la bibliothèque d'optimisation \textbf{Optuna} (Akiba et al., 2019).
+Les stratégies du chapitre précédent ont été évaluées avec des hyperparamètres choisis par l'intuition et l'expérience (taux d'apprentissage, nombre d'époques, poids de perte, etc.). Cette configuration « de base » n'est pas nécessairement optimale. Ce chapitre cherche, pour chaque stratégie et chaque dataset, une configuration améliorée à l'aide de la bibliothèque d'optimisation \textbf{Optuna}~\cite{akiba2019optuna}.
 
 \section{Méthode}
 
@@ -1495,12 +1569,51 @@ Le tableau ci-dessous compare, sur la métrique cible Test HF, chaque stratégie
 \end{tabularx}
 \setlength{\tabcolsep}{6pt}
 
+\begin{hypothesebox}[Lecture des figures]
+  Les figures de ce rapport sont générées par le code d'analyse, qui utilise une numérotation interne : la stratégie \textbf{EWC y est étiquetée « S5 »} et le \textbf{curriculum « S3 »}. Elles correspondent respectivement aux \textbf{Stratégies 4 et 3} du texte ; les Stratégies 1 (Transfer) et 2 (Co-training) gardent la même numérotation.
+\end{hypothesebox}
+
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\linewidth]{figures/optuna_gains.png}
-  \caption{Gains de précision Test HF apportés par l'optimisation Optuna (version optimisée $-$ version de base), par stratégie et par dataset.}
+  \caption{Gains de précision Test HF apportés par l'optimisation Optuna (version optimisée $-$ version de base), par stratégie et par dataset. (Légende : « S5 » = EWC = Stratégie 4 ; « S3 » = Curriculum = Stratégie 3.)}
   \label{fig:optuna_gains}
 \end{figure}
+
+\subsection{Configurations retenues}
+
+Le tableau ci-dessous récapitule les meilleurs hyperparamètres trouvés par Optuna pour chaque stratégie et chaque dataset.
+
+\vspace{0.4em}
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.35}
+\begin{tabularx}{\linewidth}{L{1.7cm} L{2cm} X}
+  \arrayrulecolor{midgray}
+  \toprule
+  \tableheadcolor
+  \textbf{Stratégie} & \textbf{Dataset} & \textbf{Hyperparamètres retenus} \\
+  \midrule
+  \multirow{3}{*}{S1} & Animals-10 & $lr_{pre}\!=\!1{,}1\!\cdot\!10^{-3}$, $lr_{ft}\!=\!4{,}1\!\cdot\!10^{-4}$, époques BF/HF $=$ 9/13 \\
+   & Imagewoof & $lr_{pre}\!=\!4{,}1\!\cdot\!10^{-4}$, $lr_{ft}\!=\!1{,}6\!\cdot\!10^{-5}$, époques BF/HF $=$ 12/9 \\
+   & Intel & $lr_{pre}\!=\!1{,}7\!\cdot\!10^{-3}$, $lr_{ft}\!=\!1{,}9\!\cdot\!10^{-5}$, époques BF/HF $=$ 8/9 \\
+  \midrule
+  \multirow{3}{*}{S2} & Animals-10 & $lr\!=\!8{,}5\!\cdot\!10^{-4}$, ratio HF $=$ 0,16, $w_{HF}\!=\!2{,}2$, $w_{BF}\!=\!1{,}0$ \\
+   & Imagewoof & $lr\!=\!3{,}2\!\cdot\!10^{-3}$, ratio HF $=$ 0,10, $w_{HF}\!=\!2{,}7$, $w_{BF}\!=\!0{,}88$ \\
+   & Intel & $lr\!=\!2{,}2\!\cdot\!10^{-3}$, ratio HF $=$ 0,23, $w_{HF}\!=\!2{,}2$, $w_{BF}\!=\!1{,}4$ \\
+  \midrule
+  \multirow{3}{*}{S3} & Animals-10 & $lr\!=\!5{,}6\!\cdot\!10^{-4}$, époques/palier $=$ 8, ratios HF $=$ 0,32 / 0,69 \\
+   & Imagewoof & $lr\!=\!9{,}4\!\cdot\!10^{-4}$, époques/palier $=$ 8, ratios HF $=$ 0,22 / 0,83 \\
+   & Intel & $lr\!=\!8{,}2\!\cdot\!10^{-4}$, époques/palier $=$ 7, ratios HF $=$ 0,16 / 0,66 \\
+  \midrule
+  \multirow{3}{*}{S4 (EWC)} & Animals-10 & $lr_{pre}\!=\!1{,}7\!\cdot\!10^{-3}$, $lr_{ft}\!=\!1{,}9\!\cdot\!10^{-5}$, $\lambda\!=\!38$, époques BF/HF $=$ 9/10 \\
+   & Imagewoof & $lr_{pre}\!=\!1{,}6\!\cdot\!10^{-3}$, $lr_{ft}\!=\!2{,}2\!\cdot\!10^{-5}$, $\lambda\!=\!13$, époques BF/HF $=$ 15/15 \\
+   & Intel & $lr_{pre}\!=\!2{,}3\!\cdot\!10^{-4}$, $lr_{ft}\!=\!4{,}1\!\cdot\!10^{-5}$, $\lambda\!=\!112$, époques BF/HF $=$ 9/8 \\
+  \bottomrule
+\end{tabularx}
+\setlength{\tabcolsep}{6pt}
+
+\vspace{0.4em}
+On notera que, pour EWC, Optuna sélectionne systématiquement une force de rappel $\lambda$ \textbf{bien inférieure} à la valeur de base ($\lambda=400$) : entre 13 et 112 selon le dataset. Ce relâchement de la contrainte favorise la précision de validation mais explique la dégradation observée en test (cf. analyse ci-dessous).
 
 \section{Analyse}
 
@@ -1508,7 +1621,7 @@ Le tableau ci-dessous compare, sur la métrique cible Test HF, chaque stratégie
   \item \textbf{Optuna aide surtout les stratégies instables ou faibles} : les gains les plus nets concernent S2 (co-training) sur Animals-10 ($+9,4$ points, avec en prime une variance divisée par $\approx$2,5 : $\pm$5,2~$\rightarrow$~$\pm$2,1) et S3 (curriculum) sur Imagewoof ($+5,3$ points). Là où la configuration de base était sous-optimale, la recherche bayésienne récupère une marge importante.
   \item \textbf{Peu de marge sur les stratégies déjà fortes et stables} : pour S1 et EWC, dont les versions de base sont déjà excellentes et très stables, le gain est faible, nul, voire \textbf{négatif} sur Test HF. EWC se dégrade même nettement sur Animals-10 ($-2,0$) et Intel ($-3,8$) : Optuna a sélectionné un rappel de Fisher beaucoup plus faible ($\lambda\approx38$ et $112$ contre $400$ en base), bénéfique en \emph{validation} mais pénalisant en \emph{test}, signe d'un léger sur-ajustement à l'ensemble de validation avec un budget de seulement 20 essais.
   \item \textbf{Le coût de calcul peut augmenter} : Optuna optimisant la seule précision HF, il choisit parfois davantage d'époques HF, ce qui alourdit le coût total (ex. S3 sur Animals-10 : 421\,k~$\rightarrow$~658\,k CA). Le gain de précision doit donc se lire conjointement au coût.
-  \item \textbf{Meilleures configurations après optimisation} : Animals-10 — S1+Optuna (78,1\,\%) ; Imagewoof — S5(EWC)+Optuna et S3+Optuna ($\approx$53 et 52,8\,\%) ; Intel — S1+Optuna et S3+Optuna ($\approx$86\,\%).
+  \item \textbf{Meilleures configurations après optimisation} : Animals-10 — S1+Optuna (78,1\,\%) ; Imagewoof — EWC+Optuna et Curriculum+Optuna ($\approx$53 et 52,8\,\%) ; Intel — S1+Optuna et Curriculum+Optuna ($\approx$86\,\%).
 \end{itemize}
 
 \begin{decisionbox}
@@ -1527,7 +1640,7 @@ Au-delà de la précision moyenne, deux questions déterminent la valeur pratiqu
 
 \subsection{Protocole}
 
-Chaque modèle entraîné (les 7 modèles : 3 baselines + 4 stratégies) est évalué sur des versions du jeu de test \textbf{progressivement dégradées}, selon deux balayages indépendants :
+Chaque modèle entraîné (les 7 modèles : 3 baselines + 4 stratégies) est évalué sur des versions du jeu de test \textbf{progressivement dégradées}~\cite{hendrycks2019}, selon deux balayages indépendants :
 
 \begin{itemize}
   \item \textbf{Perte de résolution} : sous-échantillonnage croissant $224 \rightarrow 128 \rightarrow 96 \rightarrow 64 \rightarrow 48 \rightarrow 32$ px (bruit fixé à $\sigma=0{,}15$) ;
@@ -1539,7 +1652,7 @@ On mesure la précision sur le domaine HF à chaque niveau. Une bonne robustesse
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\linewidth]{figures/robustness_degradation_animals10.png}
-  \caption{Robustesse sur \textbf{Animals-10} : précision en fonction de la perte de résolution (gauche) et du bruit gaussien (droite), pour les 7 modèles.}
+  \caption{Robustesse sur \textbf{Animals-10} : précision en fonction de la perte de résolution (gauche) et du bruit gaussien (droite), pour les 7 modèles. (Légende : « S5 » = EWC = Stratégie 4 ; « S3 » = Curriculum = Stratégie 3.)}
   \label{fig:robustness_animals}
 \end{figure}
 
@@ -1622,7 +1735,7 @@ En croisant les trois datasets, le multi-graines et les analyses transversales, 
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\linewidth]{figures/hf_par_modele.png}
-  \caption{Précision Test HF (moyenne $\pm$ écart-type) de tous les modèles, sur les trois datasets.}
+  \caption{Précision Test HF (moyenne $\pm$ écart-type) de tous les modèles, sur les trois datasets. (Légende : « S5 » = EWC = Stratégie 4 ; « S3 » = Curriculum = Stratégie 3.)}
   \label{fig:hf_par_modele}
 \end{figure}
 

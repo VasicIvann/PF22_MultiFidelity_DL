@@ -1,75 +1,78 @@
 \babel@toc {french}{}\relax 
-\contentsline {chapter}{\numberline {1}Introduction}{6}{chapter.1}%
-\contentsline {section}{\numberline {1.1}Contexte}{6}{section.1.1}%
-\contentsline {section}{\numberline {1.2}Problématique}{6}{section.1.2}%
-\contentsline {section}{\numberline {1.3}Démarche et contributions}{6}{section.1.3}%
-\contentsline {section}{\numberline {1.4}Organisation du rapport}{7}{section.1.4}%
-\contentsline {chapter}{\numberline {2}Notions Préliminaires}{8}{chapter.2}%
-\contentsline {section}{\numberline {2.1}Les réseaux de neurones artificiels}{8}{section.2.1}%
-\contentsline {section}{\numberline {2.2}Paramètres et poids du réseau}{8}{section.2.2}%
-\contentsline {section}{\numberline {2.3}La boucle d'entraînement}{9}{section.2.3}%
-\contentsline {subsection}{\numberline {2.3.1}La fonction de perte}{9}{subsection.2.3.1}%
-\contentsline {subsection}{\numberline {2.3.2}La descente de gradient et l'optimiseur}{9}{subsection.2.3.2}%
-\contentsline {section}{\numberline {2.4}Hyperparamètres clés}{10}{section.2.4}%
-\contentsline {section}{\numberline {2.5}Sous-apprentissage, sur-apprentissage et généralisation}{10}{section.2.5}%
-\contentsline {section}{\numberline {2.6}Les différentes dimensions du coût en apprentissage profond}{11}{section.2.6}%
-\contentsline {chapter}{\numberline {3}Fondation et construction de l'environnement Multi-Fidélité}{12}{chapter.3}%
-\contentsline {section}{\numberline {3.1}Environnement de travail et architecture hybride}{12}{section.3.1}%
-\contentsline {section}{\numberline {3.2}Sélection du jeu de données}{13}{section.3.2}%
-\contentsline {section}{\numberline {3.3}Découpage et répartition des données}{15}{section.3.3}%
-\contentsline {section}{\numberline {3.4}Pipeline de dégradation de la qualité}{15}{section.3.4}%
-\contentsline {section}{\numberline {3.5}Définition de la métrique de coût}{16}{section.3.5}%
-\contentsline {section}{\numberline {3.6}Sélection et justification de l'architecture neuronale}{17}{section.3.6}%
-\contentsline {subsection}{\numberline {3.6.1}Mécanique interne de ResNet-18}{18}{subsection.3.6.1}%
-\contentsline {subsection}{\numberline {3.6.2}Justification des hyperparamètres et de la fonction de coût}{18}{subsection.3.6.2}%
-\contentsline {subsection}{\numberline {3.6.3}Prétraitement et optimisations matérielles}{19}{subsection.3.6.3}%
-\contentsline {chapter}{\numberline {4}Construction des Modèles de Référence}{20}{chapter.4}%
-\contentsline {section}{\numberline {4.1}Stratégie d'évaluation croisée face au décalage de domaine}{20}{section.4.1}%
-\contentsline {section}{\numberline {4.2}Définition des modèles de référence}{20}{section.4.2}%
-\contentsline {section}{\numberline {4.3}Stratégie d'implémentation logicielle}{21}{section.4.3}%
-\contentsline {section}{\numberline {4.4}Analyse des résultats}{21}{section.4.4}%
-\contentsline {chapter}{\numberline {5}Stratégies Multi-Fidélité}{26}{chapter.5}%
-\contentsline {section}{\numberline {5.1}Stratégie 1 -- Transfer Learning Séquentiel (BF $\rightarrow $ HF)}{26}{section.5.1}%
-\contentsline {subsection}{\numberline {5.1.1}Protocole}{26}{subsection.5.1.1}%
-\contentsline {subsection}{\numberline {5.1.2}Résultats quantitatifs obtenus}{27}{subsection.5.1.2}%
-\contentsline {subsection}{\numberline {5.1.3}Comparaison avec les baselines du Chapitre 3}{27}{subsection.5.1.3}%
-\contentsline {subsection}{\numberline {5.1.4}Analyse : ce qui a marché, ce qui a moins marché, et enseignements}{29}{subsection.5.1.4}%
-\contentsline {section}{\numberline {5.2}Stratégie 2 -- Co-training par Batch avec Pondération (Reweighting)}{30}{section.5.2}%
-\contentsline {subsection}{\numberline {5.2.1}Protocole}{30}{subsection.5.2.1}%
-\contentsline {subsection}{\numberline {5.2.2}Résultats quantitatifs obtenus}{31}{subsection.5.2.2}%
-\contentsline {subsection}{\numberline {5.2.3}Comparaison avec les baselines et la Stratégie 1}{31}{subsection.5.2.3}%
-\contentsline {subsection}{\numberline {5.2.4}Analyse : ce qui a marché, ce qui a moins marché, et enseignements}{32}{subsection.5.2.4}%
-\contentsline {section}{\numberline {5.3}Stratégie 3 -- Curriculum Learning progressif}{33}{section.5.3}%
-\contentsline {subsection}{\numberline {5.3.1}Protocole}{33}{subsection.5.3.1}%
-\contentsline {subsection}{\numberline {5.3.2}Résultats quantitatifs obtenus}{34}{subsection.5.3.2}%
-\contentsline {subsection}{\numberline {5.3.3}Comparaison avec les baselines et les stratégies précédentes}{34}{subsection.5.3.3}%
-\contentsline {subsection}{\numberline {5.3.4}Analyse : ce qui a marché, ce qui a moins marché, et enseignements}{34}{subsection.5.3.4}%
-\contentsline {section}{\numberline {5.4}Stratégie 4 -- Elastic Weight Consolidation (EWC)}{35}{section.5.4}%
-\contentsline {subsection}{\numberline {5.4.1}Protocole}{35}{subsection.5.4.1}%
-\contentsline {subsection}{\numberline {5.4.2}Résultats quantitatifs obtenus}{36}{subsection.5.4.2}%
-\contentsline {subsection}{\numberline {5.4.3}Comparaison globale des stratégies}{36}{subsection.5.4.3}%
-\contentsline {subsection}{\numberline {5.4.4}Analyse : ce qui a marché, ce qui a moins marché, et enseignements}{38}{subsection.5.4.4}%
-\contentsline {chapter}{\numberline {6}Optimisation des hyperparamètres (Optuna)}{39}{chapter.6}%
-\contentsline {section}{\numberline {6.1}Méthode}{39}{section.6.1}%
-\contentsline {section}{\numberline {6.2}Résultats}{40}{section.6.2}%
-\contentsline {section}{\numberline {6.3}Analyse}{40}{section.6.3}%
-\contentsline {chapter}{\numberline {7}Analyses de robustesse et de sensibilité}{42}{chapter.7}%
-\contentsline {section}{\numberline {7.1}Robustesse face à la dégradation}{42}{section.7.1}%
-\contentsline {subsection}{\numberline {7.1.1}Protocole}{42}{subsection.7.1.1}%
-\contentsline {subsection}{\numberline {7.1.2}Résultats et enseignements}{42}{subsection.7.1.2}%
-\contentsline {section}{\numberline {7.2}Sensibilité au ratio de coût HF:BF}{44}{section.7.2}%
-\contentsline {subsection}{\numberline {7.2.1}Protocole}{44}{subsection.7.2.1}%
-\contentsline {subsection}{\numberline {7.2.2}Résultats et enseignements}{45}{subsection.7.2.2}%
-\contentsline {chapter}{\numberline {8}Synthèse globale et comparaison transversale}{46}{chapter.8}%
-\contentsline {section}{\numberline {8.1}Bilan de performance}{46}{section.8.1}%
-\contentsline {section}{\numberline {8.2}Compromis coût / performance}{47}{section.8.2}%
-\contentsline {section}{\numberline {8.3}Robustesse des conclusions}{47}{section.8.3}%
-\contentsline {chapter}{\numberline {9}Conclusion et perspectives}{49}{chapter.9}%
-\contentsline {section}{\numberline {9.1}Bilan}{49}{section.9.1}%
-\contentsline {section}{\numberline {9.2}Limites}{49}{section.9.2}%
-\contentsline {section}{\numberline {9.3}Perspectives}{49}{section.9.3}%
-\contentsline {chapter}{\numberline {1}Améliorations possibles des méthodes}{52}{appendix.A}%
-\contentsline {section}{\numberline {1.1}Stratégie 1 — Transfer Learning séquentiel (BF $\rightarrow $ HF)}{52}{section.A.1}%
-\contentsline {section}{\numberline {1.2}Stratégie 2 — Co-training pondéré (Reweighting)}{53}{section.A.2}%
-\contentsline {section}{\numberline {1.3}Stratégie 3 — Curriculum Learning progressif}{54}{section.A.3}%
-\contentsline {section}{\numberline {1.4}Stratégie 4 — Elastic Weight Consolidation (EWC)}{54}{section.A.4}%
+\contentsline {chapter}{Table des figures}{6}{chapter*.1}%
+\contentsline {chapter}{Liste des acronymes}{8}{chapter*.2}%
+\contentsline {chapter}{\numberline {1}Introduction}{9}{chapter.1}%
+\contentsline {section}{\numberline {1.1}Contexte}{9}{section.1.1}%
+\contentsline {section}{\numberline {1.2}Problématique}{9}{section.1.2}%
+\contentsline {section}{\numberline {1.3}Démarche et contributions}{9}{section.1.3}%
+\contentsline {section}{\numberline {1.4}Organisation du rapport}{10}{section.1.4}%
+\contentsline {chapter}{\numberline {2}Notions Préliminaires}{11}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Les réseaux de neurones artificiels}{11}{section.2.1}%
+\contentsline {section}{\numberline {2.2}Paramètres et poids du réseau}{11}{section.2.2}%
+\contentsline {section}{\numberline {2.3}La boucle d'entraînement}{12}{section.2.3}%
+\contentsline {subsection}{\numberline {2.3.1}La fonction de perte}{12}{subsection.2.3.1}%
+\contentsline {subsection}{\numberline {2.3.2}La descente de gradient et l'optimiseur}{12}{subsection.2.3.2}%
+\contentsline {section}{\numberline {2.4}Hyperparamètres clés}{13}{section.2.4}%
+\contentsline {section}{\numberline {2.5}Sous-apprentissage, sur-apprentissage et généralisation}{13}{section.2.5}%
+\contentsline {section}{\numberline {2.6}Les différentes dimensions du coût en apprentissage profond}{14}{section.2.6}%
+\contentsline {chapter}{\numberline {3}Fondation et construction de l'environnement Multi-Fidélité}{15}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Environnement de travail et architecture hybride}{15}{section.3.1}%
+\contentsline {section}{\numberline {3.2}Sélection du jeu de données}{16}{section.3.2}%
+\contentsline {section}{\numberline {3.3}Découpage et répartition des données}{18}{section.3.3}%
+\contentsline {section}{\numberline {3.4}Pipeline de dégradation de la qualité}{18}{section.3.4}%
+\contentsline {section}{\numberline {3.5}Définition de la métrique de coût}{19}{section.3.5}%
+\contentsline {section}{\numberline {3.6}Sélection et justification de l'architecture neuronale}{20}{section.3.6}%
+\contentsline {subsection}{\numberline {3.6.1}Mécanique interne de ResNet-18}{21}{subsection.3.6.1}%
+\contentsline {subsection}{\numberline {3.6.2}Justification des hyperparamètres et de la fonction de coût}{21}{subsection.3.6.2}%
+\contentsline {subsection}{\numberline {3.6.3}Prétraitement et optimisations matérielles}{22}{subsection.3.6.3}%
+\contentsline {chapter}{\numberline {4}Construction des Modèles de Référence}{23}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Stratégie d'évaluation croisée face au décalage de domaine}{23}{section.4.1}%
+\contentsline {section}{\numberline {4.2}Définition des modèles de référence}{23}{section.4.2}%
+\contentsline {section}{\numberline {4.3}Stratégie d'implémentation logicielle}{24}{section.4.3}%
+\contentsline {section}{\numberline {4.4}Analyse des résultats}{24}{section.4.4}%
+\contentsline {chapter}{\numberline {5}Stratégies Multi-Fidélité}{29}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Stratégie 1 -- Transfer Learning Séquentiel (BF $\rightarrow $ HF)}{29}{section.5.1}%
+\contentsline {subsection}{\numberline {5.1.1}Protocole}{29}{subsection.5.1.1}%
+\contentsline {subsection}{\numberline {5.1.2}Résultats quantitatifs obtenus}{30}{subsection.5.1.2}%
+\contentsline {subsection}{\numberline {5.1.3}Comparaison avec les baselines}{30}{subsection.5.1.3}%
+\contentsline {subsection}{\numberline {5.1.4}Analyse : ce qui a marché, ce qui a moins marché, et enseignements}{32}{subsection.5.1.4}%
+\contentsline {section}{\numberline {5.2}Stratégie 2 -- Co-training par Batch avec Pondération (Reweighting)}{33}{section.5.2}%
+\contentsline {subsection}{\numberline {5.2.1}Protocole}{33}{subsection.5.2.1}%
+\contentsline {subsection}{\numberline {5.2.2}Résultats quantitatifs obtenus}{33}{subsection.5.2.2}%
+\contentsline {subsection}{\numberline {5.2.3}Comparaison avec les baselines et la Stratégie 1}{35}{subsection.5.2.3}%
+\contentsline {subsection}{\numberline {5.2.4}Analyse : ce qui a marché, ce qui a moins marché, et enseignements}{35}{subsection.5.2.4}%
+\contentsline {section}{\numberline {5.3}Stratégie 3 -- Curriculum Learning progressif}{36}{section.5.3}%
+\contentsline {subsection}{\numberline {5.3.1}Protocole}{36}{subsection.5.3.1}%
+\contentsline {subsection}{\numberline {5.3.2}Résultats quantitatifs obtenus}{36}{subsection.5.3.2}%
+\contentsline {subsection}{\numberline {5.3.3}Comparaison avec les baselines et les stratégies précédentes}{37}{subsection.5.3.3}%
+\contentsline {subsection}{\numberline {5.3.4}Analyse : ce qui a marché, ce qui a moins marché, et enseignements}{38}{subsection.5.3.4}%
+\contentsline {section}{\numberline {5.4}Stratégie 4 -- Elastic Weight Consolidation (EWC)}{38}{section.5.4}%
+\contentsline {subsection}{\numberline {5.4.1}Protocole}{38}{subsection.5.4.1}%
+\contentsline {subsection}{\numberline {5.4.2}Résultats quantitatifs obtenus}{39}{subsection.5.4.2}%
+\contentsline {subsection}{\numberline {5.4.3}Comparaison globale des stratégies}{39}{subsection.5.4.3}%
+\contentsline {subsection}{\numberline {5.4.4}Analyse : ce qui a marché, ce qui a moins marché, et enseignements}{41}{subsection.5.4.4}%
+\contentsline {chapter}{\numberline {6}Optimisation des hyperparamètres (Optuna)}{42}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Méthode}{42}{section.6.1}%
+\contentsline {section}{\numberline {6.2}Résultats}{43}{section.6.2}%
+\contentsline {subsection}{\numberline {6.2.1}Configurations retenues}{43}{subsection.6.2.1}%
+\contentsline {section}{\numberline {6.3}Analyse}{45}{section.6.3}%
+\contentsline {chapter}{\numberline {7}Analyses de robustesse et de sensibilité}{46}{chapter.7}%
+\contentsline {section}{\numberline {7.1}Robustesse face à la dégradation}{46}{section.7.1}%
+\contentsline {subsection}{\numberline {7.1.1}Protocole}{46}{subsection.7.1.1}%
+\contentsline {subsection}{\numberline {7.1.2}Résultats et enseignements}{46}{subsection.7.1.2}%
+\contentsline {section}{\numberline {7.2}Sensibilité au ratio de coût HF:BF}{48}{section.7.2}%
+\contentsline {subsection}{\numberline {7.2.1}Protocole}{48}{subsection.7.2.1}%
+\contentsline {subsection}{\numberline {7.2.2}Résultats et enseignements}{49}{subsection.7.2.2}%
+\contentsline {chapter}{\numberline {8}Synthèse globale et comparaison transversale}{50}{chapter.8}%
+\contentsline {section}{\numberline {8.1}Bilan de performance}{50}{section.8.1}%
+\contentsline {section}{\numberline {8.2}Compromis coût / performance}{51}{section.8.2}%
+\contentsline {section}{\numberline {8.3}Robustesse des conclusions}{51}{section.8.3}%
+\contentsline {chapter}{\numberline {9}Conclusion et perspectives}{53}{chapter.9}%
+\contentsline {section}{\numberline {9.1}Bilan}{53}{section.9.1}%
+\contentsline {section}{\numberline {9.2}Limites}{53}{section.9.2}%
+\contentsline {section}{\numberline {9.3}Perspectives}{53}{section.9.3}%
+\contentsline {chapter}{\numberline {1}Améliorations possibles des méthodes}{56}{appendix.A}%
+\contentsline {section}{\numberline {1.1}Stratégie 1 — Transfer Learning séquentiel (BF $\rightarrow $ HF)}{56}{section.A.1}%
+\contentsline {section}{\numberline {1.2}Stratégie 2 — Co-training pondéré (Reweighting)}{57}{section.A.2}%
+\contentsline {section}{\numberline {1.3}Stratégie 3 — Curriculum Learning progressif}{58}{section.A.3}%
+\contentsline {section}{\numberline {1.4}Stratégie 4 — Elastic Weight Consolidation (EWC)}{58}{section.A.4}%
