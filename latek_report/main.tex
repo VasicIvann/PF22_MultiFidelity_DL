@@ -463,7 +463,7 @@ Les choix et la mise en place de l'environnement de travail ont été guidés pa
 % ---- 1.1 Environnement ----
 \section{Environnement de travail et architecture hybride}
 
-Le projet a été mené en \textbf{deux phases matérielles successives}. Une première phase de \textbf{prototypage} s'est appuyée sur une architecture hybride déportée (VS~Code en local + Google Colab pour le GPU), pensée pour allier faible coût et mise en route immédiate. Une seconde phase de \textbf{passage à l'échelle} a migré l'ensemble du pipeline vers un \textbf{serveur GPU dédié}, rendu nécessaire par le volume final des expériences : 3~jeux de données $\times$ (3~\textit{baselines} + 4~stratégies) $\times$ 3~graines aléatoires, auxquels s'ajoute une optimisation d'hyperparamètres (Optuna) par stratégie et par dataset.
+Le projet a été mené en \textbf{deux phases matérielles successives}. Une première phase de \textbf{prototypage} s'est appuyée sur une architecture hybride déportée (VS~Code en local + Google Colab pour le GPU), pensée pour allier faible coût et mise en route immédiate. Une seconde phase de \textbf{passage à l'échelle} a migré l'ensemble du pipeline vers un \textbf{serveur GPU dédié}, rendu nécessaire par le volume final des expériences.
 
 \subsection*{Phase 1 — Prototypage sur architecture hybride (VS Code + Google Colab)}
 
@@ -1006,43 +1006,9 @@ Dans cette étude, le critère prioritaire est la performance sur \textbf{Test H
 % ---- 4.1.3 Comparaison ----
 \subsection{Comparaison avec les baselines du Chapitre 3}
 
-\vspace{0.6em}
-\setlength{\tabcolsep}{4pt}
-\renewcommand{\arraystretch}{1.45}
-\begin{tabularx}{\linewidth}{L{2.6cm} C{2.45cm} C{2.45cm} C{2.45cm} C{2cm} C{2cm}}
-  \arrayrulecolor{midgray}
-  \toprule
-  \tableheadcolor
-  \textbf{Modèle} & \textbf{HF} & \textbf{BF} & \textbf{Mixte} & \textbf{Coût donnée} & \textbf{Coût total} \\
-  \midrule
-  \multicolumn{6}{l}{\textit{\textbf{Animals-10}}} \\
-  \tablerowodd
-  BL 1 (HF)    & \res{54,3}{2,2} & \res{27,8}{0,8} & \res{41,1}{1,1} & 23 520 & 470 400 \\
-  BL 2 (BF)    & \res{61,3}{6,3} & \res{71,0}{1,5} & \res{66,2}{2,7} & 21 213 & 424 260 \\
-  \tablerowodd
-  BL 3 (Mixte) & \res{74,0}{3,0} & \res{72,9}{1,1} & \res{73,4}{2,0} & 44 733 & 894 660 \\
-  \textbf{Stratégie 1} & \textbf{\res{77,7}{0,6}} & \res{68,3}{0,5} & \res{73,0}{0,3} & 44 733 & \textbf{400 230} \\
-  \midrule
-  \multicolumn{6}{l}{\textit{\textbf{Imagewoof}}} \\
-  \tablerowodd
-  BL 1 (HF)    & \res{25,0}{4,1} & \res{22,1}{1,4} & \res{23,5}{2,6} & 8 990  & 179 800 \\
-  BL 2 (BF)    & \res{42,7}{2,8} & \res{47,0}{1,6} & \res{44,9}{2,1} & 8 126  & 162 520 \\
-  \tablerowodd
-  BL 3 (Mixte) & \res{50,3}{2,5} & \res{48,8}{2,3} & \res{49,6}{2,4} & 17 116 & 342 320 \\
-  \textbf{Stratégie 1} & \textbf{\res{51,0}{1,6}} & \res{44,7}{1,3} & \res{47,9}{1,5} & 17 116 & \textbf{153 160} \\
-  \midrule
-  \multicolumn{6}{l}{\textit{\textbf{Intel}}} \\
-  \tablerowodd
-  BL 1 (HF)    & \res{75,8}{2,2} & \res{47,0}{0,8} & \res{61,4}{1,1} & 14 020 & 280 400 \\
-  BL 2 (BF)    & \res{78,7}{2,7} & \res{81,9}{1,4} & \res{80,3}{1,4} & 12 632 & 252 640 \\
-  \tablerowodd
-  BL 3 (Mixte) & \res{82,8}{1,2} & \res{82,1}{1,2} & \res{82,5}{1,2} & 26 652 & 533 040 \\
-  \textbf{Stratégie 1} & \textbf{\res{86,1}{0,4}} & \res{79,1}{1,4} & \res{82,6}{0,7} & 26 652 & \textbf{238 420} \\
-  \bottomrule
-\end{tabularx}
-\setlength{\tabcolsep}{6pt}
+Les valeurs chiffrées détaillées figurent dans le \textbf{tableau de synthèse global} (§4.4.3), qui rassemble toutes les approches sur les trois datasets. La comparaison se concentre ici sur l'écart à la borne supérieure, la \textbf{baseline Mixte (BL 3)}.
 
-\vspace{0.8em}
+\vspace{0.4em}
 Comparaisons clés (Animals-10) :
 
 \begin{itemize}
@@ -1073,24 +1039,6 @@ Comparaisons clés (Animals-10) :
 \begin{decisionbox}
   \textbf{Conclusion Étape 1 (objectif HF prioritaire) :} la stratégie BF $\rightarrow$ HF est validée comme meilleure option actuelle pour maximiser la performance sur données propres. L'Étape 2 (co-training pondéré) visera désormais à conserver ce niveau HF tout en regagnant de la robustesse sur BF.
 \end{decisionbox}
-
-\subsection{Améliorations possibles de la méthode (Stratégie 1)}
-
-Les résultats obtenus montrent que la stratégie séquentielle est déjà très compétitive sur HF, mais plusieurs leviers peuvent encore être optimisés.
-
-\begin{itemize}
-  \item \textbf{Nombre d'époques BF et HF} : modifier la durée relative pré-entraînement/fine-tuning (par ex. 5/15, 8/12, 12/8) peut déplacer le compromis robustesse BF vs spécialisation HF. \textit{Comment optimiser :} effectuer une recherche en grille sur le couple $(E_{BF}, E_{HF})$ et sélectionner la configuration maximisant Test HF.
-  \item \textbf{Learning rates par phase} : un LR trop élevé en fine-tuning peut détruire des représentations utiles, trop faible peut sous-adapter HF. \textit{Comment optimiser :} tester plusieurs couples $(lr_{BF}, lr_{HF})$ avec schémas de décroissance (Cosine, StepLR, ReduceLROnPlateau).
-  \item \textbf{Politique de gel/dégel des couches} : geler partiellement le backbone au début du fine-tuning peut limiter l'oubli BF tout en spécialisant la tête. \textit{Comment optimiser :} comparer \textit{full fine-tuning} vs \textit{head-only} puis dégel progressif bloc par bloc.
-  \item \textbf{Split HF train/validation} : la proportion 80/20 peut être remplacée (70/30, 85/15) pour stabiliser la sélection de modèle. \textit{Comment optimiser :} valider sur plusieurs seeds et retenir la configuration la plus stable en variance de score HF.
-  \item \textbf{Batch size} : influe sur la stabilité du gradient et la généralisation. \textit{Comment optimiser :} explorer 32/64/96 (selon VRAM) en ajustant le LR selon une règle de mise à l'échelle.
-  \item \textbf{Régularisation} : ajouter \textit{weight decay}, \textit{dropout} ou \textit{label smoothing} peut réduire le sur-apprentissage en fin de phase HF. \textit{Comment optimiser :} balayage de plages courtes (ex. weight decay $\in [10^{-5},10^{-3}]$, label smoothing $\in [0.0,0.1]$).
-  \item \textbf{Augmentations de données} : RandAugment, ColorJitter léger, RandomErasing peuvent améliorer la robustesse sans dégrader HF si bien dosés. \textit{Comment optimiser :} ablations une augmentation à la fois puis combinaison des plus bénéfiques.
-  \item \textbf{Early stopping et checkpointing} : arrêter sur la meilleure validation HF évite la dégradation tardive. \textit{Comment optimiser :} utiliser une patience (3 à 5 époques) et conserver systématiquement le meilleur checkpoint HF.
-  \item \textbf{Architecture backbone} : ResNet-18 est un bon compromis, mais ResNet-34 ou EfficientNet-B0 peuvent améliorer la représentation. \textit{Comment optimiser :} comparer à budget de coût constant et même protocole d'évaluation.
-  \item \textbf{Fonction de coût avancée} : Focal Loss ou marges additives peuvent mieux séparer des classes ambiguës en HF. \textit{Comment optimiser :} tests contrôlés en remplaçant uniquement la loss, avec mêmes données et mêmes hyperparamètres de base.
-\end{itemize}
-
 
 \section{Stratégie 2 -- Co-training par Batch avec Pondération (Reweighting)}
 
@@ -1173,49 +1121,9 @@ Le critère prioritaire reste la précision sur \textbf{Test HF}.
 % ---- 4.2.3 Comparaison ----
 \subsection{Comparaison avec les baselines et la Stratégie 1}
 
-\vspace{0.6em}
-\setlength{\tabcolsep}{4pt}
-\renewcommand{\arraystretch}{1.45}
-\begin{tabularx}{\linewidth}{L{2.6cm} C{2.45cm} C{2.45cm} C{2.45cm} C{2cm} C{2cm}}
-  \arrayrulecolor{midgray}
-  \toprule
-  \tableheadcolor
-  \textbf{Modèle} & \textbf{HF} & \textbf{BF} & \textbf{Mixte} & \textbf{Coût donnée} & \textbf{Coût total} \\
-  \midrule
-  \multicolumn{6}{l}{\textit{\textbf{Animals-10}}} \\
-  \tablerowodd
-  BL 1 (HF)    & \res{54,3}{2,2} & \res{27,8}{0,8} & \res{41,1}{1,1} & 23 520 & 470 400 \\
-  BL 2 (BF)    & \res{61,3}{6,3} & \res{71,0}{1,5} & \res{66,2}{2,7} & 21 213 & 424 260 \\
-  \tablerowodd
-  BL 3 (Mixte) & \res{74,0}{3,0} & \res{72,9}{1,1} & \res{73,4}{2,0} & 44 733 & 894 660 \\
-  Stratégie 1  & \res{77,7}{0,6} & \res{68,3}{0,5} & \res{73,0}{0,3} & 44 733 & 400 230 \\
-  \tablerowodd
-  \textbf{Stratégie 2} & \textbf{\res{63,8}{5,2}} & \res{61,0}{4,2} & \res{62,4}{4,7} & 44 733 & 486 720 \\
-  \midrule
-  \multicolumn{6}{l}{\textit{\textbf{Imagewoof}}} \\
-  \tablerowodd
-  BL 1 (HF)    & \res{25,0}{4,1} & \res{22,1}{1,4} & \res{23,5}{2,6} & 8 990  & 179 800 \\
-  BL 2 (BF)    & \res{42,7}{2,8} & \res{47,0}{1,6} & \res{44,9}{2,1} & 8 126  & 162 520 \\
-  \tablerowodd
-  BL 3 (Mixte) & \res{50,3}{2,5} & \res{48,8}{2,3} & \res{49,6}{2,4} & 17 116 & 342 320 \\
-  Stratégie 1  & \res{51,0}{1,6} & \res{44,7}{1,3} & \res{47,9}{1,5} & 17 116 & 153 160 \\
-  \tablerowodd
-  \textbf{Stratégie 2} & \textbf{\res{37,5}{0,8}} & \res{37,4}{0,3} & \res{37,5}{0,2} & 17 116 & 183 040 \\
-  \midrule
-  \multicolumn{6}{l}{\textit{\textbf{Intel}}} \\
-  \tablerowodd
-  BL 1 (HF)    & \res{75,8}{2,2} & \res{47,0}{0,8} & \res{61,4}{1,1} & 14 020 & 280 400 \\
-  BL 2 (BF)    & \res{78,7}{2,7} & \res{81,9}{1,4} & \res{80,3}{1,4} & 12 632 & 252 640 \\
-  \tablerowodd
-  BL 3 (Mixte) & \res{82,8}{1,2} & \res{82,1}{1,2} & \res{82,5}{1,2} & 26 652 & 533 040 \\
-  Stratégie 1  & \res{86,1}{0,4} & \res{79,1}{1,4} & \res{82,6}{0,7} & 26 652 & 238 420 \\
-  \tablerowodd
-  \textbf{Stratégie 2} & \textbf{\res{82,0}{1,0}} & \res{79,8}{0,9} & \res{80,9}{0,9} & 26 652 & 291 200 \\
-  \bottomrule
-\end{tabularx}
-\setlength{\tabcolsep}{6pt}
+Les valeurs chiffrées détaillées figurent dans le \textbf{tableau de synthèse global} (§4.4.3). La comparaison ci-dessous situe la Stratégie 2 par rapport à la \textbf{baseline Mixte (BL 3)} et à la \textbf{Stratégie 1}.
 
-\vspace{0.8em}
+\vspace{0.4em}
 Comparaisons clés (Animals-10) :
 
 \begin{itemize}
@@ -1247,24 +1155,6 @@ Comparaisons clés (Animals-10) :
 \begin{decisionbox}
   \textbf{Conclusion Étape 2 (objectif HF prioritaire) :} le co-training pondéré tient sa promesse d'équilibrage HF/BF, mais il est \textbf{dominé par la stratégie 1} sur la métrique cible (Test HF) et souffre d'instabilité. Les stratégies suivantes (Curriculum, EWC) chercheront à retrouver — voire dépasser — le niveau HF de la stratégie 1 tout en améliorant la rétention BF et la stabilité.
 \end{decisionbox}
-
-\subsection{Améliorations possibles de la méthode (Stratégie 2)}
-
-La stratégie de co-training pondéré offre une bonne robustesse inter-domaines ; son optimisation repose surtout sur le réglage fin du mélange de données et des poids de perte.
-
-\begin{itemize}
-  \item \textbf{Ratio HF/BF dans le batch} : le choix 16/48 (25\% HF) conditionne directement le compromis HF-BF. \textit{Comment optimiser :} tester plusieurs ratios (20/80, 30/70, 40/60) et tracer la frontière de Pareto entre Test HF et Test BF.
-  \item \textbf{Poids de loss $w_{HF}$ et $w_{BF}$} : ce sont les hyperparamètres centraux de la méthode. \textit{Comment optimiser :} recherche en grille ou bayésienne sur $(w_{HF}, w_{BF})$ (ex. $w_{HF}\in[1.0,3.0]$, $w_{BF}\in[0.4,1.0]$), en fixant d'abord le ratio batch.
-  \item \textbf{Planning dynamique des poids} : garder des poids constants peut être sous-optimal selon la phase d'apprentissage. \textit{Comment optimiser :} démarrer avec un poids HF modéré puis l'augmenter progressivement (curriculum de pondération).
-  \item \textbf{Nombre d'époques} : des oscillations de validation suggèrent qu'un arrêt plus précoce peut être préférable à 20 époques fixes. \textit{Comment optimiser :} early stopping sur validation HF avec patience et sauvegarde du meilleur modèle.
-  \item \textbf{Learning rate et scheduler} : un LR fixe peut accentuer l'instabilité tardive. \textit{Comment optimiser :} comparer LR fixes vs Cosine Annealing / OneCycleLR pour lisser la convergence.
-  \item \textbf{Composition des batches (stochastique contrôlée)} : la variabilité intra-batch peut influencer la stabilité. \textit{Comment optimiser :} conserver le ratio global mais imposer une diversité de classes par domaine (batch balancing par classe).
-  \item \textbf{Fonction de loss alternative} : Balanced Softmax, focal reweighting, ou class-balanced loss peuvent mieux traiter classes rares et bruitées. \textit{Comment optimiser :} protocole d'ablation en ne changeant qu'une composante de loss à la fois.
-  \item \textbf{Qualité de la dégradation BF} : le niveau de bruit/sous-échantillonnage détermine l'écart de domaine. \textit{Comment optimiser :} calibrer plusieurs intensités de dégradation puis choisir celle qui maximise la généralisation HF sans effondrer BF.
-  \item \textbf{Régularisation et normalisation} : weight decay, EMA des poids, mixup/cutmix peuvent améliorer la robustesse de l'entraînement mixte. \textit{Comment optimiser :} introduire les techniques progressivement et évaluer le gain marginal.
-  \item \textbf{Validation multi-critères} : optimiser uniquement HF peut dégrader excessivement BF. \textit{Comment optimiser :} utiliser un score composé (ex. $S=\alpha\,Acc_{HF}+(1-\alpha)\,Acc_{BF}$) avec $\alpha$ élevé, cohérent avec la priorité HF.
-\end{itemize}
-
 
 \section{Stratégie 3 -- Curriculum Learning progressif}
 
@@ -1345,17 +1235,6 @@ Résultats sur les trois datasets (moyenne $\pm$ écart-type sur 3 graines) ; cr
 \begin{decisionbox}
   \textbf{Conclusion Étape 3 :} le curriculum learning progressif offre le \textbf{meilleur équilibre HF/BF} et la \textbf{meilleure stabilité} du panel, à coût donnée identique aux autres stratégies multi-fidélité. Il valide l'intérêt d'une transition douce entre domaines. L'Étape 4 (EWC) cherchera à pousser encore la performance HF tout en protégeant explicitement les acquis BF.
 \end{decisionbox}
-
-\subsection{Améliorations possibles de la méthode (Stratégie 3)}
-
-\begin{itemize}
-  \item \textbf{Planning des paliers} : le découpage 0/25/60/100 \% peut être affiné. \textit{Comment optimiser :} rechercher le nombre de paliers, leur durée et les proportions HF (lissage continu plutôt que paliers, fonctions de montée linéaire/exponentielle).
-  \item \textbf{Durée de la phase finale HF} : un dernier palier 100 \% HF plus long rapprocherait le modèle d'un fine-tuning dédié. \textit{Comment optimiser :} balayer la longueur du dernier palier en surveillant le compromis HF/BF.
-  \item \textbf{Learning rate par palier} : un LR décroissant à chaque montée en HF stabiliserait la transition. \textit{Comment optimiser :} associer un scheduler (Cosine, StepLR) au planning de curriculum.
-  \item \textbf{Critère d'avancement adaptatif} : passer au palier suivant non pas à époque fixe mais selon la convergence. \textit{Comment optimiser :} déclencher la montée en HF lorsque la validation plafonne (curriculum auto-pacé).
-  \item \textbf{Régularisation} : weight decay / label smoothing pour réduire le sur-apprentissage de la phase HF finale. \textit{Comment optimiser :} balayage court de ces hyperparamètres.
-\end{itemize}
-
 
 \section{Stratégie 4 -- Elastic Weight Consolidation (EWC)}
 
@@ -1495,19 +1374,7 @@ Lectures clés du tableau de synthèse :
   \textbf{Conclusion Étape 4 — bilan des stratégies :} pour l'objectif HF prioritaire à coût réduit, le classement qui se dégage est \textbf{EWC $\gtrsim$ Stratégie 1 $>$ Curriculum $>$ Co-training}, toutes nettement meilleures que les baselines à coût total équivalent ou inférieur. \textbf{EWC} est recommandé lorsque la performance HF prime ; le \textbf{Curriculum} lorsqu'un équilibre HF/BF robuste est recherché. La phase suivante (optimisation Optuna) cherchera à raffiner les hyperparamètres de chacune de ces stratégies.
 \end{decisionbox}
 
-\subsection{Améliorations possibles de la méthode (Stratégie 4)}
-
-\begin{itemize}
-  \item \textbf{Force du rappel ($\lambda$)} : hyperparamètre central. \textit{Comment optimiser :} balayer $\lambda$ (ex. $[10, 1000]$ en échelle log) et tracer le compromis HF/BF résultant.
-  \item \textbf{Estimation de Fisher} : 1\,000 échantillons est un compromis. \textit{Comment optimiser :} faire varier le nombre d'échantillons et comparer Fisher diagonale vs approximations plus riches.
-  \item \textbf{EWC en ligne / multi-tâches} : accumuler l'importance sur plusieurs domaines (BF de différentes intensités). \textit{Comment optimiser :} EWC en ligne (online EWC) avec mise à jour incrémentale de $F$.
-  \item \textbf{Couplage avec le curriculum} : appliquer EWC \emph{pendant} une montée progressive en HF. \textit{Comment optimiser :} combiner planning de curriculum et pénalité de Fisher, puis mesurer le gain conjoint.
-  \item \textbf{Learning rate de fine-tuning} : interagit fortement avec $\lambda$. \textit{Comment optimiser :} recherche conjointe $(\lambda, lr_{HF})$ plutôt que séparée.
-\end{itemize}
-
-
-
-ewpage
+\newpage
 
 \begin{thebibliography}{99}
 
@@ -1583,5 +1450,68 @@ Takuya Akiba, Shotaro Sano, Toshihiko Yanase, Takeru Ohta, Masanori Koyama.
 Proceedings of the 25th ACM SIGKDD International Conference on Knowledge Discovery \& Data Mining (KDD), 2019.
 
 \end{thebibliography}
+
+\appendix
+\renewcommand{\thechapter}{\arabic{chapter}}
+\setcounter{chapter}{0}
+
+\chapter{Améliorations possibles des méthodes}
+
+Cette annexe regroupe, pour chacune des quatre stratégies multi-fidélité, les leviers d'optimisation identifiés au fil de l'étude mais non explorés en dehors de l'optimisation Optuna. Ils constituent autant de pistes directes pour des travaux ultérieurs.
+
+\section{Stratégie 1 — Transfer Learning séquentiel (BF $\rightarrow$ HF)}
+
+Les résultats obtenus montrent que la stratégie séquentielle est déjà très compétitive sur HF, mais plusieurs leviers peuvent encore être optimisés.
+
+\begin{itemize}
+  \item \textbf{Nombre d'époques BF et HF} : modifier la durée relative pré-entraînement/fine-tuning (par ex. 5/15, 8/12, 12/8) peut déplacer le compromis robustesse BF vs spécialisation HF. \textit{Comment optimiser :} effectuer une recherche en grille sur le couple $(E_{BF}, E_{HF})$ et sélectionner la configuration maximisant Test HF.
+  \item \textbf{Learning rates par phase} : un LR trop élevé en fine-tuning peut détruire des représentations utiles, trop faible peut sous-adapter HF. \textit{Comment optimiser :} tester plusieurs couples $(lr_{BF}, lr_{HF})$ avec schémas de décroissance (Cosine, StepLR, ReduceLROnPlateau).
+  \item \textbf{Politique de gel/dégel des couches} : geler partiellement le backbone au début du fine-tuning peut limiter l'oubli BF tout en spécialisant la tête. \textit{Comment optimiser :} comparer \textit{full fine-tuning} vs \textit{head-only} puis dégel progressif bloc par bloc.
+  \item \textbf{Split HF train/validation} : la proportion 80/20 peut être remplacée (70/30, 85/15) pour stabiliser la sélection de modèle. \textit{Comment optimiser :} valider sur plusieurs seeds et retenir la configuration la plus stable en variance de score HF.
+  \item \textbf{Batch size} : influe sur la stabilité du gradient et la généralisation. \textit{Comment optimiser :} explorer 32/64/96 (selon VRAM) en ajustant le LR selon une règle de mise à l'échelle.
+  \item \textbf{Régularisation} : ajouter \textit{weight decay}, \textit{dropout} ou \textit{label smoothing} peut réduire le sur-apprentissage en fin de phase HF. \textit{Comment optimiser :} balayage de plages courtes (ex. weight decay $\in [10^{-5},10^{-3}]$, label smoothing $\in [0.0,0.1]$).
+  \item \textbf{Augmentations de données} : RandAugment, ColorJitter léger, RandomErasing peuvent améliorer la robustesse sans dégrader HF si bien dosés. \textit{Comment optimiser :} ablations une augmentation à la fois puis combinaison des plus bénéfiques.
+  \item \textbf{Early stopping et checkpointing} : arrêter sur la meilleure validation HF évite la dégradation tardive. \textit{Comment optimiser :} utiliser une patience (3 à 5 époques) et conserver systématiquement le meilleur checkpoint HF.
+  \item \textbf{Architecture backbone} : ResNet-18 est un bon compromis, mais ResNet-34 ou EfficientNet-B0 peuvent améliorer la représentation. \textit{Comment optimiser :} comparer à budget de coût constant et même protocole d'évaluation.
+  \item \textbf{Fonction de coût avancée} : Focal Loss ou marges additives peuvent mieux séparer des classes ambiguës en HF. \textit{Comment optimiser :} tests contrôlés en remplaçant uniquement la loss, avec mêmes données et mêmes hyperparamètres de base.
+\end{itemize}
+
+\section{Stratégie 2 — Co-training pondéré (Reweighting)}
+
+La stratégie de co-training pondéré offre une bonne robustesse inter-domaines ; son optimisation repose surtout sur le réglage fin du mélange de données et des poids de perte.
+
+\begin{itemize}
+  \item \textbf{Ratio HF/BF dans le batch} : le choix 16/48 (25\% HF) conditionne directement le compromis HF-BF. \textit{Comment optimiser :} tester plusieurs ratios (20/80, 30/70, 40/60) et tracer la frontière de Pareto entre Test HF et Test BF.
+  \item \textbf{Poids de loss $w_{HF}$ et $w_{BF}$} : ce sont les hyperparamètres centraux de la méthode. \textit{Comment optimiser :} recherche en grille ou bayésienne sur $(w_{HF}, w_{BF})$ (ex. $w_{HF}\in[1.0,3.0]$, $w_{BF}\in[0.4,1.0]$), en fixant d'abord le ratio batch.
+  \item \textbf{Planning dynamique des poids} : garder des poids constants peut être sous-optimal selon la phase d'apprentissage. \textit{Comment optimiser :} démarrer avec un poids HF modéré puis l'augmenter progressivement (curriculum de pondération).
+  \item \textbf{Nombre d'époques} : des oscillations de validation suggèrent qu'un arrêt plus précoce peut être préférable à 20 époques fixes. \textit{Comment optimiser :} early stopping sur validation HF avec patience et sauvegarde du meilleur modèle.
+  \item \textbf{Learning rate et scheduler} : un LR fixe peut accentuer l'instabilité tardive. \textit{Comment optimiser :} comparer LR fixes vs Cosine Annealing / OneCycleLR pour lisser la convergence.
+  \item \textbf{Composition des batches (stochastique contrôlée)} : la variabilité intra-batch peut influencer la stabilité. \textit{Comment optimiser :} conserver le ratio global mais imposer une diversité de classes par domaine (batch balancing par classe).
+  \item \textbf{Fonction de loss alternative} : Balanced Softmax, focal reweighting, ou class-balanced loss peuvent mieux traiter classes rares et bruitées. \textit{Comment optimiser :} protocole d'ablation en ne changeant qu'une composante de loss à la fois.
+  \item \textbf{Qualité de la dégradation BF} : le niveau de bruit/sous-échantillonnage détermine l'écart de domaine. \textit{Comment optimiser :} calibrer plusieurs intensités de dégradation puis choisir celle qui maximise la généralisation HF sans effondrer BF.
+  \item \textbf{Régularisation et normalisation} : weight decay, EMA des poids, mixup/cutmix peuvent améliorer la robustesse de l'entraînement mixte. \textit{Comment optimiser :} introduire les techniques progressivement et évaluer le gain marginal.
+  \item \textbf{Validation multi-critères} : optimiser uniquement HF peut dégrader excessivement BF. \textit{Comment optimiser :} utiliser un score composé (ex. $S=\alpha\,Acc_{HF}+(1-\alpha)\,Acc_{BF}$) avec $\alpha$ élevé, cohérent avec la priorité HF.
+\end{itemize}
+
+\section{Stratégie 3 — Curriculum Learning progressif}
+
+\begin{itemize}
+  \item \textbf{Planning des paliers} : le découpage 0/25/60/100 \% peut être affiné. \textit{Comment optimiser :} rechercher le nombre de paliers, leur durée et les proportions HF (lissage continu plutôt que paliers, fonctions de montée linéaire/exponentielle).
+  \item \textbf{Durée de la phase finale HF} : un dernier palier 100 \% HF plus long rapprocherait le modèle d'un fine-tuning dédié. \textit{Comment optimiser :} balayer la longueur du dernier palier en surveillant le compromis HF/BF.
+  \item \textbf{Learning rate par palier} : un LR décroissant à chaque montée en HF stabiliserait la transition. \textit{Comment optimiser :} associer un scheduler (Cosine, StepLR) au planning de curriculum.
+  \item \textbf{Critère d'avancement adaptatif} : passer au palier suivant non pas à époque fixe mais selon la convergence. \textit{Comment optimiser :} déclencher la montée en HF lorsque la validation plafonne (curriculum auto-pacé).
+  \item \textbf{Régularisation} : weight decay / label smoothing pour réduire le sur-apprentissage de la phase HF finale. \textit{Comment optimiser :} balayage court de ces hyperparamètres.
+\end{itemize}
+
+\section{Stratégie 4 — Elastic Weight Consolidation (EWC)}
+
+\begin{itemize}
+  \item \textbf{Force du rappel ($\lambda$)} : hyperparamètre central. \textit{Comment optimiser :} balayer $\lambda$ (ex. $[10, 1000]$ en échelle log) et tracer le compromis HF/BF résultant.
+  \item \textbf{Estimation de Fisher} : 1\,000 échantillons est un compromis. \textit{Comment optimiser :} faire varier le nombre d'échantillons et comparer Fisher diagonale vs approximations plus riches.
+  \item \textbf{EWC en ligne / multi-tâches} : accumuler l'importance sur plusieurs domaines (BF de différentes intensités). \textit{Comment optimiser :} EWC en ligne (online EWC) avec mise à jour incrémentale de $F$.
+  \item \textbf{Couplage avec le curriculum} : appliquer EWC \emph{pendant} une montée progressive en HF. \textit{Comment optimiser :} combiner planning de curriculum et pénalité de Fisher, puis mesurer le gain conjoint.
+  \item \textbf{Learning rate de fine-tuning} : interagit fortement avec $\lambda$. \textit{Comment optimiser :} recherche conjointe $(\lambda, lr_{HF})$ plutôt que séparée.
+\end{itemize}
+
 
 \end{document}
