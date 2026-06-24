@@ -20,13 +20,17 @@
 
 % --- Couleurs ---
 \usepackage[table,dvipsnames]{xcolor}
-\definecolor{primary}{gray}{0}           % Noir
-\definecolor{accent}{gray}{0}            % Noir
+\definecolor{utbmblue}{HTML}{1F7EC2}     % Bleu de marque UTBM (logo)
+\definecolor{utbmdark}{HTML}{17597F}     % Bleu UTBM foncé
+\definecolor{primary}{gray}{0}           % Noir (titres)
+\definecolor{accent}{HTML}{1F7EC2}       % Accent = bleu UTBM
 \definecolor{lightgray}{gray}{0.96}      % Gris très clair
 \definecolor{midgray}{gray}{0.75}        % Gris moyen
 \definecolor{darktext}{gray}{0.1}        % Gris foncé
 \definecolor{hfcolor}{gray}{0.3}         % Gris HF
 \definecolor{bfcolor}{gray}{0.45}        % Gris BF
+\definecolor{tablerule}{gray}{0.2}       % Filets de tableau (gris foncé pro)
+\definecolor{headerbg}{HTML}{EAF2F9}     % Bandeau d'en-tête de tableau (bleu très clair)
 
 % --- En-têtes et pieds de page ---
 \usepackage{fancyhdr}
@@ -71,12 +75,13 @@
 
 \titlespacing*{\chapter}{0pt}{-10pt}{30pt}
 
-% Format des sections
+% Format des sections (avec filet fin sous le titre)
 \titleformat{\section}
   {\color{primary}\bfseries\large}
   {\color{accent}\thesection}
   {0.8em}
   {}
+  [{\color{utbmblue!35}\titlerule[0.8pt]}]
 \titlespacing*{\section}{0pt}{0.9em}{0.5em}
 
 \titleformat{\subsection}
@@ -86,7 +91,7 @@
   {}
 \titlespacing*{\subsection}{0pt}{0.7em}{0.4em}
 
-% --- Tableaux ---
+% --- Tableaux (style « papier de recherche » : booktabs) ---
 \usepackage{booktabs}
 \usepackage{tabularx}
 \usepackage{multirow}
@@ -94,9 +99,16 @@
 \newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
 \newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
 
-% Style de tableau avec fond alterné
+% Filets booktabs : épaisseurs nettes et espacement aéré
+\setlength{\heavyrulewidth}{1.1pt}   % \toprule / \bottomrule
+\setlength{\lightrulewidth}{0.5pt}   % \midrule
+\setlength{\cmidrulewidth}{0.5pt}
+\setlength{\aboverulesep}{2.5pt}
+\setlength{\belowrulesep}{2.5pt}
+
+% En-tête de tableau : bandeau bleu très clair (sobre) + texte gras
 \usepackage{colortbl}
-\newcommand{\tableheadcolor}{\rowcolor{lightgray}}
+\newcommand{\tableheadcolor}{\rowcolor{headerbg}}
 \newcommand{\tablerowodd}{}
 
 % Affichage "moyenne ± écart-type" (multi-seed) : \res{moyenne}{std}
@@ -106,23 +118,24 @@
 \usepackage{tcolorbox}
 \tcbuselibrary{skins, breakable}
 
-% Boîte "Hypothèse"
+% Boîte "Hypothèse / Observation" : callout à bandeau-titre bleu
 \newtcolorbox{hypothesebox}[1][]{
   enhanced, breakable,
-  colback=white, colframe=midgray,
-  fonttitle=\bfseries\small\color{primary},
-  title={#1},
-  left=6pt, right=6pt, top=4pt, bottom=4pt,
-  arc=3pt
+  colback=utbmblue!4, colframe=utbmblue,
+  boxrule=0.6pt, leftrule=2.5pt, arc=2pt,
+  coltitle=white, colbacktitle=utbmblue,
+  fonttitle=\bfseries\small, title={#1},
+  fontupper=\small,
+  left=7pt, right=7pt, top=5pt, bottom=5pt
 }
 
-% Boîte "Décision"
+% Boîte "Décision / À retenir" : barre latérale épaisse (encadré conclusion)
 \newtcolorbox{decisionbox}{
-  enhanced,
-  colback=white, colframe=midgray,
+  enhanced, breakable,
+  colback=gray!4, colframe=utbmdark,
+  boxrule=0.5pt, leftrule=3pt, arc=2pt,
   fontupper=\small,
-  left=8pt, right=8pt, top=6pt, bottom=6pt,
-  arc=4pt
+  left=8pt, right=8pt, top=6pt, bottom=6pt
 }
 
 % --- Listes ---
@@ -177,29 +190,41 @@
 % ============================================================
 \thispagestyle{empty}
 \begin{center}
-\vspace*{2cm}
-{\Large\textbf{UNIVERSITÉ DE TECHNOLOGIE DE BELFORT-MONTBÉLIARD}}\\[0.8em]
-{\normalsize Projet PF22}\\[2.4cm]
+\vspace*{0.6cm}
 
-{\large\textbf{RAPPORT DE PROJET}}\\[1em]
-{\LARGE\textbf{Réduction des Coûts d'Apprentissage}}\\[0.35em]
-{\LARGE\textbf{par Approche Multi-Fidélité}}\\[1.8cm]
+\includegraphics[width=5.6cm]{figures/utbm.png}\\[0.9cm]
 
-\begin{minipage}{0.82\textwidth}
+{\large\color{utbmdark}\textbf{UNIVERSITÉ DE TECHNOLOGIE DE BELFORT-MONTBÉLIARD}}\\[0.35em]
+{\normalsize\color{darktext}Projet PF22 — Apprentissage profond}\\[2.2cm]
+
+{\color{utbmblue}\rule{\linewidth}{2pt}}\\[0.18em]
+{\color{midgray}\rule{\linewidth}{0.5pt}}\\[1.1em]
+
+{\large\color{darktext}\textbf{RAPPORT DE PROJET}}\\[0.9em]
+{\Huge\bfseries\color{primary}Réduction des Coûts d'Apprentissage}\\[0.45em]
+{\Huge\bfseries\color{utbmblue}par Approche Multi-Fidélité}\\[1.1em]
+
+{\color{midgray}\rule{\linewidth}{0.5pt}}\\[0.18em]
+{\color{utbmblue}\rule{\linewidth}{2pt}}\\[1.7cm]
+
+\begin{minipage}{0.85\textwidth}
 \centering
-\normalsize
+\normalsize\color{darktext}
 Ce projet explore la possibilité de réduire drastiquement les coûts
 de constitution d'un jeu de données en combinant une faible proportion
 d'images \textbf{Haute Fidélité} avec une grande majorité d'images
 \textbf{Basse Fidélité} acquises à moindre coût.
-\end{minipage}\\[2.2cm]
+\end{minipage}\\[2.4cm]
 
-\rule{0.72\textwidth}{0.4pt}\\[0.8em]
-\begin{tabular}{rl}
-\textbf{Auteur :} & Ivann Vasic \\
-\textbf{Période :} & Mars -- Juin 2026 \\
-\textbf{Cadre :} & Projet PF22 --- UTBM \\
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{r@{\hskip 0.6em}l}
+{\color{utbmdark}\textbf{Auteur}}   & Ivann Vasic \\
+{\color{utbmdark}\textbf{Période}}  & Mars -- Juin 2026 \\
+{\color{utbmdark}\textbf{Cadre}}    & Projet PF22 --- UTBM \\
 \end{tabular}
+
+\vfill
+{\color{midgray}\small Belfort-Montbéliard \quad\textbullet\quad 2026}
 \end{center}
 
 \newpage
@@ -269,7 +294,7 @@ Animals-10 $\cdot$ Imagewoof $\cdot$ Intel
 
 \renewcommand{\arraystretch}{1.35}
 \begin{tabularx}{\linewidth}{L{2.6cm} X}
-  \arrayrulecolor{midgray}
+  \arrayrulecolor{tablerule}
   \toprule
   \tableheadcolor
   \textbf{Sigle} & \textbf{Signification} \\
@@ -421,7 +446,7 @@ Les connexions entre neurones sont régies par des valeurs numériques appelées
 \vspace{0.8em}
 \renewcommand{\arraystretch}{1.4}
 \begin{tabularx}{\linewidth}{C{2.8cm} L{4.5cm} L{8cm}}
-  \arrayrulecolor{midgray}
+  \arrayrulecolor{tablerule}
   \toprule
   \tableheadcolor
   \textbf{Paramètre} & \textbf{Rôle} & \textbf{Interprétation} \\
@@ -489,7 +514,7 @@ Contrairement aux poids, les \textbf{hyperparamètres} ne sont pas appris automa
 \vspace{0.8em}
 \renewcommand{\arraystretch}{1.5}
 \begin{tabularx}{\linewidth}{C{3.2cm} L{4.2cm} L{8cm}}
-  \arrayrulecolor{midgray}
+  \arrayrulecolor{tablerule}
   \toprule
   \tableheadcolor
   \textbf{Hyperparamètre} & \textbf{Définition} & \textbf{Impact} \\
@@ -510,7 +535,7 @@ L'objectif de l'entraînement n'est pas de mémoriser parfaitement les données 
 
 \vspace{0.8em}
 \begin{tabularx}{\linewidth}{C{0.5cm} L{3.3cm} L{5.5cm} L{6.6cm}}
-  \arrayrulecolor{midgray}
+  \arrayrulecolor{tablerule}
   \toprule
   \tableheadcolor
   & \textbf{Phénomène} & \textbf{Cause} & \textbf{Symptôme} \\
@@ -532,7 +557,7 @@ En apprentissage profond industriel, le terme « coût » recouvre trois réalit
 \vspace{0.8em}
 \renewcommand{\arraystretch}{1.5}
 \begin{tabularx}{\linewidth}{C{0.5cm} L{3.2cm} L{5cm} L{7.3cm}}
-  \arrayrulecolor{midgray}
+  \arrayrulecolor{tablerule}
   \toprule
   \tableheadcolor
   \textbf{\#} & \textbf{Type de coût} & \textbf{Nature} & \textbf{Exemples concrets} \\
@@ -570,7 +595,7 @@ Le projet a été mené en \textbf{deux phases matérielles successives}. Une pr
 \vspace{0.4em}
 \renewcommand{\arraystretch}{1.4}
 \begin{tabularx}{\linewidth}{C{2.8cm} L{3.5cm} L{9.5cm}}
-  \arrayrulecolor{midgray}
+  \arrayrulecolor{tablerule}
   \toprule
   \tableheadcolor
   \textbf{Outil} &
@@ -596,7 +621,7 @@ Les contraintes propres à Google Colab — sessions limitées dans le temps, d�
 \vspace{0.4em}
 \renewcommand{\arraystretch}{1.4}
 \begin{tabularx}{\linewidth}{C{3.2cm} L{3.3cm} L{9.3cm}}
-  \arrayrulecolor{midgray}
+  \arrayrulecolor{tablerule}
   \toprule
   \tableheadcolor
   \textbf{Outil} &
@@ -623,7 +648,7 @@ Le jeu de données doit être suffisamment difficile pour que la dégradation vi
 \vspace{0.8em}
 \renewcommand{\arraystretch}{1.5}
 \begin{tabularx}{\linewidth}{C{2.4cm} C{1.6cm} L{5.5cm} L{5.8cm}}
-  \arrayrulecolor{midgray}
+  \arrayrulecolor{tablerule}
   \toprule
   \tableheadcolor
   \textbf{Dataset} &
@@ -655,6 +680,31 @@ Le jeu de données doit être suffisamment difficile pour que la dégradation vi
   \end{itemize}
   Une stratégie qui reste la meilleure sur les trois datasets — volumes, granularités et natures de tâche différents — peut alors être considérée comme \textbf{robuste} et non liée aux spécificités d'un seul jeu de données. Les trois datasets suivent strictement le même pipeline (répartition test 10\,\% / train 90\,\%, train découpé en 10\,\% HF + 90\,\% BF, même dégradation, ResNet-18 \textit{from scratch}, 20 époques, AMP FP16).
 \end{decisionbox}
+
+La figure~\ref{fig:dataset_samples} illustre, pour chaque dataset, une même image en Haute Fidélité et sa version dégradée Basse Fidélité telle que produite par le pipeline du projet.
+
+\begin{figure}[htbp]
+  \centering
+  \setlength{\tabcolsep}{4pt}
+  \renewcommand{\arraystretch}{1.1}
+  \begin{tabular}{c c c}
+     & \textbf{Haute Fidélité (HF)} & \textbf{Basse Fidélité (BF)} \\
+    \rotatebox{90}{\scriptsize\ \ Animals-10} &
+      \includegraphics[width=0.34\linewidth]{figures/sample_Animals-10_HF.png} &
+      \includegraphics[width=0.34\linewidth]{figures/sample_Animals-10_BF.png} \\
+    \rotatebox{90}{\scriptsize\ \ Imagewoof} &
+      \includegraphics[width=0.34\linewidth]{figures/sample_Imagewoof_HF.png} &
+      \includegraphics[width=0.34\linewidth]{figures/sample_Imagewoof_BF.png} \\
+    \rotatebox{90}{\scriptsize\ \ \ \ Intel} &
+      \includegraphics[width=0.34\linewidth]{figures/sample_Intel_HF.png} &
+      \includegraphics[width=0.34\linewidth]{figures/sample_Intel_BF.png} \\
+  \end{tabular}
+  \caption{Une même image en Haute Fidélité (gauche) et après dégradation Basse
+  Fidélité (droite : sous-échantillonnage 64~px + bruit $\sigma=0{,}15$ + JPEG $q60$),
+  pour les trois datasets. La dégradation est produite par le pipeline canonique du
+  projet, identique à celui appliqué à l'entraînement.}
+  \label{fig:dataset_samples}
+\end{figure}
 
 
 % ---- 2.1 Découpage ----
@@ -710,7 +760,7 @@ La dégradation enchaîne \textbf{trois transformations} :
 \vspace{0.8em}
 \renewcommand{\arraystretch}{1.5}
 \begin{tabularx}{\linewidth}{C{0.6cm} L{3.5cm} L{5.5cm} L{6cm}}
-  \arrayrulecolor{midgray}
+  \arrayrulecolor{tablerule}
   \toprule
   \tableheadcolor
   \textbf{\#} &
@@ -737,7 +787,7 @@ La dégradation enchaîne \textbf{trois transformations} :
 \end{hypothesebox}
 
 % ---- 2.3 Métrique de coût ----
-\section{Définition de la métrique de coût}
+\section{Définition de la métrique de coût}\label{sec:cout}
 
 Trois coûts sont désormais distingués explicitement et reportés séparément :
 
@@ -755,7 +805,7 @@ où $d$ est la résolution effective de l'image. Les paramètres sont \textbf{ca
 
 \renewcommand{\arraystretch}{1.4}
 \begin{tabularx}{\linewidth}{L{3.8cm} C{2.6cm} L{9.1cm}}
-  \arrayrulecolor{midgray}
+  \arrayrulecolor{tablerule}
   \toprule
   \tableheadcolor
   \textbf{Type d'image} & \textbf{Coût $C$} & \textbf{Justification} \\
@@ -785,7 +835,7 @@ Pour que la comparaison entre nos différents jeux de données (HF, BF, Mixte) s
 
 \renewcommand{\arraystretch}{1.5}
 \begin{tabularx}{\linewidth}{C{2.5cm} C{2cm} L{5.8cm} L{5cm}}
-  \arrayrulecolor{midgray}
+  \arrayrulecolor{tablerule}
   \toprule
   \tableheadcolor
   \textbf{Architecture} &
@@ -892,7 +942,7 @@ Les volumes et coûts indiqués ci-dessous correspondent au dataset principal \t
 \vspace{0.6em}
 \renewcommand{\arraystretch}{1.6}
 \begin{tabularx}{\linewidth}{C{0.5cm} L{2cm} C{1.6cm} C{2cm} L{8.8cm}}
-  \arrayrulecolor{midgray}
+  \arrayrulecolor{tablerule}
   \toprule
   \tableheadcolor
   \textbf{\#} &
@@ -930,13 +980,13 @@ Afin d'éliminer tout biais d'implémentation, le code a été factorisé en un 
 % ---- 3.5 Analyse des résultats ----
 \section{Analyse des résultats}
 
-Les trois modèles de référence ont été entraînés sur 20 époques, sur chacun des \textbf{trois datasets} retenus et pour \textbf{trois graines aléatoires} (42, 1, 2). Les résultats ci-dessous sont reportés en \textbf{moyenne $\pm$ écart-type} sur ces trois graines, ce qui rend les conclusions robustes au hasard d'initialisation. Deux coûts sont distingués (cf.~§2.5) : le \textbf{coût donnée} (acquisition, payé une fois) et le \textbf{coût total} (calcul pondéré, sommé sur les époques).
+Les trois modèles de référence ont été entraînés sur 20 époques, sur chacun des \textbf{trois datasets} retenus et pour \textbf{trois graines aléatoires} (42, 1, 2). Les résultats ci-dessous sont reportés en \textbf{moyenne $\pm$ écart-type} sur ces trois graines, ce qui rend les conclusions robustes au hasard d'initialisation. Deux coûts sont distingués (cf.~§\ref{sec:cout}) : le \textbf{coût donnée} (acquisition, payé une fois) et le \textbf{coût total} (calcul pondéré, sommé sur les époques).
 
 \vspace{0.6em}
 \setlength{\tabcolsep}{4pt}
 \renewcommand{\arraystretch}{1.5}
 \begin{tabularx}{\linewidth}{L{2.6cm} C{2.45cm} C{2.45cm} C{2.45cm} C{2cm} C{2cm}}
-  \arrayrulecolor{midgray}
+  \arrayrulecolor{tablerule}
   \toprule
   \tableheadcolor
   \textbf{Modèle} & \textbf{Test HF} & \textbf{Test BF} & \textbf{Test Mixte} & \textbf{Coût donnée} & \textbf{Coût total} \\
@@ -1044,7 +1094,7 @@ Configuration expérimentale utilisée :
 \vspace{0.6em}
 \renewcommand{\arraystretch}{1.45}
 \begin{tabularx}{\linewidth}{L{4.1cm} C{3cm} L{7.6cm}}
-  \arrayrulecolor{midgray}
+  \arrayrulecolor{tablerule}
   \toprule
   \tableheadcolor
   \textbf{Paramètre} & \textbf{Valeur} & \textbf{Commentaire} \\
@@ -1069,7 +1119,7 @@ Dans cette étude, le critère prioritaire est la performance sur \textbf{Test H
 \setlength{\tabcolsep}{4pt}
 \renewcommand{\arraystretch}{1.45}
 \begin{tabularx}{\linewidth}{L{2.6cm} C{2.45cm} C{2.45cm} C{2.45cm} C{2cm} C{2cm}}
-  \arrayrulecolor{midgray}
+  \arrayrulecolor{tablerule}
   \toprule
   \tableheadcolor
   \textbf{Dataset} & \textbf{Test HF} & \textbf{Test BF} & \textbf{Test Mixte} & \textbf{Coût donnée} & \textbf{Coût total} \\
@@ -1106,7 +1156,7 @@ Dans cette étude, le critère prioritaire est la performance sur \textbf{Test H
 % ---- 4.1.3 Comparaison ----
 \subsection{Comparaison avec les baselines}
 
-Les valeurs chiffrées détaillées figurent dans le \textbf{tableau de synthèse global} (§4.4.3), qui rassemble toutes les approches sur les trois datasets. La comparaison se concentre ici sur l'écart à la borne supérieure, la \textbf{baseline Mixte (BL 3)}.
+Les valeurs chiffrées détaillées figurent dans le \textbf{tableau de synthèse global} (§\ref{sec:synthese_strat}), qui rassemble toutes les approches sur les trois datasets. La comparaison se concentre ici sur l'écart à la borne supérieure, la \textbf{baseline Mixte (BL 3)}.
 
 \vspace{0.4em}
 Comparaisons clés (Animals-10) :
@@ -1159,7 +1209,7 @@ Configuration expérimentale utilisée :
 \vspace{0.6em}
 \renewcommand{\arraystretch}{1.45}
 \begin{tabularx}{\linewidth}{L{4.1cm} C{3cm} L{7.6cm}}
-  \arrayrulecolor{midgray}
+  \arrayrulecolor{tablerule}
   \toprule
   \tableheadcolor
   \textbf{Paramètre} & \textbf{Valeur} & \textbf{Commentaire} \\
@@ -1184,7 +1234,7 @@ Le critère prioritaire reste la précision sur \textbf{Test HF}.
 \setlength{\tabcolsep}{4pt}
 \renewcommand{\arraystretch}{1.45}
 \begin{tabularx}{\linewidth}{L{2.6cm} C{2.45cm} C{2.45cm} C{2.45cm} C{2cm} C{2cm}}
-  \arrayrulecolor{midgray}
+  \arrayrulecolor{tablerule}
   \toprule
   \tableheadcolor
   \textbf{Dataset} & \textbf{Test HF} & \textbf{Test BF} & \textbf{Test Mixte} & \textbf{Coût donnée} & \textbf{Coût total} \\
@@ -1221,7 +1271,7 @@ Le critère prioritaire reste la précision sur \textbf{Test HF}.
 % ---- 4.2.3 Comparaison ----
 \subsection{Comparaison avec les baselines et la Stratégie 1}
 
-Les valeurs chiffrées détaillées figurent dans le \textbf{tableau de synthèse global} (§4.4.3). La comparaison ci-dessous situe la Stratégie 2 par rapport à la \textbf{baseline Mixte (BL 3)} et à la \textbf{Stratégie 1}.
+Les valeurs chiffrées détaillées figurent dans le \textbf{tableau de synthèse global} (§\ref{sec:synthese_strat}). La comparaison ci-dessous situe la Stratégie 2 par rapport à la \textbf{baseline Mixte (BL 3)} et à la \textbf{Stratégie 1}.
 
 \vspace{0.4em}
 Comparaisons clés (Animals-10) :
@@ -1268,7 +1318,7 @@ Le planning utilisé découpe les 20 époques en \textbf{quatre paliers} de 5 é
 \vspace{0.6em}
 \renewcommand{\arraystretch}{1.45}
 \begin{tabularx}{\linewidth}{C{3cm} C{2.6cm} L{8.4cm}}
-  \arrayrulecolor{midgray}
+  \arrayrulecolor{tablerule}
   \toprule
   \tableheadcolor
   \textbf{Palier} & \textbf{Proportion HF} & \textbf{Rôle} \\
@@ -1294,7 +1344,7 @@ Résultats sur les trois datasets (moyenne $\pm$ écart-type sur 3 graines) ; cr
 \setlength{\tabcolsep}{4pt}
 \renewcommand{\arraystretch}{1.45}
 \begin{tabularx}{\linewidth}{L{2.6cm} C{2.45cm} C{2.45cm} C{2.45cm} C{2cm} C{2cm}}
-  \arrayrulecolor{midgray}
+  \arrayrulecolor{tablerule}
   \toprule
   \tableheadcolor
   \textbf{Dataset} & \textbf{Test HF} & \textbf{Test BF} & \textbf{Test Mixte} & \textbf{Coût donnée} & \textbf{Coût total} \\
@@ -1359,7 +1409,7 @@ où $\lambda$ contrôle la force du rappel vers les poids « importants pour BF 
 \vspace{0.6em}
 \renewcommand{\arraystretch}{1.45}
 \begin{tabularx}{\linewidth}{L{4.1cm} C{3cm} L{7.6cm}}
-  \arrayrulecolor{midgray}
+  \arrayrulecolor{tablerule}
   \toprule
   \tableheadcolor
   \textbf{Paramètre} & \textbf{Valeur} & \textbf{Commentaire} \\
@@ -1382,7 +1432,7 @@ Résultats sur les trois datasets (moyenne $\pm$ écart-type sur 3 graines) ; cr
 \setlength{\tabcolsep}{4pt}
 \renewcommand{\arraystretch}{1.45}
 \begin{tabularx}{\linewidth}{L{2.6cm} C{2.45cm} C{2.45cm} C{2.45cm} C{2cm} C{2cm}}
-  \arrayrulecolor{midgray}
+  \arrayrulecolor{tablerule}
   \toprule
   \tableheadcolor
   \textbf{Dataset} & \textbf{Test HF} & \textbf{Test BF} & \textbf{Test Mixte} & \textbf{Coût donnée} & \textbf{Coût total} \\
@@ -1409,7 +1459,7 @@ Résultats sur les trois datasets (moyenne $\pm$ écart-type sur 3 graines) ; cr
 \end{figure}
 
 % ---- 4.4.3 Comparaison globale ----
-\subsection{Comparaison globale des stratégies}
+\subsection{Comparaison globale des stratégies}\label{sec:synthese_strat}
 
 Le tableau de synthèse ci-dessous rassemble \textbf{toutes les approches} (3 baselines + 4 stratégies) sur les \textbf{trois datasets}. Pour chaque dataset, le meilleur score Test HF est mis en évidence.
 
@@ -1417,7 +1467,7 @@ Le tableau de synthèse ci-dessous rassemble \textbf{toutes les approches} (3 ba
 \setlength{\tabcolsep}{4pt}
 \renewcommand{\arraystretch}{1.4}
 \begin{tabularx}{\linewidth}{L{2.6cm} C{2.45cm} C{2.45cm} C{2.45cm} C{2cm} C{2cm}}
-  \arrayrulecolor{midgray}
+  \arrayrulecolor{tablerule}
   \toprule
   \tableheadcolor
   \textbf{Modèle} & \textbf{HF} & \textbf{BF} & \textbf{Mixte} & \textbf{Coût donnée} & \textbf{Coût total} \\
@@ -1511,7 +1561,7 @@ Les espaces de recherche, propres à chaque stratégie, portent sur ses hyperpar
 \vspace{0.6em}
 \renewcommand{\arraystretch}{1.4}
 \begin{tabularx}{\linewidth}{L{3cm} L{12.5cm}}
-  \arrayrulecolor{midgray}
+  \arrayrulecolor{tablerule}
   \toprule
   \tableheadcolor
   \textbf{Stratégie} & \textbf{Hyperparamètres explorés (et plages)} \\
@@ -1533,7 +1583,7 @@ Le tableau ci-dessous compare, sur la métrique cible Test HF, chaque stratégie
 \setlength{\tabcolsep}{4pt}
 \renewcommand{\arraystretch}{1.4}
 \begin{tabularx}{\linewidth}{L{2.4cm} L{2.4cm} C{2.7cm} C{2.7cm} C{2.2cm}}
-  \arrayrulecolor{midgray}
+  \arrayrulecolor{tablerule}
   \toprule
   \tableheadcolor
   \textbf{Stratégie} & \textbf{Dataset} & \textbf{HF (base)} & \textbf{HF (+Optuna)} & \textbf{$\Delta$ HF} \\
@@ -1588,7 +1638,7 @@ Le tableau ci-dessous récapitule les meilleurs hyperparamètres trouvés par Op
 \setlength{\tabcolsep}{4pt}
 \renewcommand{\arraystretch}{1.35}
 \begin{tabularx}{\linewidth}{L{1.7cm} L{2cm} X}
-  \arrayrulecolor{midgray}
+  \arrayrulecolor{tablerule}
   \toprule
   \tableheadcolor
   \textbf{Stratégie} & \textbf{Dataset} & \textbf{Hyperparamètres retenus} \\
