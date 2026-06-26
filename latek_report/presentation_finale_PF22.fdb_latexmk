@@ -1,5 +1,5 @@
 # Fdb version 4
-["pdflatex"] 1782462335.66476 "c:/VSCode/PF22_MultiFidelity_DL/latek_report/presentation_finale_PF22.tex" "presentation_finale_PF22.pdf" "presentation_finale_PF22" 1782462343.38568 0
+["pdflatex"] 1782471100.80978 "c:/VSCode/PF22_MultiFidelity_DL/latek_report/presentation_finale_PF22.tex" "presentation_finale_PF22.pdf" "presentation_finale_PF22" 1782471104.28269 0
   "C:/Users/ivann/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map" 1782292769 84639 3e25dd2ebddaf50b290cf886e9b155b0 ""
   "C:/Users/ivann/AppData/Local/MiKTeX/miktex/data/le/pdftex/pdflatex.fmt" 1764794073 13333511 9770f3d53d6a4e47ffc9b9f0200686f6 ""
   "C:/Users/ivann/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/base/8r.enc" 1458473887 4993 1194fb36dfcb11d9ae9802f2b00b60a3 ""
@@ -271,9 +271,10 @@
   "C:/Users/ivann/AppData/Local/Programs/MiKTeX/tex/latex/trimspaces/trimspaces.sty" 1253169183 1380 971a51b00a14503ddf754cab24c3f209 ""
   "C:/Users/ivann/AppData/Local/Programs/MiKTeX/tex/latex/url/url.sty" 1388490452 12796 8edb7d69a20b857904dd0ea757c14ec9 ""
   "C:/Users/ivann/AppData/Local/Programs/MiKTeX/tex/latex/xcolor/xcolor.sty" 1729265222 55384 b454dec21c2d9f45ec0b793f0995b992 ""
-  "c:/VSCode/PF22_MultiFidelity_DL/latek_report/presentation_finale_PF22.tex" 1782426438 20070 641a428fff14bfd4f37770d7bbaed67c ""
+  "c:/VSCode/PF22_MultiFidelity_DL/latek_report/presentation_finale_PF22.tex" 1782471099 21493 01e8cc2f32c2141b3047f6d4fa5dbe10 ""
   "figures/hf_par_modele.png" 1781625584 79161 638d7abd091673952869f497fd2f792d ""
   "figures/pareto_cout_hf.png" 1781625584 117272 74af7e581152d5abd34ca9dcf12a1293 ""
+  "figures/robustness_degradation_animals10.png" 1781625584 190411 3ec3717feb851bf8bb42230ddf26df27 ""
   "figures/sample_Animals-10_BF.png" 1782245668 136910 fab1460d4c93f316ba3291c04c49fa05 ""
   "figures/sample_Animals-10_HF.png" 1782245668 30828 688524d17a83e51cf8fcaa1e4c4f2186 ""
   "figures/sample_Imagewoof_BF.png" 1782245668 137160 e7d7f1092decd1eb754dac6e48be9abd ""
@@ -281,10 +282,10 @@
   "figures/sample_Intel_BF.png" 1782245668 137593 d7874d98700b1eea5093fa285303f798 ""
   "figures/sample_Intel_HF.png" 1782245668 75274 5e917631c2e08487582f5b9819ed0827 ""
   "figures/utbm.png" 1782245914 89035 1c6bdbb80ec291b742e995a689b683a5 ""
-  "presentation_finale_PF22.aux" 1782462342 2306 3d835c2366f0abb7351866d43c7dfb75 "pdflatex"
-  "presentation_finale_PF22.nav" 1782462343 1388 37fb167c90003b6656a249083ce3750a "pdflatex"
-  "presentation_finale_PF22.out" 1782462339 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
-  "presentation_finale_PF22.tex" 1782426438 20070 641a428fff14bfd4f37770d7bbaed67c ""
+  "presentation_finale_PF22.aux" 1782471104 2435 9d41d1553424964fef2017c45ef7038c "pdflatex"
+  "presentation_finale_PF22.nav" 1782471104 1481 4dff29d63ced408af8d13a7957e2a731 "pdflatex"
+  "presentation_finale_PF22.out" 1782471102 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
+  "presentation_finale_PF22.tex" 1782471099 21493 01e8cc2f32c2141b3047f6d4fa5dbe10 ""
   (generated)
   "presentation_finale_PF22.aux"
   "presentation_finale_PF22.log"

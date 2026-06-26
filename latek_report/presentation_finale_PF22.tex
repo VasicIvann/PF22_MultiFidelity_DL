@@ -157,8 +157,7 @@
       \end{key}
       \vspace{0.5em}
       \begin{center}
-        \footnotesize\color{utbmdark}\textbf{Objectif explicitement orienté HF}\\[2pt]
-        \scriptsize\color{muted}le BF n'est qu'un levier économique
+        \footnotesize\color{utbmdark}\textbf{Etude réalisé sur de la classification d'images}\\[2pt]
       \end{center}
     \end{column}
   \end{columns}
@@ -219,15 +218,15 @@
     \begin{column}{0.5\textwidth}
       \textbf{Rigueur \& reproductibilité}
       \begin{itemize}
-        \item Modèle : \textbf{ResNet-18 \emph{from scratch}} (AMP FP16).
-        \item \textbf{3 datasets} $\times$ \textbf{3 graines} $\rightarrow$ moyenne $\pm$ écart-type.
+        \item Modèle : \textbf{ResNet-18 \emph{from scratch}}.
+        \item \textbf{3 datasets} $\times$ \textbf{3 seeds} $\rightarrow$ moyenne $\pm$ écart-type.
         \item Dégradation centralisée \& déterministe.
         \item Calcul sur \textbf{serveur GPU V100S}.
       \end{itemize}
       \vspace{0.4em}
       \begin{key}
         \footnotesize Tout résultat est reporté en \textbf{moyenne $\pm$ écart-type}
-        sur 3 graines $\rightarrow$ conclusions robustes au hasard d'initialisation.
+        sur 3 seeds $\rightarrow$ conclusions robustes au hasard d'initialisation.
       \end{key}
     \end{column}
   \end{columns}
@@ -239,12 +238,12 @@
     \begin{column}{0.54\textwidth}
       \textbf{Trois métriques distinctes}
       \begin{itemize}
-        \item \textbf{Coût donnée} — acquisition, payé \emph{une fois}.
-        \item \textbf{Coût calcul} — images vues à l'entraînement.
-        \item \textbf{Coût total} — calcul pondéré par le coût donnée.
+        \item \textbf{Coût donnée} : acquisition, payé \emph{une fois}.
+        \item \textbf{Coût calcul} : images vues à l'entraînement.
+        \item \textbf{Coût total} : calcul pondéré par le coût donnée.
       \end{itemize}
       \vspace{0.3em}
-      \textbf{Coût unitaire $\propto$ résolution}
+      \textbf{Formule du coût unitaire (résolution d)}
       \[
         \footnotesize
         C(d) = C_{\min} + (C_{\mathrm{HF}}-C_{\min})\Big(\tfrac{d}{224}\Big)^{2}
@@ -272,7 +271,7 @@
 \end{frame}
 
 % -------------------- BASELINES --------------------
-\begin{frame}{Modèles de référence (les bornes)}
+\begin{frame}{Modèles de référence (Baselines)}
   \footnotesize
   \setlength{\tabcolsep}{5pt}\renewcommand{\arraystretch}{1.25}
   \begin{center}
@@ -292,7 +291,7 @@
     \begin{column}{0.5\textwidth}
       \begin{card}[Effondrement face au bruit]
         BL\,1 (HF seul) : \textbf{54,3\,\% $\rightarrow$ 27,8\,\%} sur BF.
-        Le \emph{domain shift} est réel et brutal.
+        Le \emph{domain shift}.
       \end{card}
     \end{column}
     \begin{column}{0.5\textwidth}
@@ -340,49 +339,43 @@
   \end{center}
 \end{frame}
 
-% -------------------- RÉSULTATS : PRÉCISION HF --------------------
-\begin{frame}{Résultats — précision HF par modèle}
-  \begin{columns}[c]
-    \begin{column}{0.66\textwidth}
-      \centering
-      \includegraphics[width=\linewidth, height=5.6cm, keepaspectratio]{figures/hf_par_modele.png}
-    \end{column}
-    \begin{column}{0.33\textwidth}
-      \begin{key}
-        Toutes les stratégies orientées HF \textbf{dépassent les baselines}, sur les
-        \textbf{3 datasets}.
-      \end{key}
-      \vspace{0.5em}
-      \footnotesize
-      \textbf{En tête :} EWC et Transfer Learning\\[2pt]
-      \scriptsize\color{muted}(Animals : EWC 78,0 \;/\; S1 77,7 \;/\; Curriculum 76,5 \;/\; CoTrain 63,8\,\%)
-    \end{column}
-  \end{columns}
-  \vspace{0.2em}
-  \begin{center}\scriptsize\color{muted}
-    Légende des figures : « S5 » $=$ EWC $=$ Stratégie 4 ; « S3 » $=$ Curriculum $=$ Stratégie 3.
-  \end{center}
-\end{frame}
 
-% -------------------- RÉSULTATS : PARETO --------------------
-\begin{frame}{Résultats — le compromis coût / performance}
-  \begin{columns}[c]
-    \begin{column}{0.62\textwidth}
-      \centering
-      \includegraphics[width=\linewidth, height=5.8cm, keepaspectratio]{figures/pareto_cout_hf.png}
-    \end{column}
-    \begin{column}{0.37\textwidth}
-      \begin{key}
-        Les stratégies forment la \textbf{frontière efficiente} : aucune baseline ne les
-        domine en précision \emph{et} en coût.
-      \end{key}
-      \vspace{0.5em}
-      \footnotesize
-      \textbf{Résultat clé :} on \textbf{dépasse} la borne haute (BL\,3) sur HF
-      \textbf{tout en divisant le coût total par $\approx$\,2}\\[2pt]
-      \scriptsize\color{muted}(Animals : 400\,230 vs 894\,660 CA, à coût \emph{donnée} identique).
-    \end{column}
-  \end{columns}
+% -------------------- RÉSULTATS : TABLEAU DE SYNTHÈSE --------------------
+\begin{frame}{Résultats — synthèse globale (BL\,3 + 4 stratégies)}
+  \centering
+  \vspace*{-0.45cm}
+  \scriptsize
+  \setlength{\tabcolsep}{4pt}\renewcommand{\arraystretch}{0.92}
+  \begin{tabularx}{\linewidth}{@{}l *{5}{>{\centering\arraybackslash}X}@{}}
+    \toprule
+    \rowcolor{headerbg}
+    \textbf{Modèle} & \textbf{HF} & \textbf{BF} & \textbf{Mixte} & \textbf{Coût donnée} & \textbf{Coût total}\\
+    \midrule
+    \multicolumn{6}{l}{\textit{\textbf{Animals-10}}}\\
+    BL\,3 (Mixte) & \res{74,0}{3,0} & \res{72,9}{1,1} & \res{73,4}{2,0} & 44\,733 & 894\,660\\
+    Stratégie 1   & \res{77,7}{0,6} & \res{68,3}{0,5} & \res{73,0}{0,3} & 44\,733 & 400\,230\\
+    Stratégie 2   & \res{63,8}{5,2} & \res{61,0}{4,2} & \res{62,4}{4,7} & 44\,733 & 486\,720\\
+    Stratégie 3   & \res{76,5}{0,2} & \res{73,1}{0,1} & \res{74,8}{0,1} & 44\,733 & 421\,265\\
+    \textbf{Stratégie 4 (EWC)} & \textbf{\res{78,0}{0,3}} & \res{68,8}{0,7} & \res{73,4}{0,4} & 44\,733 & \textbf{400\,230}\\
+    \midrule
+    \multicolumn{6}{l}{\textit{\textbf{Imagewoof}}}\\
+    BL\,3 (Mixte) & \res{50,3}{2,5} & \res{48,8}{2,3} & \res{49,6}{2,4} & 17\,116 & 342\,320\\
+    Stratégie 1   & \res{51,0}{1,6} & \res{44,7}{1,3} & \res{47,9}{1,5} & 17\,116 & 153\,160\\
+    Stratégie 2   & \res{37,5}{0,8} & \res{37,4}{0,3} & \res{37,5}{0,2} & 17\,116 & 183\,040\\
+    Stratégie 3   & \res{47,5}{1,4} & \res{46,1}{1,1} & \res{46,8}{1,2} & 17\,116 & 158\,880\\
+    \textbf{Stratégie 4 (EWC)} & \textbf{\res{53,3}{0,7}} & \res{46,8}{0,6} & \res{50,0}{0,6} & 17\,116 & \textbf{153\,160}\\
+    \midrule
+    \multicolumn{6}{l}{\textit{\textbf{Intel}}}\\
+    BL\,3 (Mixte) & \res{82,8}{1,2} & \res{82,1}{1,2} & \res{82,5}{1,2} & 26\,652 & 533\,040\\
+    \textbf{Stratégie 1}   & \textbf{\res{86,1}{0,4}} & \res{79,1}{1,4} & \res{82,6}{0,7} & 26\,652 & \textbf{238\,420}\\
+    Stratégie 2   & \res{82,0}{1,0} & \res{79,8}{0,9} & \res{80,9}{0,9} & 26\,652 & 291\,200\\
+    Stratégie 3   & \res{84,6}{1,0} & \res{82,6}{1,5} & \res{83,6}{1,2} & 26\,652 & 250\,880\\
+    Stratégie 4 (EWC) & \res{85,8}{0,4} & \res{80,0}{0,9} & \res{82,9}{0,6} & 26\,652 & 238\,420\\
+    \bottomrule
+  \end{tabularx}
+
+  \vspace{0.25em}
+  {\tiny\color{muted} En gras : meilleur \textbf{Test HF} par dataset. Coût \emph{donnée} identique (pool complet) ; les stratégies se départagent sur le \textbf{coût total}.}
 \end{frame}
 
 % -------------------- OPTUNA --------------------
@@ -416,36 +409,49 @@
   \end{columns}
 \end{frame}
 
-% -------------------- ANALYSES TRANSVERSALES --------------------
-\begin{frame}{Robustesse \& sensibilité au coût}
-  \begin{columns}[T]
-    \begin{column}{0.5\textwidth}
-      \begin{card}[Robustesse à la dégradation]
-        \footnotesize
-        Test sur données \emph{encore plus} dégradées :
-        \begin{itemize}\setlength{\itemsep}{1pt}
-          \item Arbitrage \textbf{précision-propre vs robustesse}.
-          \item EWC / S1 : meilleurs sur données propres.
-          \item \textbf{Curriculum : le plus robuste} sous forte dégradation.
-        \end{itemize}
-      \end{card}
+% -------------------- RÉSULTATS : PRÉCISION HF --------------------
+\begin{frame}{Résultats — précision HF par modèle}
+  \centering
+  \includegraphics[width=\linewidth, height=6.9cm, keepaspectratio]{figures/hf_par_modele.png}
+
+  \vspace{0.35em}
+  {\scriptsize\color{muted} Légende des figures : « S5 » $=$ EWC $=$ Stratégie 4 ; « S3 » $=$ Curriculum $=$ Stratégie 3.}
+\end{frame}
+
+% -------------------- RÉSULTATS : PARETO --------------------
+\begin{frame}{Résultats — le compromis coût / performance}
+  \centering
+  \includegraphics[width=\linewidth, height=6.5cm, keepaspectratio]{figures/pareto_cout_hf.png}
+
+  \vspace{0.35em}
+  {\scriptsize Les stratégies forment la \textbf{frontière efficiente} : on \textbf{dépasse} la borne haute (BL\,3) sur HF tout en \textbf{divisant le coût total par $\approx$2} (Animals : 400\,230 vs 894\,660 CA, à coût \emph{donnée} identique).}
+\end{frame}
+
+
+% -------------------- ROBUSTESSE À LA DÉGRADATION --------------------
+\begin{frame}{Robustesse à la dégradation}
+  \begin{columns}[c]
+    \begin{column}{0.40\textwidth}
+      \footnotesize
+      Évaluation sur des données \emph{encore plus} dégradées que l'entraînement
+      (résolution $\downarrow$, bruit $\uparrow$) :
+      \begin{itemize}\setlength{\itemsep}{3pt}
+        \item Arbitrage \textbf{précision-propre vs robustesse}.
+        \item EWC / S1 : meilleurs sur données \emph{propres}.
+        \item \textbf{Curriculum : le plus robuste} sous forte dégradation.
+        \item BL\,2 (BF) : robuste à la perte de résolution, mais fragile au bruit fort.
+      \end{itemize}
     \end{column}
-    \begin{column}{0.5\textwidth}
-      \begin{card}[Sensibilité au ratio de coût HF:BF]
-        \footnotesize
-        En faisant varier le ratio (2 $\rightarrow$ 50) :
-        \begin{itemize}\setlength{\itemsep}{1pt}
-          \item Le classement \emph{d'efficience} \textbf{n'est pas robuste}
-          (BL\,1 si HF bon marché, BL\,2 si HF cher).
-          \item Mais la \textbf{dominance en précision HF absolue} des stratégies, elle, \textbf{l'est}.
-        \end{itemize}
-      \end{card}
+    \begin{column}{0.58\textwidth}
+      \centering
+      \includegraphics[width=\linewidth, height=5.0cm, keepaspectratio]{figures/robustness_degradation_animals10.png}\\[2pt]
+      {\scriptsize\color{muted} Exemple Animals-10 — résolution (gauche), bruit (droite). « S5 » $=$ EWC, « S3 » $=$ Curriculum.}
     \end{column}
   \end{columns}
-  \vspace{0.4em}
+  \vspace{0.3em}
   \begin{key}
     \small La supériorité des stratégies multi-fidélité en \textbf{précision HF} est confirmée
-    sous \textbf{multi-graines}, \textbf{3 datasets} et ces analyses transversales.
+    sous \textbf{multi-graines} et sur les \textbf{3 datasets}.
   \end{key}
 \end{frame}
 
@@ -471,12 +477,11 @@
       \end{itemize}
     \end{column}
     \begin{column}{0.5\textwidth}
-      \textbf{Limites \& perspectives}
+      \textbf{Perspectives}
       \begin{itemize}
-        \item ResNet-18 \emph{from scratch}, dégradation unique, 20 époques / 20 essais.
-        \item Backbones \textbf{pré-entraînés} (ImageNet).
-        \item \textbf{Hybrider} EWC $+$ curriculum.
-        \item Optuna \textbf{multi-objectif}.
+        \item Optuna \textbf{multi-objectif} (précision \emph{et} coût).
+        \item Autres \textbf{architectures} de réseau (ResNet-34, EfficientNet…).
+        \item \textbf{Élargissements} : plus de datasets, de stratégies, de niveaux de fidélité, plus d'époques et d'essais Optuna.
       \end{itemize}
     \end{column}
   \end{columns}
