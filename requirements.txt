@@ -1,0 +1,22 @@
+# Apprentissage profond multi-fidélité (PF22) — dépendances Python
+# Versions volontairement non figées (compatibilité CUDA selon la machine).
+
+# Cœur deep learning
+torch
+torchvision
+
+# Optimisation d'hyperparamètres et suivi d'expériences
+optuna
+wandb
+
+# Données, calcul et visualisation
+numpy
+pandas
+matplotlib
+Pillow
+tqdm
+
+# Notebooks et exécution non-interactive
+jupyter
+nbconvert
+ipykernel
